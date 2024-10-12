@@ -17,7 +17,7 @@ public interface IApplicationDbContext
     DbSet<Tenant> Tenants { get; set; }
     DbSet<Contact> Contacts { get; set; }
     ChangeTracker ChangeTracker { get; }
-
+    DbSet<Allergy> Allergies { get; set; }
     DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

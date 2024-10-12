@@ -1,0 +1,84 @@
+﻿@page "/pages/Allergies/create"
+@using CleanArchitecture.Blazor.Application.Features.Allergies.Commands.Create
+
+@inherits MudComponentBase
+@inject IValidationService Validator
+@inject IStringLocalizer<Allergies> L
+
+<PageTitle>@Title</PageTitle>
+<Breadcrumbs OnSaveButtonClick="Submit" Saving="_saving" BreadcrumbItems="_breadcrumbItems"></Breadcrumbs>
+<MudContainer Class="mt-3" MaxWidth="MaxWidth.Small">
+    <MudCard Class="pa-2">
+        <MudCardHeader>
+            <CardHeaderContent>
+                 <MudText Typo="Typo.h6">@Title</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+        <MudForm Model="@model" @ref="@_form" Validation="@(Validator.ValidateValue(model))">
+            <MudGrid>
+                <MudItem xs="12" md="6"> 
+                        <MudTextField Label="@L[model.GetMemberDescription(x=>x.AllergyType)]" @bind-Value="model.AllergyType" For="@(() => model.AllergyType)" Required="false" RequiredError="@L["allergy type is required!"]"></MudTextField>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudTextField Label="@L[model.GetMemberDescription(x=>x.Comments)]" @bind-Value="model.Comments" For="@(() => model.Comments)" Required="false" RequiredError="@L["comments is required!"]"></MudTextField>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[model.GetMemberDescription(x=>x.PatientId)]" @bind-Value="model.PatientId" For="@(() => model.PatientId)" Min="0" Required="false" RequiredError="@L["patient id is required!"]"></MudNumericField >
+                </MudItem> 
+
+            </MudGrid>
+        </MudForm>
+        </MudCardContent>
+         <MudCardActions Class="d-flex justify-end gap-2">
+                    <MudLoadingButton Color="Color.Primary" DropShadow="false" Loading="@_saving" Variant="Variant.Outlined" OnClick="Submit">@ConstantString.Save</MudLoadingButton>
+         </MudCardActions>
+        </MudCard>
+</MudContainer>
+ 
+
+@code {
+    public string? Title { get; private set; }
+    MudForm? _form;
+    private bool _saving = false;
+    private bool _savingnew = false;
+    private List<BreadcrumbItem> _breadcrumbItems = new List<BreadcrumbItem>
+    {
+        new BreadcrumbItem("Home", href: "/"),
+        new BreadcrumbItem("Allergies", href: "/pages/Allergies"),
+        new BreadcrumbItem("Create Allergy", href:null, disabled:true)
+    };
+    private CreateAllergyCommand model = new();
+    protected override Task OnInitializedAsync()
+    {
+        Title = L["Create Allergy"];
+        return Task.CompletedTask;
+    }
+    async Task Submit()
+    {
+        try
+        {
+            _saving = true;
+            await _form!.Validate().ConfigureAwait(false);
+            if (!_form!.IsValid)
+                return;
+            var result = await Mediator.Send(model);
+            result.Match(
+                data=>
+                {
+                    Snackbar.Add(ConstantString.SaveSuccess, MudBlazor.Severity.Info);
+                    Navigation.NavigateTo($"/pages/Allergies");
+                    return data;
+                },
+                errors=>
+                {
+                    Snackbar.Add(errors, MudBlazor.Severity.Error);
+                    return -1;
+                });
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}

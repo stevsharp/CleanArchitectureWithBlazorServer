@@ -1,0 +1,392 @@
+﻿@page "/pages/Allergies"
+
+@using BlazorDownloadFile
+@using CleanArchitecture.Blazor.Application.Features.Allergies.Caching
+@using CleanArchitecture.Blazor.Application.Features.Allergies.DTOs
+@using CleanArchitecture.Blazor.Application.Features.Allergies.Specifications
+@using CleanArchitecture.Blazor.Application.Features.Allergies.Commands.Delete
+@using CleanArchitecture.Blazor.Application.Features.Allergies.Commands.Import
+@using CleanArchitecture.Blazor.Application.Features.Allergies.Queries.Export
+@using CleanArchitecture.Blazor.Application.Features.Allergies.Queries.Pagination
+@using CleanArchitecture.Blazor.Application.Features.Allergies.Commands.AddEdit
+@using CleanArchitecture.Blazor.Server.UI.Pages.Allergies.Components
+
+@inject IStringLocalizer<Allergies> L
+@attribute [Authorize(Policy = Permissions.Allergies.View)]
+<PageTitle>@Title</PageTitle>
+<style>
+    .mud-table-toolbar {
+        height: 120px !important;
+    }
+</style>
+
+<MudDataGrid ServerData="@(ServerReload)"
+                  FixedHeader="true"
+                  FixedFooter="true"
+                  Virtualize="true"
+                  @bind-RowsPerPage="_defaultPageSize"
+                  Height="calc(100vh - 330px)"
+                  Loading="@_loading"
+                  MultiSelection="true"
+                  T="AllergyDto"
+                  SelectOnRowClick="false"
+                  RowClick="@(s=>OnView(s.Item))"
+                  @bind-SelectedItems="_selectedItems"
+                  @bind-SelectedItem="_currentDto"
+                  Hover="true" @ref="_table">
+            <ToolBarContent>
+                 <div class="d-flex align-start flex-grow-1">
+                        <div class="d-flex gap-4">
+                            <MudIcon Icon="@Icons.Material.Filled.Window" Size="Size.Large" />
+                            <div class="d-flex flex-column">
+                                <MudText Typo="Typo.caption" Class="mb-2">@Title</MudText>
+                                <MudEnumSelect Style="min-width:120px" TEnum="AllergyListView" ValueChanged="OnChangedListView" Value="Query.ListView" Dense="true" Label="List View">
+                                </MudEnumSelect>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1" />
+
+                        <div class="d-flex flex-column justify-end">
+                            <div class="d-flex gap-1">
+                             <MudHidden Breakpoint="Breakpoint.SmAndDown">
+                                <MudButton  Variant="Variant.Outlined"
+                                           Size="Size.Small"
+                                           Disabled="@_loading"
+                                           OnClick="@(()=>OnRefresh())"
+                                           StartIcon="@Icons.Material.Filled.Refresh" IconColor="Color.Surface" Color="Color.Primary"
+                                           >@ConstantString.Refresh</MudButton>
+                                @if (_canCreate)
+                                {
+                                    <MudButton  Variant="Variant.Outlined" Color="Color.Primary"
+                                           StartIcon="@Icons.Material.Filled.Add"
+                                           Size="Size.Small"
+                                           Disabled="@_loading"
+                                           OnClick="OnCreate"
+                                           IconColor="Color.Surface">@ConstantString.New</MudButton>
+                                    <MudButton  Variant="Variant.Outlined" Color="Color.Primary"
+                                               StartIcon="@Icons.Material.Filled.ContentCopy"
+                                               Size="Size.Small"
+                                               Disabled="@(_selectedItems.Count!=1)"
+                                               OnClick="OnClone"
+                                               IconColor="Color.Surface">@ConstantString.Clone</MudButton>
+                                }
+                                @if (_canDelete)
+                                {
+                                    <MudButton  Variant="Variant.Outlined" Color="Color.Error"
+                                           StartIcon="@Icons.Material.Filled.Delete"
+                                           Disabled="@(!(_selectedItems.Count>0))"
+                                           Size="Size.Small"
+                                           OnClick="OnDeleteChecked"
+                                           IconColor="Color.Surface">@ConstantString.Delete</MudButton>
+                                }
+                                @if (_canExport)
+                                {
+                                    <MudLoadingButton @bind-Loading="_exporting"  Variant="Variant.Outlined" Color="Color.Primary"
+                                                  Label="@ConstantString.Export"
+                                                  Disabled="@_loading"
+                                                  StartIcon="@Icons.Custom.FileFormats.FileExcel"
+                                                  Size="Size.Small"
+                                                  OnClick="OnExport"
+                                                  IconColor="Color.Surface">
+                                    @ConstantString.Export
+                                    </MudLoadingButton>
+                                }
+                                @if (_canImport)
+                                {
+                                    <MudFileUpload T="IBrowserFile" FilesChanged="OnImportData" Accept=".xlsx" Style="margin-top:0px" >
+                                        <ActivatorContent>
+                                            <MudButton HtmlTag="label"
+                                                   Size="Size.Small"
+                                                   Variant="Variant.Outlined"
+                                                   Color="Color.Primary"
+                                                   Disabled="@_loading"
+                                                   StartIcon="@Icons.Material.Filled.Upload">
+                                                @if (_uploading)
+                                                {
+                                                    <MudProgressCircular  Size="Size.Small" Indeterminate="true" />
+                                                    @ConstantString.Uploading
+                                                }
+                                                else
+                                                {
+                                                    @ConstantString.Import
+                                                }
+                                            </MudButton>
+                                        </ActivatorContent>
+                                    </MudFileUpload>
+                                }
+                            </MudHidden>
+                             <MudHidden Breakpoint="Breakpoint.SmAndDown" Invert="true">
+                                @if (_canCreate)
+                                {
+                                    <MudButton  Variant="Variant.Outlined" Color="Color.Primary"
+                                           StartIcon="@Icons.Material.Filled.Add"
+                                           Size="Size.Small"
+                                           Disabled="@_loading"
+                                           OnClick="OnCreate"
+                                           IconColor="Color.Surface">@ConstantString.New</MudButton>
+                                }
+                                @if (_canDelete)
+                                {
+                                    <MudButton  Variant="Variant.Outlined" Color="Color.Error"
+                                           StartIcon="@Icons.Material.Filled.Delete"
+                                           Disabled="@(!(_selectedItems.Count>0))"
+                                           Size="Size.Small"
+                                           OnClick="OnDeleteChecked"
+                                           IconColor="Color.Surface">@ConstantString.Delete</MudButton>
+                                }
+                            </MudHidden>
+                            </div>
+                            @if (_canSearch)
+                            {
+                            <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Value="@Query.Keyword" Placeholder="@ConstantString.Search" Adornment="Adornment.End"
+                                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Small"></MudTextField>
+                            }
+                    
+                        </div>
+                    </div>
+            </ToolBarContent>
+            <Columns>
+                <SelectColumn ShowInFooter="false"></SelectColumn>
+                <TemplateColumn HeaderStyle="width:60px" Title="@ConstantString.Actions" Sortable="false">
+                    <CellTemplate>
+                        @if (_canEdit || _canDelete)
+                        {
+                            <MudMenu Icon="@Icons.Material.Filled.Edit" Variant="Variant.Filled" Size="Size.Small"
+                                     Dense="true"
+                                     EndIcon="@Icons.Material.Filled.KeyboardArrowDown" IconColor="Color.Info" AnchorOrigin="Origin.CenterLeft">
+                                @if (_canEdit)
+                                {
+                                    <MudMenuItem OnClick="@(()=>OnEdit(context.Item))">@ConstantString.Edit</MudMenuItem>
+                                }
+                                @if (_canDelete)
+                                {
+                                    <MudMenuItem OnClick="@(()=>OnDelete(context.Item))">@ConstantString.Delete</MudMenuItem>
+                                }
+                            </MudMenu>
+                        }
+                        else
+                        {
+                            <MudIconButton Variant="Variant.Filled"  
+                                       Disabled="true"
+                                       Icon="@Icons.Material.Filled.DoNotTouch"
+                                       Size="Size.Small"
+                                       Color="Color.Surface">
+                                @ConstantString.NoAllowed
+                            </MudIconButton>
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
+                @*TODO: Define the fields that should be displayed in data table*@
+                                <PropertyColumn Property="x => x.AllergyType" Title="@L[_currentDto.GetMemberDescription(x=>x.AllergyType)]" />
+                <PropertyColumn Property="x => x.Comments" Title="@L[_currentDto.GetMemberDescription(x=>x.Comments)]" />
+                <PropertyColumn Property="x => x.PatientId" Title="@L[_currentDto.GetMemberDescription(x=>x.PatientId)]" />
+
+            </Columns>
+            <NoRecordsContent>
+                <MudText>@ConstantString.NoRecords</MudText>
+            </NoRecordsContent>
+            <LoadingContent>
+                <MudText>@ConstantString.Loading</MudText>
+            </LoadingContent>
+            <PagerContent>
+                <MudDataGridPager PageSizeOptions="@(new int[]{10,15,30,50,100,500,1000})" />
+            </PagerContent>
+</MudDataGrid>
+
+
+
+@code {
+    public string? Title { get; private set; }
+    private int _defaultPageSize = 15;
+    private HashSet<AllergyDto> _selectedItems = new HashSet<AllergyDto>();
+    private MudDataGrid<AllergyDto> _table = default!;
+    private AllergyDto _currentDto = new();
+    private bool _loading;
+    private bool _uploading;
+    private bool _downloading;
+    private bool _exporting;
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthState { get; set; } = default!;
+    [CascadingParameter]
+    private UserProfile? UserProfile { get; set; }
+    [CascadingParameter(Name = "LocalTimezoneOffset")]
+    private TimeSpan _localTimezoneOffset { get; set; }
+
+    private AllergiesWithPaginationQuery Query { get; set; } = new();
+    [Inject]
+    private IBlazorDownloadFileService BlazorDownloadFileService { get; set; } = null!;
+    private bool _canSearch;
+    private bool _canCreate;
+    private bool _canEdit;
+    private bool _canDelete;
+    private bool _canImport;
+    private bool _canExport;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Title = L[_currentDto.GetClassDescription()];
+        var state = await AuthState;
+        _canCreate = (await AuthService.AuthorizeAsync(state.User, Permissions.Allergies.Create)).Succeeded;
+        _canSearch = (await AuthService.AuthorizeAsync(state.User, Permissions.Allergies.Search)).Succeeded;
+        _canEdit   = (await AuthService.AuthorizeAsync(state.User, Permissions.Allergies.Edit)).Succeeded;
+        _canDelete = (await AuthService.AuthorizeAsync(state.User, Permissions.Allergies.Delete)).Succeeded;
+        _canImport = (await AuthService.AuthorizeAsync(state.User, Permissions.Allergies.Import)).Succeeded;
+        _canExport = (await AuthService.AuthorizeAsync(state.User, Permissions.Allergies.Export)).Succeeded;
+    }
+    private async Task<GridData<AllergyDto>> ServerReload(GridState<AllergyDto> state)
+    {
+        try
+        {
+            _loading = true;
+            Query.CurrentUser = UserProfile;
+            Query.OrderBy = state.SortDefinitions.FirstOrDefault()?.SortBy ?? "Id";
+            Query.SortDirection = state.SortDefinitions.FirstOrDefault()?.Descending ?? true ? SortDirection.Descending.ToString() : SortDirection.Ascending.ToString();
+            Query.PageNumber = state.Page + 1;
+            Query.PageSize = state.PageSize;
+            Query.LocalTimezoneOffset = _localTimezoneOffset;
+            var result = await Mediator.Send(Query).ConfigureAwait(false);
+            return new GridData<AllergyDto>() { TotalItems = result.TotalItems, Items = result.Items };
+        }
+        finally
+        {
+            _loading = false;
+        }
+
+    }
+    private async Task OnSearch(string text)
+    {
+        _selectedItems = new();
+        Query.Keyword = text;
+        await _table.ReloadServerData();
+    }
+    private async Task OnChangedListView(AllergyListView listview)
+    {
+        Query.ListView = listview;
+        await _table.ReloadServerData();
+    }
+    private async Task OnRefresh()
+    {
+        AllergyCacheKey.Refresh();
+        _selectedItems = new();
+        Query.Keyword  = string.Empty;
+        await _table.ReloadServerData();
+    }
+    private async Task ShowEditFormDialog(string title, AddEditAllergyCommand command)
+    {
+        var parameters = new DialogParameters<AllergyFormDialog>
+            {
+                { x=>x.model,command },
+            };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var dialog = DialogService.Show<AllergyFormDialog>(title, parameters, options);
+        var state = await dialog.Result;
+
+        if (state != null && !state.Canceled)
+        {
+            await _table.ReloadServerData();
+            _selectedItems.Clear();
+        }
+    }
+    private void OnView(AllergyDto dto)
+    {
+        Navigation.NavigateTo($"/pages/Allergies/view/{dto.Id}");
+    }
+    private async Task OnCreate()
+    {
+        var command = new AddEditAllergyCommand();
+        await ShowEditFormDialog(string.Format(ConstantString.CreateAnItem, L["Allergy"]), command);
+    }
+    private async Task OnClone()
+    {
+        var dto = _selectedItems.First();
+        var command = Mapper.Map<AllergyDto, AddEditAllergyCommand>(dto, opts =>
+        {
+           opts.AfterMap((src, dest) =>
+           {
+               dest.Id = 0;
+           });
+        });
+        await ShowEditFormDialog(string.Format(ConstantString.CreateAnItem, L["Allergy"]), command);
+    }
+    private async Task OnEdit(AllergyDto dto)
+    {
+        var command = Mapper.Map<AddEditAllergyCommand>(dto);
+        await ShowEditFormDialog(string.Format(ConstantString.EditTheItem, L["Allergy"]), command);
+    }
+
+    private async Task OnDelete(AllergyDto dto)
+    {
+        var contentText = string.Format(ConstantString.DeleteConfirmation, dto.AllergyType);
+        var command = new DeleteAllergyCommand(new int[] { dto.Id });
+        await DialogServiceHelper.ShowDeleteConfirmationDialogAsync(command, ConstantString.DeleteConfirmationTitle, contentText,async () =>
+        {
+            await InvokeAsync(async () =>
+            {
+                await _table.ReloadServerData();
+                _selectedItems.Clear();
+            });
+        });
+    }
+
+    private async Task OnDeleteChecked()
+    {
+        var contentText = string.Format(ConstantString.DeleteConfirmWithSelected, _selectedItems.Count);
+        var command = new DeleteAllergyCommand(_selectedItems.Select(x => x.Id).ToArray());
+        await DialogServiceHelper.ShowDeleteConfirmationDialogAsync(command, ConstantString.DeleteConfirmationTitle, contentText,async () =>
+        {
+            await InvokeAsync(async () =>
+            {
+                await _table.ReloadServerData();
+                _selectedItems.Clear();
+            });
+        });
+    }
+
+    private async Task OnExport()
+    {
+        _exporting = true;
+        var request = new ExportAllergiesQuery()
+            {
+                Keyword = Query.Keyword,
+                CurrentUser = UserProfile,
+                ListView = Query.ListView,
+                OrderBy = _table.SortDefinitions.Values.FirstOrDefault()?.SortBy ?? "Id",
+                SortDirection = (_table.SortDefinitions.Values.FirstOrDefault()?.Descending ?? true) ? SortDirection.Descending.ToString() : SortDirection.Ascending.ToString()
+            };
+        var result = await Mediator.Send(request);
+        await result.MatchAsync<byte[]>(
+            async data =>
+            {
+                var downloadresult = await BlazorDownloadFileService.DownloadFile($"{L["Allergies"]}.xlsx", result.Data, contentType:"application/octet-stream");
+                Snackbar.Add($"{ConstantString.ExportSuccess}", MudBlazor.Severity.Info);
+                return data;
+            },
+            errors =>
+            {
+                Snackbar.Add($"{errors}", MudBlazor.Severity.Error);
+                return Task.FromResult(Array.Empty<byte>());
+            });
+        _exporting = false;
+    }
+    private async Task OnImportData(IBrowserFile file)
+    {
+        _uploading = true;
+        var stream = new MemoryStream();
+        await file.OpenReadStream().CopyToAsync(stream);
+        var command = new ImportAllergiesCommand(file.Name, stream.ToArray());
+        var result = await Mediator.Send(command);
+        await result.MatchAsync(
+            async data =>
+            {
+                await _table.ReloadServerData();
+                Snackbar.Add($"{ConstantString.ImportSuccess}", MudBlazor.Severity.Info);
+                return data;
+            }, errors =>
+            {
+                Snackbar.Add($"{errors}", MudBlazor.Severity.Error);
+                return Task.FromResult(0);
+            });
+        _uploading = false;
+    }
+
+}
