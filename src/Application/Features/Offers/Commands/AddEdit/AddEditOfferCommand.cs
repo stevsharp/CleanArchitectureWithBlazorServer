@@ -70,7 +70,7 @@ public class AddEditOfferCommandHandler : IRequestHandler<AddEditOfferCommand, R
                     return await Result<int>.FailureAsync($"Offer with id: [{request.Id}] not found.");
                 }
 
-                request?.OfferLines?.ForEach(x => x.Product = null);
+                //request?.OfferLines?.ForEach(x => x.Product = null);
 
                 OfferMapper.ApplyChangesFrom(request, item);
                 // raise a update domain event

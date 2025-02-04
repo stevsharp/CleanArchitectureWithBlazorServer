@@ -354,7 +354,7 @@
                               PaymentType = dto.PaymentType,
                               ShippingCosts = dto.ShippingCosts,
                               ShippingMethod = dto.ShippingMethod,
-                              TotalAmount = dto.TotalAmount,
+                              TotalAmount = dto.OfferLines.Sum(x => x.LineTotal),
                               Design = dto.Design,
                               InvoiceLines = new List<Application.Features.InvoiceLines.DTOs.InvoiceLineDto>()
                           };
