@@ -19,4 +19,6 @@ public class Invoice : BaseAuditableEntity
     public List<InvoiceLine> InvoiceLines { get; set; } = [];
     public virtual Offer? Offer { get; set; }
     public virtual Supplier? Supplier { get; set; }
+
+    public ICollection<Step> Steps { get; set; } = [];
 }

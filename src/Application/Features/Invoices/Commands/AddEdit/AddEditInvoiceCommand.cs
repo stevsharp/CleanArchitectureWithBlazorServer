@@ -14,13 +14,34 @@ public class AddEditInvoiceCommand : ICacheInvalidatorRequest<Result<int>>
     public DateTime? InvoiceDate { get; set; }
     [Description("Total amount")]
     public decimal TotalAmount { get; set; }
+
+    [Description("ShippingCosts")]
+    public decimal ShippingCosts { get; set; }
+
     [Description("Status")]
     public string? Status { get; set; }
+
+    [Description("PaymentType")]
+    public string? PaymentType { get; set; } = "Cash";
+
+    [Description("Draft")]
+    public int? Draft { get; set; }
+
+    [Description("StatDesignus")]
+    public string? Design { get; set; }
+
+    [Description("ShippingMethod")]
+    public string? ShippingMethod { get; set; }
+
+
+    [Description("Packaging")]
+    public int? Packaging { get; set; }
+
     [Description("Invoice lines")]
     public List<InvoiceLineDto>? InvoiceLines { get; set; } = [];
 
     [Description("Supplier Id")]
-    public int SupplierId { get; set; } 
+    public int SupplierId { get; set; }
 
 
     public string CacheKey => InvoiceCacheKey.GetAllCacheKey;
@@ -47,7 +68,7 @@ public class AddEditInvoiceCommandHandler : IRequestHandler<AddEditInvoiceComman
                     return await Result<int>.FailureAsync($"Invoice with id: [{request.Id}] not found.");
                 }
                 InvoiceMapper.ApplyChangesFrom(request, item);
-                
+
                 // raise a update domain event
                 //item.AddDomainEvent(new InvoiceUpdatedEvent(item));
                 await _context.SaveChangesAsync(cancellationToken);
@@ -62,7 +83,56 @@ public class AddEditInvoiceCommandHandler : IRequestHandler<AddEditInvoiceComman
                 item.InvoiceLines.ForEach(x => x.Product = null);
 
                 _context.Invoices.Add(item);
+
+                var steps = new List<Step>
+                {
+                    new() {
+                        Name = "Make Deposit",
+                        StepOrder = 1,
+                        Invoice = item,
+                        IsCompleted = false,
+                        Comments =
+                        [
+                            new Comment { Content = "Deposit required to start the process." }
+                        ]
+                    },
+                    new() {
+                        Name = "Create Product",
+                        StepOrder = 2,
+                        Invoice = item,
+                        IsCompleted = false,
+                        Comments =
+                        [
+                            new Comment { Content = "Deposit required to start the process." }
+                        ]
+                    },
+                    new() {
+                        Name = "Print",
+                        StepOrder = 3, // Changed to avoid duplicate StepOrder
+                        Invoice = item,
+                        IsCompleted = false,
+                        Comments =
+                        [
+                            new Comment { Content = "Deposit required to start the process." }
+                        ]
+                    },
+                    new() {
+                        Name = "Approve Order",
+                        StepOrder = 4, // Incremented to maintain sequence
+                        Invoice = item,
+                        IsCompleted = false,
+                        Comments =
+                        [
+                            new Comment { Content = "Final approval is required from the manager." }
+                        ]
+                    }
+                };
+
+                // Add steps in a single operation
+                _context.Steps.AddRange(steps);
+
                 await _context.SaveChangesAsync(cancellationToken);
+
                 return await Result<int>.SuccessAsync(item.Id);
             }
         }

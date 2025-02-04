@@ -44,6 +44,8 @@ public class AddEditOfferCommand: ICacheInvalidatorRequest<Result<int>>
     [Description("PaymentType")]
     public string? PaymentType { get; set; } = "Cash";
 
+    // TODO: Add WAS CREATED INVOICE ID
+
     public string CacheKey => OfferCacheKey.GetAllCacheKey;
       public IEnumerable<string>? Tags => OfferCacheKey.Tags;
 }

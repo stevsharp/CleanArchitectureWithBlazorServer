@@ -21,7 +21,7 @@ public class OfferDto
     [Description("Status")]
     public string? Status { get; set; }
 
-    [Description("Status")]
+    [Description("PaymentType")]
     public string? PaymentType { get; set; } = "Cash";
 
     [Description("Packaging")]

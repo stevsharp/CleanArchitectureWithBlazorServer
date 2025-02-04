@@ -16,6 +16,26 @@ public record InvoiceDto
     public decimal TotalAmount { get; set; }
     [Description("Status")]
     public string? Status { get; set; }
+
+    [Description("ShippingCosts")]
+    public decimal ShippingCosts { get; set; }
+
+    [Description("PaymentType")]
+    public string? PaymentType { get; set; } = "Cash";
+
+    [Description("Draft")]
+    public int? Draft { get; set; }
+
+    [Description("StatDesignus")]
+    public string? Design { get; set; }
+
+    [Description("ShippingMethod")]
+    public string? ShippingMethod { get; set; }
+
+
+    [Description("Packaging")]
+    public int? Packaging { get; set; }
+
     [Description("Invoice lines")]
     public List<InvoiceLineDto>? InvoiceLines { get; set; }
 

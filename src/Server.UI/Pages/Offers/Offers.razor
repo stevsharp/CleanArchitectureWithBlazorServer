@@ -348,7 +348,15 @@
                               InvoiceDate = DateTime.Now,
                               OfferId = dto.Id,
                               Status = invoicetype?.Text,
-                              SupplierId = group.Key
+                              SupplierId = group.Key,
+                              Draft = dto.Draft,
+                              Packaging = dto.Packaging,
+                              PaymentType = dto.PaymentType,
+                              ShippingCosts = dto.ShippingCosts,
+                              ShippingMethod = dto.ShippingMethod,
+                              TotalAmount = dto.TotalAmount,
+                              Design = dto.Design,
+                              InvoiceLines = new List<Application.Features.InvoiceLines.DTOs.InvoiceLineDto>()
                           };
 
                       foreach (var pair in group.Value)

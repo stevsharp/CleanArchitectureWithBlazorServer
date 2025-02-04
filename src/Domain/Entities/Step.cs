@@ -9,5 +9,6 @@ public class Step : BaseAuditableEntity
     public bool IsCompleted { get; set; }
     public int StepOrder { get; set; }
     public ICollection<Comment> Comments { get; set; } = [];
+    public Invoice Invoice { get; set; } = null!;
 }
 

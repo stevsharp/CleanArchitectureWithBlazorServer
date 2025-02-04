@@ -26,8 +26,14 @@ public class StepConfiguration : IEntityTypeConfiguration<Step>
         builder.Property(s => s.StepOrder)
             .IsRequired();
 
+        builder.HasOne(s => s.Invoice)
+              .WithMany(o => o.Steps)
+              .HasForeignKey(s => s.InvoiceId);
+
         builder.OwnsMany(s => s.Comments, c =>
         {
+            c.ToTable("Comments");
+
             // Ensuring Comments reference Step
             c.WithOwner().HasForeignKey(c => c.StepId);
 
