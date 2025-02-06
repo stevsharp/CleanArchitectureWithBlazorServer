@@ -56,7 +56,7 @@
                     {
                         <MudTooltip Text="@L["Click to change status to active."]" Delay="300">
                             <MudSwitch T="bool" Value="context.Item.IsCompleted" ValueChanged="@(()=>SetActive(context.Item))"
-                                       ThumbIcon="@Icons.Material.Filled.Close" ThumbIconColor="Color.Error">
+                            ThumbIcon="@Icons.Material.Filled.Close" ThumbIconColor="Color.Error">
                             </MudSwitch>
                         </MudTooltip>
                     }
@@ -64,7 +64,7 @@
                     {
                         <MudTooltip Text="@L["Click to change status to inactive."]" Delay="300">
                             <MudSwitch T="bool" Value="context.Item.IsCompleted" ValueChanged="@(()=>SetActive(context.Item))"
-                                       ThumbIcon="@Icons.Material.Filled.Done" ThumbIconColor="Color.Success">
+                            ThumbIcon="@Icons.Material.Filled.Done" ThumbIconColor="Color.Success">
                             </MudSwitch>
 
                         </MudTooltip>
@@ -77,7 +77,8 @@
             <CellTemplate>
                 <div>
                     <MudStack Row>
-                        <MudButton Size="@Size.Small" Variant="@Variant.Filled" OnClick="@AddComment" Color="@Color.Primary">Add Comments</MudButton>
+                        <MudButton Size="@Size.Small" Variant="@Variant.Filled" OnClick="@(()=> AddComment(@context.Item))"
+                            Color="@Color.Primary">Add Comments</MudButton>
                     </MudStack>
                 </div>
             </CellTemplate>
@@ -162,12 +163,15 @@
         {
 
         }
-
     }
 
-    private async  Task AddComment()
+    private async Task AddComment(StepDto item)
     {
-        var command = new AddEditCommentCommand();
+        var command = new AddEditCommentCommand()
+        {
+            StepId = item.Id,
+        };
+
         await ShowCommentEditFormDialog(string.Format(ConstantString.CreateAnItem, L["Comments"]), command);
     }
 

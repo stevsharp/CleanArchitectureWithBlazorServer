@@ -7,7 +7,7 @@
     <DialogContent>
         <MudForm Model="@model" @ref="@_form" Validation="@(Validator.ValidateValue(model))">
             <MudGrid>
-                <MudItem xs="12" md="6">
+                <MudItem xs="12" md="12">
                     <MudTextField Lines="10" Label="@L[model.GetMemberDescription(x=>x.Content)]" 
                     @bind-Value="model.Content" For="@(() => model.Content)" 
                     Required="true" RequiredError="@L["name is required!"]"></MudTextField>
@@ -44,8 +44,7 @@
             if (!_form!.IsValid)
                 return;
 
-            var result = new Result<AddEditCommentCommand>();
-            result.Data = model;
+            var result = await Mediator.Send(model);
 
             result.Match(data =>
             {
