@@ -1,5 +1,4 @@
 ﻿@using CleanArchitecture.Blazor.Application.Features.Steps.Commands.AddEdit
-
 @inherits MudComponentBase
 @inject IValidationService Validator
 @inject IStringLocalizer<Steps> L
@@ -8,19 +7,11 @@
     <DialogContent>
         <MudForm Model="@model" @ref="@_form" Validation="@(Validator.ValidateValue(model))">
             <MudGrid>
-                @*TODO: define mudform that should be edit fields, for example:*@
-                <MudItem xs="12" md="6"> 
-                        <MudTextField Label="@L[model.GetMemberDescription(x=>x.Name)]" @bind-Value="model.Name" For="@(() => model.Name)" Required="true" RequiredError="@L["name is required!"]"></MudTextField>
-                </MudItem> 
-<MudItem xs="12" md="6"> 
-                        <MudNumericField  Label="@L[model.GetMemberDescription(x=>x.InvoiceId)]" @bind-Value="model.InvoiceId" For="@(() => model.InvoiceId)" Min="0" Required="false" RequiredError="@L["invoice id is required!"]"></MudNumericField >
-                </MudItem> 
-<MudItem xs="12" md="6"> 
-                        <MudCheckBox Label="@L[model.GetMemberDescription(x=>x.IsCompleted)]" @bind-Checked="model.IsCompleted" For="@(() => model.IsCompleted)" ></MudCheckBox>
-                </MudItem> 
-<MudItem xs="12" md="6"> 
-                        <MudNumericField  Label="@L[model.GetMemberDescription(x=>x.StepOrder)]" @bind-Value="model.StepOrder" For="@(() => model.StepOrder)" Min="0" Required="false" RequiredError="@L["step order is required!"]"></MudNumericField >
-                </MudItem> 
+                <MudItem xs="12" md="6">
+                    <MudTextField Lines="10" Label="@L[model.GetMemberDescription(x=>x.Content)]" 
+                    @bind-Value="model.Content" For="@(() => model.Content)" 
+                    Required="true" RequiredError="@L["name is required!"]"></MudTextField>
+                </MudItem>
 
             </MudGrid>
         </MudForm>
@@ -28,7 +19,7 @@
     <DialogActions>
         <MudButton OnClick="Cancel">@ConstantString.Cancel</MudButton>
         <MudLoadingButton Loading="@_savingnew" OnClick="SaveAndNew">@ConstantString.SaveAndNew</MudLoadingButton>
-        <MudLoadingButton Loading="@_saving"  OnClick="Submit">@ConstantString.Save</MudLoadingButton>
+        <MudLoadingButton Loading="@_saving" OnClick="Submit">@ConstantString.Save</MudLoadingButton>
     </DialogActions>
 </MudDialog>
 
@@ -38,11 +29,12 @@
     private bool _savingnew = false;
     [CascadingParameter]
     IMudDialogInstance MudDialog { get; set; } = default!;
-    AddEditStepCommandValidator _modelValidator = new ();
+    CommentDtoValidator _modelValidator = new();
 
+    [EditorRequired]
+    [Parameter]
+    public AddEditCommentCommand model { get; set; } = null!;
 
-    [EditorRequired] [Parameter] 
-    public AddEditStepCommand model { get; set; } = null!;
     async Task Submit()
     {
         try
@@ -51,12 +43,16 @@
             await _form!.Validate().ConfigureAwait(false);
             if (!_form!.IsValid)
                 return;
-            var result = await Mediator.Send(model);
+
+            var result = new Result<AddEditCommentCommand>();
+            result.Data = model;
+
             result.Match(data =>
             {
                 MudDialog.Close(DialogResult.Ok(true));
                 Snackbar.Add(ConstantString.SaveSuccess, MudBlazor.Severity.Info);
-                return data;
+                return 1;
+
             }, errors =>
             {
                 Snackbar.Add(errors, MudBlazor.Severity.Error);
@@ -75,13 +71,13 @@
             _savingnew = true;
             await _form!.Validate().ConfigureAwait(false);
             if (!_form!.IsValid)
-               return;
+                return;
             var result = await Mediator.Send(model);
             await result.MatchAsync(async data =>
             {
                 Snackbar.Add(ConstantString.SaveSuccess, MudBlazor.Severity.Info);
                 await Task.Delay(300);
-                model = new AddEditStepCommand() { };
+                // model = new AddEditStepCommand() { };
                 return data;
             }, errors =>
             {

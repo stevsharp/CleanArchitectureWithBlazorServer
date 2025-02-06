@@ -9,6 +9,6 @@ public class StepByIdSpecification : Specification<Step>
 {
     public StepByIdSpecification(int id)
     {
-       Query.Where(q => q.Id == id);
+       Query.Where(q => q.InvoiceId == id);
     }
 }

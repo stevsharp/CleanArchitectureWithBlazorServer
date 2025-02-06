@@ -1,26 +1,28 @@
 ﻿
-using CleanArchitecture.Blazor.Application.Features.Invoices.DTOs;
 using CleanArchitecture.Blazor.Application.Features.Steps.Caching;
+using CleanArchitecture.Blazor.Application.Features.Steps.DTOs;
 using CleanArchitecture.Blazor.Application.Features.Steps.Mappers;
 
 namespace CleanArchitecture.Blazor.Application.Features.Steps.Commands.AddEdit;
 
+
 public class AddEditStepCommand: ICacheInvalidatorRequest<Result<int>>
 {
-      [Description("Id")]
+    [Description("Id")]
       public int Id { get; set; }
-          [Description("Name")]
+    [Description("Name")]
     public string Name {get;set;} 
     [Description("Invoice id")]
     public int? InvoiceId {get;set;} 
     [Description("Is completed")]
     public bool IsCompleted {get;set;} 
     [Description("Step order")]
-    public int StepOrder {get;set;} 
-    //[Description("Comments")]
-    //public List<CommentDtoDto>? Comments {get;set;} 
-    [Description("Invoice")]
-    public InvoiceDto Invoice {get;set;} 
+    public int StepOrder {get;set;}
+    [Description("Comments")]
+    public List<CommentDto>? Comments { get; set; }
+
+    //[Description("Invoice")]
+    //public InvoiceDto Invoice {get;set;} 
 
 
       public string CacheKey => StepCacheKey.GetAllCacheKey;

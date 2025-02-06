@@ -8,6 +8,7 @@ namespace CleanArchitecture.Blazor.Application.Features.Steps.Queries.Pagination
 
 public class StepsWithPaginationQuery : StepAdvancedFilter, ICacheableRequest<PaginatedData<StepDto>>
 {
+    public int InvoiceId { get; set; }
     public override string ToString()
     {
         return $"Listview:{ListView}:{CurrentUser?.UserId}-{LocalTimezoneOffset.TotalHours}, Search:{Keyword}, {OrderBy}, {SortDirection}, {PageNumber}, {PageSize}";
@@ -17,25 +18,32 @@ public class StepsWithPaginationQuery : StepAdvancedFilter, ICacheableRequest<Pa
     public StepAdvancedSpecification Specification => new StepAdvancedSpecification(this);
 }
     
-public class StepsWithPaginationQueryHandler :
+public class StepsWithPaginationQueryHandler(
+         IApplicationDbContext context) :
          IRequestHandler<StepsWithPaginationQuery, PaginatedData<StepDto>>
 {
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContext _context = context;
 
-        public StepsWithPaginationQueryHandler(
-            IApplicationDbContext context)
+    public async Task<PaginatedData<StepDto>> Handle(StepsWithPaginationQuery request, CancellationToken cancellationToken)
         {
-            _context = context;
-        }
-
-        public async Task<PaginatedData<StepDto>> Handle(StepsWithPaginationQuery request, CancellationToken cancellationToken)
-        {
-           var data = await _context.Steps.OrderBy($"{request.OrderBy} {request.SortDirection}")
-                                                   .ProjectToPaginatedDataAsync(request.Specification, 
-                                                                                request.PageNumber, 
-                                                                                request.PageSize, 
-                                                                                StepMapper.ToDto, 
-                                                                                cancellationToken);
-            return data;
+            try
+            {
+                var data = await _context.Steps
+                    .ApplySpecification(new StepByIdSpecification(request.InvoiceId))
+                    .Include(x => x.Comments)
+                    .OrderBy($"{request.OrderBy} {request.SortDirection}")
+                                              .ProjectToPaginatedDataAsync(request.Specification,
+                                                                           request.PageNumber,
+                                                                           request.PageSize,
+                                                                           StepMapper.ToDto,
+                                                                           cancellationToken);
+                return data;
+            }
+            catch (Exception ex)
+            {
+                var msg = $"Error: {ex.Message} at {ex.StackTrace}";
+                throw;
+            }
+           
         }
 }

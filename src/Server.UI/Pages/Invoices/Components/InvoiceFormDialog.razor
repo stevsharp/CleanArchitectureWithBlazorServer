@@ -2,6 +2,7 @@
 @using CleanArchitecture.Blazor.Server.UI.Pages.InvoiceLines
 @using CleanArchitecture.Blazor.Application.Features.Suppliers.DTOs
 @using CleanArchitecture.Blazor.Application.Features.Suppliers.Queries.GetAll
+@using CleanArchitecture.Blazor.Server.UI.Pages.Steps
 
 @inherits MudComponentBase
 @inject IValidationService Validator
@@ -66,8 +67,16 @@
 
                 @if (model.Id > 0)
                 {
-                    <MudItem xs="12"> 
-                        <InvoiceLines InvoiceId="@model.Id"/>
+                    <MudItem xs="12">
+                        <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+                            <MudTabPanel Text="Invoice Lines">
+                                <InvoiceLines InvoiceId="@model.Id" />
+                            </MudTabPanel>
+                            <MudTabPanel Text="Steps">
+                                <Steps InvoiceId="@model.Id" />
+                            </MudTabPanel>
+
+                        </MudTabs>
                     </MudItem> 
                 }
 
