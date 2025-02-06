@@ -26,7 +26,7 @@ public class GetStepByIdQueryHandler :
 
     public async Task<Result<StepDto>> Handle(GetStepByIdQuery request, CancellationToken cancellationToken)
     {
-        var data = await _context.Steps.ApplySpecification(new StepByIdSpecification(request.Id))
+        var data = await _context.Steps.ApplySpecification(new StepByInvoiceIdSpecification(request.Id))
                                                 .ProjectTo()
                                                 .FirstAsync(cancellationToken);
         return await Result<StepDto>.SuccessAsync(data);

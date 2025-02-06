@@ -18,6 +18,11 @@ public static class StepCacheKey
     public static string GetByIdCacheKey(string parameters) {
         return $"StepCacheKey:GetByIdCacheKey,{parameters}";
     }
+
+    public static string GetCommentByStepIdCacheKey(string parameters){
+        return $"StepCommentCacheKey:GetCommentByIdCacheKey,{parameters}";
+    }
+
     public static IEnumerable<string>? Tags => new string[] { "step" };
     public static void Refresh()
     {

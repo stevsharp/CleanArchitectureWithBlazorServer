@@ -79,9 +79,6 @@ public class ApplicationDbContextInitializer
         return allPermissions;
     }
 
-
-
-
     private async Task SeedTenantsAsync()
     {
         if (await _context.Tenants.AnyAsync()) return;
