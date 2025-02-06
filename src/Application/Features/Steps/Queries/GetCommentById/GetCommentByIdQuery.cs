@@ -19,22 +19,33 @@ public class GetCommentByIdQueryHandler(IApplicationDbContext context) : IReques
 
     public async Task<Result<PaginatedData<CommentDto>>> Handle(GetCommentByIdQuery request, CancellationToken cancellationToken)
     {
-        var data = await _context.Steps
-            .Include(x => x.Comments)
-            .ApplySpecification(new StepByIdSpecification(request.StepId))
-            .SelectMany(x => x.Comments)
-            .ToListAsync(cancellationToken);
-
-        var commentDtos = data.Select(comment => new CommentDto
+        try
         {
-            Id = comment.Id,
-            StepId = comment.StepId,
-            Content = comment.Content
-        }).AsEnumerable();
+            var data = await _context.Steps
+               .Include(x => x.Comments)
+               .ApplySpecification(new StepByIdSpecification(request.StepId))
+               .SelectMany(x => x.Comments)
+               .AsNoTracking()
+               .ToListAsync(cancellationToken);
 
-        var paginatedData = new PaginatedData<CommentDto>(commentDtos, 
-            commentDtos.Count(), 0, 100);
+            var commentDtos = data.Select(comment => new CommentDto
+            {
+                Id = comment.Id,
+                StepId = comment.StepId,
+                Content = comment.Content
+            }).AsEnumerable();
 
-        return await Result<PaginatedData<CommentDto>>.SuccessAsync(paginatedData);
+            var paginatedData = new PaginatedData<CommentDto>(commentDtos,
+                commentDtos.Count(), 0, 100);
+
+            return await Result<PaginatedData<CommentDto>>.SuccessAsync(paginatedData);
+        }
+        catch (Exception ex)
+        {
+            var m = ex.Message;
+            throw;
+        }
+
+       
     }
 }

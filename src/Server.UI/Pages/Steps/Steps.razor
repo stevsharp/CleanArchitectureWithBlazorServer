@@ -4,6 +4,7 @@
 @using CleanArchitecture.Blazor.Application.Features.Steps.Caching
 @using CleanArchitecture.Blazor.Application.Features.Steps.DTOs
 @using CleanArchitecture.Blazor.Application.Features.Steps.Mappers
+@using CleanArchitecture.Blazor.Application.Features.Steps.Queries.GetById
 @using CleanArchitecture.Blazor.Application.Features.Steps.Specifications
 @using CleanArchitecture.Blazor.Application.Features.Steps.Commands.Delete
 @using CleanArchitecture.Blazor.Application.Features.Steps.Commands.Import
@@ -56,7 +57,7 @@
                     {
                         <MudTooltip Text="@L["Click to change status to active."]" Delay="300">
                             <MudSwitch T="bool" Value="context.Item.IsCompleted" ValueChanged="@(()=>SetActive(context.Item))"
-                            ThumbIcon="@Icons.Material.Filled.Close" ThumbIconColor="Color.Error">
+                                       ThumbIcon="@Icons.Material.Filled.Close" ThumbIconColor="Color.Error">
                             </MudSwitch>
                         </MudTooltip>
                     }
@@ -64,7 +65,7 @@
                     {
                         <MudTooltip Text="@L["Click to change status to inactive."]" Delay="300">
                             <MudSwitch T="bool" Value="context.Item.IsCompleted" ValueChanged="@(()=>SetActive(context.Item))"
-                            ThumbIcon="@Icons.Material.Filled.Done" ThumbIconColor="Color.Success">
+                                       ThumbIcon="@Icons.Material.Filled.Done" ThumbIconColor="Color.Success">
                             </MudSwitch>
 
                         </MudTooltip>
@@ -78,7 +79,7 @@
                 <div>
                     <MudStack Row>
                         <MudButton Size="@Size.Small" Variant="@Variant.Filled" OnClick="@(()=> AddComment(@context.Item))"
-                            Color="@Color.Primary">Add </MudButton>
+                                   Color="@Color.Primary">Add </MudButton>
                     </MudStack>
                 </div>
             </CellTemplate>
@@ -190,21 +191,28 @@
     private async Task AddComment(StepDto item)
     {
         var command = new AddEditCommentCommand()
-        {
-            StepId = item.Id,
-        };
+            {
+                StepId = item.Id,
+            };
 
         await ShowCommentEditFormDialog(string.Format(ConstantString.CreateAnItem, L["Comments"]), command);
     }
 
     private async Task ViewComments(StepDto item)
     {
-        var command = new AddEditCommentCommand()
-            {
-                StepId = item.Id,
-            };
+        var parameters = new DialogParameters<Comments>
+        {
+            { x=>x.StepId,item.Id },
+        };
 
-        await ShowCommentEditFormDialog(string.Format(ConstantString.CreateAnItem, L["Comments"]), command);
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var dialog = await DialogService.ShowAsync<Comments>("title", parameters, options);
+        var state = await dialog.Result;
+
+        if (state != null && !state.Canceled)
+        {
+
+        }
     }
 
     private async Task<GridData<StepDto>> ServerReload(GridState<StepDto> state)

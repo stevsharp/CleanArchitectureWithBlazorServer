@@ -29,7 +29,7 @@ public class StepsWithPaginationQueryHandler(
             try
             {
                 var data = await _context.Steps
-                    .ApplySpecification(new StepByIdSpecification(request.InvoiceId))
+                    .ApplySpecification(new StepByInvoiceIdSpecification(request.InvoiceId))
                     .Include(x => x.Comments)
                     .OrderBy($"{request.OrderBy} {request.SortDirection}")
                                               .ProjectToPaginatedDataAsync(request.Specification,
