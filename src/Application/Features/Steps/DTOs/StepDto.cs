@@ -18,7 +18,10 @@ public class StepDto
     public int StepOrder {get;set;}
 
     [Description("Comments")]
-    public List<CommentDto>? Comments { get; set; }
+    public IEnumerable<CommentDto>? Comments { get; set; }
+
+    [Description("Count")]
+    public int CommentsCount { get { return Comments?.Count() ?? 0; } }
 
     //[Description("Invoice")]
     //public InvoiceDto Invoice {get;set;} 

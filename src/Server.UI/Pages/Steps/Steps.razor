@@ -78,11 +78,33 @@
                 <div>
                     <MudStack Row>
                         <MudButton Size="@Size.Small" Variant="@Variant.Filled" OnClick="@(()=> AddComment(@context.Item))"
-                            Color="@Color.Primary">Add Comments</MudButton>
+                            Color="@Color.Primary">Add </MudButton>
                     </MudStack>
                 </div>
             </CellTemplate>
         </PropertyColumn>
+
+        <PropertyColumn Property="x => x.Comments" Title="@L[_currentDto.GetMemberDescription(x => x.Comments)]">
+            <CellTemplate>
+                <div>
+                    <MudStack Row>
+                        <MudButton Size="@Size.Small" Variant="@Variant.Filled" OnClick="@(()=> ViewComments(@context.Item))"
+                                   Color="@Color.Primary">View </MudButton>
+                    </MudStack>
+                </div>
+            </CellTemplate>
+        </PropertyColumn>
+
+        <PropertyColumn Property="x => x.CommentsCount" Title="@L[_currentDto.GetMemberDescription(x => x.CommentsCount)]">
+            <CellTemplate>
+                <div>
+                    <MudBadge Content="@context.Item.CommentsCount" Overlap="true" Class="mx-6 my-4">
+                        <MudIcon Icon="@Icons.Material.Filled.Email" Color="Color.Default" />
+                    </MudBadge>
+                </div>
+            </CellTemplate>
+        </PropertyColumn>
+
 
     </Columns>
 
@@ -171,6 +193,16 @@
         {
             StepId = item.Id,
         };
+
+        await ShowCommentEditFormDialog(string.Format(ConstantString.CreateAnItem, L["Comments"]), command);
+    }
+
+    private async Task ViewComments(StepDto item)
+    {
+        var command = new AddEditCommentCommand()
+            {
+                StepId = item.Id,
+            };
 
         await ShowCommentEditFormDialog(string.Format(ConstantString.CreateAnItem, L["Comments"]), command);
     }
