@@ -34,6 +34,14 @@ public record CommentDto
     public int Id { get; set; }
     [Description("Step id")]
     public int StepId { get; set; }
+
+    [Description("Content")]
     public string? Content { get; set; }
+
+    [Description("Delete")]
+    public string? Delete { get; }
+
+    [Description("Update")]
+    public string? Update { get; }
 }
 

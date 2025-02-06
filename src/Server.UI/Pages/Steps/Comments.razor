@@ -14,10 +14,11 @@
 
 @inject IStringLocalizer<Steps> L
 @attribute [Authorize(Policy = Permissions.Steps.View)]
-<PageTitle>@Title</PageTitle>
+
 
 <MudDialog>
     <DialogContent>
+
         <MudDataGrid @ref="_table"
                      FixedHeader="true"
                      FixedFooter="false"
@@ -30,23 +31,32 @@
                      Loading="@_loading"
                      ServerData="@(ServerReload)">
 
-            <ToolBarContent>
-                <MudStack Row Spacing="0" Class="flex-grow-1" Justify="Justify.SpaceBetween">
-                    <MudStack Row AlignItems="AlignItems.Start">
-                        <MudIcon Icon="@Icons.Material.Filled.SwitchAccount" Size="Size.Large" />
-                        <MudStack Spacing="0">
-                            <MudText Typo="Typo.subtitle2" Class="mb-2">@Title</MudText>
-                        </MudStack>
-                    </MudStack>
-                </MudStack>
-            </ToolBarContent>
-
             <Columns>
-                <PropertyColumn Property="x => x.Content" Title="@L[_currentDto.GetMemberDescription(x => x.Content)]">
+
+                <PropertyColumn Property="x => x.Content" Title="@L[_currentDto.GetMemberDescription(x => x.Content)]"
+                                CellStyle="min-width: 600px;">
+
                     <CellTemplate Context="context">
-                        <MudText Typo="Typo.body1">@context.Item.Content</MudText>
+
+                            <MudTextField Lines="5" 
+                                      @bind-Value="@context.Item.Content" For="@(() => @context.Item.Content)"
+                                          Required="true" RequiredError="@L["name is required!"]"></MudTextField>
+
                     </CellTemplate>
                 </PropertyColumn>
+
+                <PropertyColumn Property="x => x.Delete" Title="@L[_currentDto.GetMemberDescription(x => x.Delete)]"
+                                Width="10%">
+                    <CellTemplate>
+                        <div>
+                            <MudStack Row>
+                                <MudButton Size="@Size.Small" Variant="@Variant.Filled" 
+                                           Color="@Color.Primary">Delete </MudButton>
+                            </MudStack>
+                        </div>
+                    </CellTemplate>
+                </PropertyColumn>
+
 
             </Columns>
 
@@ -56,7 +66,10 @@
 
         </MudDataGrid>
     </DialogContent>
-
+    <DialogActions>
+        <MudButton OnClick="Cancel">@ConstantString.Cancel</MudButton>
+        <MudLoadingButton Loading="@_saving" OnClick="Submit">@ConstantString.Save</MudLoadingButton>
+    </DialogActions>
 </MudDialog>
 
 
@@ -94,6 +107,7 @@
 
     [Parameter]
     public int StepId { get; set; }
+    private bool _saving = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -107,54 +121,34 @@
         // _canExport = (await AuthService.AuthorizeAsync(state.User, Permissions.Steps.Export)).Succeeded;
     }
 
-    private async Task SetActive(StepDto item)
+    void Cancel() => MudDialog.Cancel();
+
+    async Task Submit()
     {
         try
         {
-            var result = await Mediator.Send(new AddEditStepCommand
-                {
-                    Id = item.Id,
-                    InvoiceId = item.InvoiceId,
-                    IsCompleted = !item.IsCompleted,
-                    Name = item.Name
-                });
+            _saving = true;
 
-            result.Match(data =>
-            {
-                Snackbar.Add(ConstantString.SaveSuccess, MudBlazor.Severity.Info);
-                return data;
-            }, errors =>
-            {
-                Snackbar.Add(errors, MudBlazor.Severity.Error);
-                return -1;
-            });
+
+            // var result = await Mediator.Send(model);
+
+            // result.Match(data =>
+            // {
+            //     MudDialog.Close(DialogResult.Ok(true));
+            //     Snackbar.Add(ConstantString.SaveSuccess, MudBlazor.Severity.Info);
+            //     return 1;
+
+            // }, errors =>
+            // {
+            //     Snackbar.Add(errors, MudBlazor.Severity.Error);
+            //     return -1;
+            // });
         }
         finally
         {
-
+            _saving = false;
         }
     }
-
-    private async Task AddComment(StepDto item)
-    {
-        var command = new AddEditCommentCommand()
-            {
-                StepId = item.Id,
-            };
-
-        await ShowCommentEditFormDialog(string.Format(ConstantString.CreateAnItem, L["Comments"]), command);
-    }
-
-    private async Task ViewComments(StepDto item)
-    {
-        var command = new AddEditCommentCommand()
-            {
-                StepId = item.Id,
-            };
-
-        await ShowCommentEditFormDialog(string.Format(ConstantString.CreateAnItem, L["Comments"]), command);
-    }
-
     private async Task<GridData<CommentDto>> ServerReload(GridState<CommentDto> state)
     {
         try
