@@ -45,12 +45,26 @@
                     </CellTemplate>
                 </PropertyColumn>
 
+                <PropertyColumn Property="x => x.Update" Title="@L[_currentDto.GetMemberDescription(x => x.Update)]"
+                                Width="10%">
+                    <CellTemplate>
+                        <div>
+                            <MudStack Row>
+                                <MudButton Size="@Size.Small" Variant="@Variant.Filled"
+                                           OnClick="@(()=> Update(@context.Item))"
+                                           Color="@Color.Primary">Update </MudButton>
+                            </MudStack>
+                        </div>
+                    </CellTemplate>
+                </PropertyColumn>
+
                 <PropertyColumn Property="x => x.Delete" Title="@L[_currentDto.GetMemberDescription(x => x.Delete)]"
                                 Width="10%">
                     <CellTemplate>
                         <div>
                             <MudStack Row>
                                 <MudButton Size="@Size.Small" Variant="@Variant.Filled" 
+                                           OnClick="@(()=> Delete(@context.Item))"
                                            Color="@Color.Primary">Delete </MudButton>
                             </MudStack>
                         </div>
@@ -67,8 +81,7 @@
         </MudDataGrid>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel">@ConstantString.Cancel</MudButton>
-        <MudLoadingButton Loading="@_saving" OnClick="Submit">@ConstantString.Save</MudLoadingButton>
+        <MudLoadingButton Loading="@_saving" OnClick="Submit">@ConstantString.Close</MudLoadingButton>
     </DialogActions>
 </MudDialog>
 
@@ -129,33 +142,74 @@
         {
             _saving = true;
 
-
-            // var result = await Mediator.Send(model);
-
-            // result.Match(data =>
-            // {
-            //     MudDialog.Close(DialogResult.Ok(true));
-            //     Snackbar.Add(ConstantString.SaveSuccess, MudBlazor.Severity.Info);
-            //     return 1;
-
-            // }, errors =>
-            // {
-            //     Snackbar.Add(errors, MudBlazor.Severity.Error);
-            //     return -1;
-            // });
+            MudDialog.Close(DialogResult.Ok(true));
         }
         finally
         {
             _saving = false;
         }
     }
+
+    async Task Update(CommentDto commentDto)
+    {
+        try
+        {
+            _saving = true;
+
+            var updateCommand = new AddEditCommentCommand()
+            {
+                    Content = commentDto.Content,
+                    Id = commentDto.Id,
+                    StepId = StepId
+            };
+
+            var result = await Mediator.Send(updateCommand).ConfigureAwait(false);
+
+            result.Match(data =>
+           {
+               Snackbar.Add(ConstantString.SaveSuccess, MudBlazor.Severity.Info);
+               return data;
+           }, errors =>
+           {
+               Snackbar.Add(errors, MudBlazor.Severity.Error);
+               return -1;
+           });
+
+            _saving = true;
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+    /// <summary>
+    /// DeleteCommentCommand
+    /// </summary>
+    /// <param name="commentDto"></param>
+    /// <returns></returns>
+    async Task Delete(CommentDto commentDto)
+    {
+        var contentText = string.Format(ConstantString.DeleteConfirmation, commentDto.Content);
+        var command = new DeleteCommentCommand { Id = commentDto.Id , StepId = commentDto.StepId };
+
+        await DialogServiceHelper.ShowDeleteConfirmationDialogAsync(command, ConstantString.DeleteConfirmationTitle, contentText, async () =>
+        {
+            await InvokeAsync(async () =>
+            {
+                await _table.ReloadServerData();
+                _selectedItems.Clear();
+            });
+        });
+    }
+
     private async Task<GridData<CommentDto>> ServerReload(GridState<CommentDto> state)
     {
         try
         {
             _loading = true;
+            StepCacheKey.Refresh();
             Query.StepId = StepId;
-           
+            
             var result = await Mediator.Send(Query).ConfigureAwait(false);
             return new GridData<CommentDto>() { TotalItems = result.Data.TotalItems, Items = result.Data.Items.ToList() };
         }

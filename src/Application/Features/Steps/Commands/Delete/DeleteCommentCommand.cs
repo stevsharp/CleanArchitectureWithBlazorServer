@@ -1,23 +1,19 @@
 ﻿
-namespace CleanArchitecture.Blazor.Application.Features.Steps.Commands.AddEdit;
+namespace CleanArchitecture.Blazor.Application.Features.Steps.Commands.Delete;
 
-public class AddEditCommentCommand : ICacheInvalidatorRequest<Result<int>>
+public class DeleteCommentCommand : ICacheInvalidatorRequest<Result<int>>
 {
-    [Description("Id")]
     public int Id { get; set; }
-    [Description("Step id")]
     public int StepId { get; set; }
-    [Description("Content")]
-    public string? Content { get; set; }
     public IEnumerable<string>? Tags { get; }
 }
 
-public class AddEditCommentCommandHandler(
-    IApplicationDbContext context) : IRequestHandler<AddEditCommentCommand, Result<int>>
+
+public class DeleteCommentCommandHandler(IApplicationDbContext context) :
+             IRequestHandler<DeleteCommentCommand, Result<int>>
 {
     private readonly IApplicationDbContext _context = context;
-
-    public async Task<Result<int>> Handle(AddEditCommentCommand request, CancellationToken cancellationToken)
+    public async Task<Result<int>> Handle(DeleteCommentCommand request, CancellationToken cancellationToken)
     {
         try
         {
@@ -32,12 +28,13 @@ public class AddEditCommentCommandHandler(
 
                 var comment = item.Comments.FirstOrDefault(x => x.Id == request.Id);
 
-                if (comment is null)
-                    item.Comments.Add(new Comment { Content = request.Content });
-                else
-                    comment.Content = request.Content;
+                if (comment is not null)
+                {
+                    item.Comments.Remove(comment);
+                }
 
                 await _context.SaveChangesAsync(cancellationToken);
+
                 return await Result<int>.SuccessAsync(item.Id);
             }
 
@@ -48,6 +45,5 @@ public class AddEditCommentCommandHandler(
             var errors = new List<string> { "There was an error adding/editing the comment" };
             throw;
         }
-
     }
 }

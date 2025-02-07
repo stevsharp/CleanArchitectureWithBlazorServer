@@ -1,7 +1,9 @@
 ﻿
 using CleanArchitecture.Blazor.Application.Features.Steps.Caching;
+using DocumentFormat.OpenXml.InkML;
 
 namespace CleanArchitecture.Blazor.Application.Features.Steps.Commands.Delete;
+
 
 public class DeleteStepCommand:  ICacheInvalidatorRequest<Result<int>>
 {
@@ -14,16 +16,13 @@ public class DeleteStepCommand:  ICacheInvalidatorRequest<Result<int>>
   }
 }
 
-public class DeleteStepCommandHandler : 
+public class DeleteStepCommandHandler(
+    IApplicationDbContext context) : 
              IRequestHandler<DeleteStepCommand, Result<int>>
 
 {
-    private readonly IApplicationDbContext _context;
-    public DeleteStepCommandHandler(
-        IApplicationDbContext context)
-    {
-        _context = context;
-    }
+    private readonly IApplicationDbContext _context = context;
+
     public async Task<Result<int>> Handle(DeleteStepCommand request, CancellationToken cancellationToken)
     {
         var items = await _context.Steps.Where(x=>request.Id.Contains(x.Id)).ToListAsync(cancellationToken);
