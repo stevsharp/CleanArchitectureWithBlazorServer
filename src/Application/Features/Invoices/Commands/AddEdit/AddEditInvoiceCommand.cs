@@ -35,7 +35,7 @@ public class AddEditInvoiceCommand : ICacheInvalidatorRequest<Result<int>>
 
 
     [Description("Packaging")]
-    public int? Packaging { get; set; }
+    public int? Packaging { get; set; } = 1;
 
     [Description("Invoice lines")]
     public List<InvoiceLineDto>? InvoiceLines { get; set; } = [];

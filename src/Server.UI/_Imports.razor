@@ -4,6 +4,7 @@
 @using System.Text
 @using System.ComponentModel
 @using CleanArchitecture.Blazor.Application.Common.Interfaces.MediatorWrapper
+@using CleanArchitecture.Blazor.Infrastructure
 @using CleanArchitecture.Blazor.Server.UI.Services
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Forms
@@ -61,3 +62,4 @@
 @inject IMediator Mediator
 @inject NavigationManager Navigation
 @inject DialogServiceHelper DialogServiceHelper
+@inject IPrintInvoice PrintingDocument

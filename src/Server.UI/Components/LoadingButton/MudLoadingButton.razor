@@ -5,7 +5,7 @@
     {
         if (LoadingAdornment == Adornment.Start)
         {
-            <MudProgressCircular Class="me-2" Size="Size.Small" Color="@LoadingCircularColor" Indeterminate="true" />
+            <MudProgressCircular Class="me-2" Size="MudBlazor.Size.Small" Color="@LoadingCircularColor" Indeterminate="true" />
         }
 
         if (LoadingContent != null)
@@ -19,7 +19,7 @@
 
         if (LoadingAdornment == Adornment.End)
         {
-            <MudProgressCircular Class="ms-2" Size="Size.Small" Color="@LoadingCircularColor" Indeterminate="true" />
+            <MudProgressCircular Class="ms-2" Size="MudBlazor.Size.Small" Color="@LoadingCircularColor" Indeterminate="true" />
         }
     }
     else
@@ -59,7 +59,7 @@
     /// The Size of the component.
     /// </summary>
     [Parameter]
-    public Size Size { get; set; } = Size.Medium;
+    public MudBlazor.Size Size { get; set; } = MudBlazor.Size.Medium;
     /// <summary>
     /// The variant to use.
     /// </summary>

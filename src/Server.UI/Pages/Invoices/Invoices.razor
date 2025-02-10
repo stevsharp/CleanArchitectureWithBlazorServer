@@ -46,6 +46,7 @@
                                StartIcon="@Icons.Material.Outlined.Refresh">
                         @ConstantString.Refresh
                     </MudButton>
+                    
                     @if (_canCreate)
                     {
                         <MudButton StartIcon="@Icons.Material.Outlined.Add"
@@ -53,6 +54,12 @@
                             @ConstantString.New
                         </MudButton>
                     }
+
+                    <MudButton StartIcon="@Icons.Material.Outlined.Print"
+                               OnClick="OnPrint">
+                        @ConstantString.Print
+                    </MudButton>
+
                     <MudMenu TransformOrigin="Origin.BottomRight" AnchorOrigin="Origin.BottomRight" EndIcon="@Icons.Material.Filled.MoreVert" Label="@ConstantString.More">
                         @if (_canCreate)
                         {
@@ -257,6 +264,19 @@
         var command = new AddEditInvoiceCommand();
         await ShowEditFormDialog(string.Format(ConstantString.CreateAnItem, L["Invoice"]), command);
     }
+
+    
+    private async Task OnPrint()
+    {
+        if (_currentDto is null)
+            return;
+
+        var pdfBytes = PrintingDocument.GeneratePdf();
+
+        var PdfUrl = $"data:application/pdf;base64,{Convert.ToBase64String(pdfBytes)}";
+
+    }
+
     private async Task OnClone()
     {
         var dto = _selectedItems.First();

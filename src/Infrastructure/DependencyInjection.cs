@@ -24,6 +24,7 @@ using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
+
 using ZiggyCreatures.Caching.Fusion;
 
 namespace CleanArchitecture.Blazor.Infrastructure;
@@ -184,6 +185,7 @@ public static class DependencyInjection
             .AddScoped<IExcelService, ExcelService>()
             .AddScoped<IUploadService, UploadService>()
             .AddScoped<IPDFService, PDFService>()
+            .AddScoped<IPrintInvoice, PrintInvoice>()
             .AddTransient<IDocumentOcrJob, DocumentOcrJob>();
     }
 

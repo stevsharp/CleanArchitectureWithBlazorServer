@@ -1,6 +1,8 @@
-﻿using CleanArchitecture.Blazor.Application;
+﻿
+using CleanArchitecture.Blazor.Application;
 using CleanArchitecture.Blazor.Infrastructure;
 using CleanArchitecture.Blazor.Server.UI;
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
 try
 {
