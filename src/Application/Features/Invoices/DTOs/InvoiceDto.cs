@@ -1,5 +1,5 @@
-﻿using CleanArchitecture.Blazor.Application.Features.InvoiceLines.DTOs;
-using CleanArchitecture.Blazor.Application.Features.Suppliers.DTOs;
+﻿using CleanArchitecture.Blazor.Application.Features.Contacts.DTOs;
+using CleanArchitecture.Blazor.Application.Features.InvoiceLines.DTOs;
 
 namespace CleanArchitecture.Blazor.Application.Features.Invoices.DTOs;
 
@@ -32,13 +32,13 @@ public record InvoiceDto
     [Description("ShippingMethod")]
     public string? ShippingMethod { get; set; }
 
-
     [Description("Packaging")]
     public int? Packaging { get; set; }
 
     [Description("Invoice lines")]
     public List<InvoiceLineDto>? InvoiceLines { get; set; }
 
-    public SupplierDto Supplier { get; set; } = null!;
+    [Description("Contact")]
+    public ContactDto Contact { get; set; } = null!;
 }
 

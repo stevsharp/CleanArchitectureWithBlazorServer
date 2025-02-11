@@ -1,5 +1,9 @@
 ﻿
 
+using CleanArchitecture.Blazor.Application.Features.Contacts.DTOs;
+using CleanArchitecture.Blazor.Application.Features.Suppliers.DTOs;
+using CommunityToolkit.HighPerformance.Helpers;
+using Microsoft.AspNetCore.Hosting;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
 
@@ -8,12 +12,23 @@ namespace CleanArchitecture.Blazor.Infrastructure;
 public interface IPrintInvoice : IDocument
 {
     byte[] GeneratePdf();
+
+    void PrintPreview();
+
+    ContactDto Contact { get; set; }
 }
 
-public class PrintInvoice : IPrintInvoice
+public class PrintInvoice(IWebHostEnvironment env) : IPrintInvoice
 {
+    private readonly IWebHostEnvironment _env = env;
+
+    public ContactDto Contact { get; set; }
+
     public void Compose(IDocumentContainer container)
     {
+        string logoPath = Path.Combine(_env.WebRootPath, "img", "LOGO.png");
+        byte[] logoBytes = File.ReadAllBytes(logoPath);
+
         container.Page(page =>
         {
             page.Margin(20);
@@ -43,15 +58,21 @@ public class PrintInvoice : IPrintInvoice
                             .Underline();
                     });
 
+                    //byte[] logoBytes = File.ReadAllBytes("C:\\LOGO.png");
+
                     row.ConstantItem(60)
                         .Height(60)
-                        .Background("#FFA500") // Approximation of the orange color
-                        .AlignCenter()
-                        .AlignMiddle()
-                        .Text("P")
-                        .FontSize(40)
-                        .Bold()
-                        .FontColor("#FFFFFF"); // White
+                        .Image(logoBytes, ImageScaling.Resize);
+
+                    //row.ConstantItem(60)
+                    //    .Height(60)
+                    //    .Background("#FFA500") // Approximation of the orange color
+                    //    .AlignCenter()
+                    //    .AlignMiddle()
+                    //    .Text("P")
+                    //    .FontSize(40)
+                    //    .Bold()
+                    //    .FontColor("#FFFFFF"); // White
                 });
 
                 // Title
@@ -63,19 +84,19 @@ public class PrintInvoice : IPrintInvoice
                 // Form Fields
                 column.Item().PaddingTop(10).Column(formColumn =>
                 {
-                    formColumn.Item().Text("ΟΝΟΜΑ: .......................................................")
+                    formColumn.Item().Text("ΟΝΟΜΑ: ......" + Contact.Name)
                         .FontSize(12)
                         .FontColor("#000000");
 
-                    formColumn.Item().Text("ΔΙΕΥΘΥΝΣΗ: ..................................................")
+                    formColumn.Item().Text("ΔΙΕΥΘΥΝΣΗ: ...... " + Contact.Address)
                         .FontSize(12)
                         .FontColor("#000000");
 
-                    formColumn.Item().Text("ΠΟΛΗ: ...........................................................")
+                    formColumn.Item().Text("ΠΟΛΗ: ..........." + Contact.Country)
                         .FontSize(12)
                         .FontColor("#000000");
 
-                    formColumn.Item().Text("ΤΗΛ.: ............................................................")
+                    formColumn.Item().Text("ΤΗΛ.: ..........." + Contact.Country)
                         .FontSize(12)
                         .FontColor("#000000");
                 });
@@ -91,4 +112,10 @@ public class PrintInvoice : IPrintInvoice
 
         return stream.ToArray();
     }
+
+    public void PrintPreview()
+    {
+        this.GeneratePdfAndShow();
+    }
+
 }

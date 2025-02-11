@@ -17,5 +17,4 @@ public class Supplier : BaseAuditableEntity
 
     public List<SupplyItem>? SupplyItems { get; set; }
 
-    public virtual ICollection<Invoice> Invoices { get; set; } = [];
 }

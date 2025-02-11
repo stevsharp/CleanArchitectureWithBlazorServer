@@ -52,6 +52,37 @@ public class DialogServiceHelper
         }
     }
 
+    public async Task ShowPrintConfirmationDialogAsync(IRequest<Result<int>> command, string title, string contentText,
+        Func<Task> onConfirm,
+        Func<Task>? onCancel = null)
+    {
+        var parameters = new DialogParameters
+            {
+                { nameof(DeleteConfirmation.ContentText), contentText },
+                { nameof(DeleteConfirmation.Command), command }
+            };
+
+        var options = new DialogOptions
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.ExtraLarge,
+            FullWidth = true,
+            FullScreen = true
+        };
+        var dialog = await _dialogService.ShowAsync<PrintConfirmationDialog>(title, parameters, options).ConfigureAwait(false);
+        var result = await dialog.Result.ConfigureAwait(false);        
+        
+        if (result is not null && !result.Canceled)
+        {
+            await onConfirm().ConfigureAwait(false);
+        }
+        else if (onCancel != null)
+        {
+            await onCancel().ConfigureAwait(false);
+        }
+    }
+
+
     /// <summary>
     /// Shows a confirmation dialog.
     /// </summary>

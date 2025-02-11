@@ -42,8 +42,9 @@ public class ContactDto
     [Description("Phone number")]
     public string? PhoneNumber {get;set;} 
     [Description("Country")]
-    public string? Country {get;set;} 
+    public string? Country {get;set;}
 
-
+    [Description("Address")]
+    public string Address { get; set; }
 }
 

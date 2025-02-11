@@ -93,6 +93,8 @@ public static class ConstantString
     public static string DeleteItems => Localize("Delete selected items: {0}");
     public static string DeleteConfirmation => Localize("Are you sure you want to delete this item: {0}?");
 
+    public static string PrintConfirmation => Localize("Are you sure you want to Print this item: {0}?");
+
     public static string DeleteConfirmationWithId =>
         Localize("Are you sure you want to delete this item with Id: {0}?");
 
