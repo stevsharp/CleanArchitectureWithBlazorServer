@@ -34,8 +34,24 @@
                 </MudItem> 
 <MudItem xs="12" md="6"> 
                         <MudTextField Label="@L[model.GetMemberDescription(x=>x.PhoneNumber)]" @bind-Value="model.PhoneNumber" For="@(() => model.PhoneNumber)" Required="false" RequiredError="@L["phone number is required!"]"></MudTextField>
-                </MudItem> 
-<MudItem xs="12" md="6"> 
+                </MudItem>
+
+                        <MudItem xs="12" md="6">
+                            <MudTextField Label="@L[model.GetMemberDescription(x=>x.TaxIdentificationNumber)]" @bind-Value="model.TaxIdentificationNumber"
+                                          For="@(() => model.TaxIdentificationNumber)" Required="false" RequiredError="@L["TaxIdentificationNumber is required!"]"></MudTextField>
+                        </MudItem>
+
+                        <MudItem xs="12" md="6">
+                            <MudTextField Label="@L[model.GetMemberDescription(x=>x.PublicFinancialService)]" @bind-Value="model.PublicFinancialService"
+                                          For="@(() => model.PublicFinancialService)" Required="false" RequiredError="@L["TaxIdentificationNumber is required!"]"></MudTextField>
+                        </MudItem>
+
+                <MudItem xs="12" md="6">
+                            <MudTextField Label="@L[model.GetMemberDescription(x=>x.City)]" @bind-Value="model.City"
+                                          For="@(() => model.City)" Required="false" RequiredError="@L["City is required!"]"></MudTextField>
+                </MudItem>
+
+                <MudItem xs="12" md="6"> 
                         <MudTextField Label="@L[model.GetMemberDescription(x=>x.Country)]" @bind-Value="model.Country" For="@(() => model.Country)" Required="false" RequiredError="@L["country is required!"]"></MudTextField>
                 </MudItem> 
 

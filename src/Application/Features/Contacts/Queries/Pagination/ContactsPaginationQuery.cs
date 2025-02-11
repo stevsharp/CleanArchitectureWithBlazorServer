@@ -18,18 +18,13 @@ public class ContactsWithPaginationQuery : ContactAdvancedFilter, ICacheableRequ
     public ContactAdvancedSpecification Specification => new ContactAdvancedSpecification(this);
 }
     
-public class ContactsWithPaginationQueryHandler :
+public class ContactsWithPaginationQueryHandler(
+    IApplicationDbContext context) :
          IRequestHandler<ContactsWithPaginationQuery, PaginatedData<ContactDto>>
 {
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContext _context = context;
 
-        public ContactsWithPaginationQueryHandler(
-            IApplicationDbContext context)
-        {
-            _context = context;
-        }
-
-        public async Task<PaginatedData<ContactDto>> Handle(ContactsWithPaginationQuery request, CancellationToken cancellationToken)
+    public async Task<PaginatedData<ContactDto>> Handle(ContactsWithPaginationQuery request, CancellationToken cancellationToken)
         {
            var data = await _context.Contacts.OrderBy($"{request.OrderBy} {request.SortDirection}")
                                                    .ProjectToPaginatedDataAsync(request.Specification, 

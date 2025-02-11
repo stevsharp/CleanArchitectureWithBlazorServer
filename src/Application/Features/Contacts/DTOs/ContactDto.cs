@@ -46,5 +46,14 @@ public class ContactDto
 
     [Description("Address")]
     public string Address { get; set; }
+
+    [Description("City")]
+    public string City { get; set; }
+
+    [Description("Tax Identification Number")]
+    public string TaxIdentificationNumber { get;set; }
+
+    [Description("Public Financial Service")]
+    public string PublicFinancialService { get; set; }
 }
 

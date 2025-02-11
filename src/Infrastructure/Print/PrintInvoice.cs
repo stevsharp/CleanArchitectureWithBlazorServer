@@ -92,7 +92,7 @@ public class PrintInvoice(IWebHostEnvironment env) : IPrintInvoice
                         .FontSize(12)
                         .FontColor("#000000");
 
-                    formColumn.Item().Text("ΠΟΛΗ: ..........." + Contact.Country)
+                    formColumn.Item().Text("ΠΟΛΗ: ..........." + Contact.City )
                         .FontSize(12)
                         .FontColor("#000000");
 

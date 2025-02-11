@@ -47,14 +47,11 @@ public class AddEditInvoiceCommand : ICacheInvalidatorRequest<Result<int>>
     public IEnumerable<string>? Tags => InvoiceCacheKey.Tags;
 }
 
-public class AddEditInvoiceCommandHandler : IRequestHandler<AddEditInvoiceCommand, Result<int>>
+public class AddEditInvoiceCommandHandler(
+    IApplicationDbContext context) : IRequestHandler<AddEditInvoiceCommand, Result<int>>
 {
-    private readonly IApplicationDbContext _context;
-    public AddEditInvoiceCommandHandler(
-        IApplicationDbContext context)
-    {
-        _context = context;
-    }
+    private readonly IApplicationDbContext _context = context;
+
     public async Task<Result<int>> Handle(AddEditInvoiceCommand request, CancellationToken cancellationToken)
     {
         try
