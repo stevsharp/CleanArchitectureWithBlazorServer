@@ -307,11 +307,8 @@
           {
               await InvokeAsync(async () =>
               {
-                  var uniquePairs = new HashSet<(
-                  int SupplierId,
-                  int ItemId,
-                  int Quantity,
-                  decimal? Discount,
+                  var uniquePairs = new HashSet<( int SupplierId,
+                  int ItemId,int Quantity,decimal? Discount,
                   decimal? UnitPrice,
                   decimal LineTotal,
                   Product? product)>();
@@ -349,7 +346,7 @@
                               InvoiceDate = DateTime.Now,
                               OfferId = dto.Id,
                               Status = invoicetype?.Text,
-                              SupplierId = group.Key,
+                              //SupplierId = group.Key,
                               Draft = dto.Draft,
                               Packaging = dto.Packaging,
                               PaymentType = dto.PaymentType,

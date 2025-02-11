@@ -11,16 +11,11 @@ public class GetAllContactsQuery : ICacheableRequest<IEnumerable<ContactDto>>
    public IEnumerable<string>? Tags => ContactCacheKey.Tags;
 }
 
-public class GetAllContactsQueryHandler :
+public class GetAllContactsQueryHandler(
+    IApplicationDbContext context) :
      IRequestHandler<GetAllContactsQuery, IEnumerable<ContactDto>>
 {
-    private readonly IApplicationDbContext _context;
-
-    public GetAllContactsQueryHandler(
-        IApplicationDbContext context)
-    {
-        _context = context;
-    }
+    private readonly IApplicationDbContext _context = context;
 
     public async Task<IEnumerable<ContactDto>> Handle(GetAllContactsQuery request, CancellationToken cancellationToken)
     {

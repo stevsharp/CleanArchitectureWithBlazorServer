@@ -11,16 +11,11 @@ public class GetAllSuppliersQuery : ICacheableRequest<IEnumerable<SupplierDto>>
    public IEnumerable<string>? Tags => SupplierCacheKey.Tags;
 }
 
-public class GetAllSuppliersQueryHandler :
+public class GetAllSuppliersQueryHandler(
+    IApplicationDbContext context) :
      IRequestHandler<GetAllSuppliersQuery, IEnumerable<SupplierDto>>
 {
-    private readonly IApplicationDbContext _context;
-
-    public GetAllSuppliersQueryHandler(
-        IApplicationDbContext context)
-    {
-        _context = context;
-    }
+    private readonly IApplicationDbContext _context = context;
 
     public async Task<IEnumerable<SupplierDto>> Handle(GetAllSuppliersQuery request, CancellationToken cancellationToken)
     {
