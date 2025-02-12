@@ -10,12 +10,12 @@ public class MenuService : IMenuService
         new MenuSectionModel
         {
             Title = "Application",
-            SectionItems = new List<MenuSectionItemModel>
-            {
+            SectionItems =
+            [
                 new() { Title = "Home", Icon = Icons.Material.Filled.Home, Href = "/" },
                 new()
                 {
-                    Title = "E-Commerce",
+                    Title = "Main Menu",
                     Icon = Icons.Material.Filled.ShoppingCart,
                     PageStatus = PageStatus.Completed,
                     IsParent = true,
@@ -65,38 +65,61 @@ public class MenuService : IMenuService
                         }
                     ]
                 },
+                //new()
+                //{
+                //    Title = "Analytics",
+                //    Roles = new[] { RoleName.Admin, RoleName.Users },
+                //    Icon = Icons.Material.Filled.Analytics,
+                //    Href = "/analytics",
+                //    PageStatus = PageStatus.ComingSoon
+                //},
+                //new()
+                //{
+                //    Title = "Banking",
+                //    Roles = new[] { RoleName.Admin, RoleName.Users },
+                //    Icon = Icons.Material.Filled.Money,
+                //    Href = "/banking",
+                //    PageStatus = PageStatus.ComingSoon
+                //},
+                //new()
+                //{
+                //    Title = "Booking",
+                //    Roles = new[] { RoleName.Admin, RoleName.Users },
+                //    Icon = Icons.Material.Filled.CalendarToday,
+                //    Href = "/booking",
+                //    PageStatus = PageStatus.ComingSoon
+                //}
+            ]
+        },
+        new MenuSectionModel
+        {
+            Title = "WhareHouse",
+            Roles = [RoleName.WhareHouse],
+            SectionItems =
+            [
                 new()
                 {
-                    Title = "Analytics",
-                    Roles = new[] { RoleName.Admin, RoleName.Users },
-                    Icon = Icons.Material.Filled.Analytics,
-                    Href = "/analytics",
-                    PageStatus = PageStatus.ComingSoon
-                },
-                new()
-                {
-                    Title = "Banking",
-                    Roles = new[] { RoleName.Admin, RoleName.Users },
-                    Icon = Icons.Material.Filled.Money,
-                    Href = "/banking",
-                    PageStatus = PageStatus.ComingSoon
-                },
-                new()
-                {
-                    Title = "Booking",
-                    Roles = new[] { RoleName.Admin, RoleName.Users },
-                    Icon = Icons.Material.Filled.CalendarToday,
-                    Href = "/booking",
-                    PageStatus = PageStatus.ComingSoon
+                    IsParent = true,
+                    Title = "Products",
+                    Icon = Icons.Material.Filled.ProductionQuantityLimits,
+                    MenuItems =
+                    [
+                        new()
+                        {
+                            Title = "Invoice Steps",
+                            Href = "/pages/AllSteps",
+                            PageStatus = PageStatus.Completed
+                        },
+                    ]
                 }
-            }
+            ]
         },
         new MenuSectionModel
         {
             Title = "MANAGEMENT",
-            Roles = new[] { RoleName.Admin },
-            SectionItems = new List<MenuSectionItemModel>
-            {
+            Roles = [RoleName.Admin],
+            SectionItems =
+            [
                 new()
                 {
                     IsParent = true,
@@ -154,7 +177,8 @@ public class MenuService : IMenuService
                             Title = "Logs",
                             Href = "/system/logs",
                             PageStatus = PageStatus.Completed
-                        },
+                        }
+                        ,
                         new()
                         {
                             Title = "Jobs",
@@ -164,7 +188,7 @@ public class MenuService : IMenuService
                         }
                     }
                 }
-            }
+            ]
         }
     };
 

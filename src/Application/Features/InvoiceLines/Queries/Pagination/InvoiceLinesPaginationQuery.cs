@@ -22,18 +22,13 @@ public class InvoiceLinesWithPaginationQuery : InvoiceLineAdvancedFilter, ICache
     }
 }
     
-public class InvoiceLinesWithPaginationQueryHandler :
+public class InvoiceLinesWithPaginationQueryHandler(
+    IApplicationDbContext context) :
          IRequestHandler<InvoiceLinesWithPaginationQuery, PaginatedData<InvoiceLineDto>>
 {
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContext _context = context;
 
-        public InvoiceLinesWithPaginationQueryHandler(
-            IApplicationDbContext context)
-        {
-            _context = context;
-        }
-
-        public async Task<PaginatedData<InvoiceLineDto>> Handle(InvoiceLinesWithPaginationQuery request, CancellationToken cancellationToken)
+    public async Task<PaginatedData<InvoiceLineDto>> Handle(InvoiceLinesWithPaginationQuery request, CancellationToken cancellationToken)
         {
         //var data = await _context.InvoiceLines.OrderBy($"{request.OrderBy} {request.SortDirection}")
         //                                        .ProjectToPaginatedDataAsync(request.Specification, 

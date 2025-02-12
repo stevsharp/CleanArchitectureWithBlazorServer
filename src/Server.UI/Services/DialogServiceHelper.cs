@@ -62,13 +62,8 @@ public class DialogServiceHelper
                 { nameof(DeleteConfirmation.Command), command }
             };
 
-        var options = new DialogOptions
-        {
-            CloseButton = true,
-            MaxWidth = MaxWidth.ExtraLarge,
-            FullWidth = true,
-            FullScreen = true
-        };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true };
+
         var dialog = await _dialogService.ShowAsync<PrintConfirmationDialog>(title, parameters, options).ConfigureAwait(false);
         var result = await dialog.Result.ConfigureAwait(false);        
         

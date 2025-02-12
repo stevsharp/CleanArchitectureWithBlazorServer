@@ -93,6 +93,8 @@ public static class ConstantString
     public static string DeleteItems => Localize("Delete selected items: {0}");
     public static string DeleteConfirmation => Localize("Are you sure you want to delete this item: {0}?");
 
+    public static string UpdateConfirmation => Localize("Are you sure you want to Update this item: {0}?");
+
     public static string PrintConfirmation => Localize("Are you sure you want to Print this item: {0}?");
 
     public static string DeleteConfirmationWithId =>
@@ -106,6 +108,8 @@ public static class ConstantString
     public static string Waiting => Localize("Wating...");
     public static string Processing => Localize("Processing...");
     public static string DeleteConfirmationTitle => Localize("Delete Confirmation");
+
+    public static string UpdateConfirmationTitle => Localize("Update Confirmation");
 
     public static string CreateInvoiceConfirmationTitle => Localize("Create Invoice ?");
     public static string LogoutConfirmationTitle => Localize("Logout Confirmation");

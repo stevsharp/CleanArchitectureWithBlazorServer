@@ -70,7 +70,6 @@ public static class QueryableExtensions
         var data = await query
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
-            .AsTracking()
             .ToListAsync(cancellationToken);
 
         // Map the data using the provided function

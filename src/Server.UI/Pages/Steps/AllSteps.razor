@@ -1,4 +1,4 @@
-﻿@page "/pages/Steps"
+﻿@page "/pages/AllSteps"
 
 @using BlazorDownloadFile
 @using CleanArchitecture.Blazor.Application.Features.Steps.Caching
@@ -44,9 +44,21 @@
     <Columns>
         <SelectColumn ShowInFooter="false"></SelectColumn>
 
+        <PropertyColumn Property="x => x.Id" Title="@L[_currentDto.GetMemberDescription(x => x.Id)]">
+            <CellTemplate Context="context">
+                <MudText Typo="Typo.body1">@context.Item.Id</MudText>
+            </CellTemplate>
+        </PropertyColumn>
+
         <PropertyColumn Property="x => x.Name" Title="@L[_currentDto.GetMemberDescription(x => x.Name)]">
             <CellTemplate Context="context">
                 <MudText Typo="Typo.body1">@context.Item.Name</MudText>
+            </CellTemplate>
+        </PropertyColumn>
+
+        <PropertyColumn Property="x => x.InvoiceId" Title="@L[_currentDto.GetMemberDescription(x => x.InvoiceId)]">
+            <CellTemplate Context="context">
+                <MudText Typo="Typo.body1">@context.Item.InvoiceId</MudText>
             </CellTemplate>
         </PropertyColumn>
 
@@ -133,7 +145,7 @@
     [CascadingParameter(Name = "LocalTimezoneOffset")]
     private TimeSpan _localTimezoneOffset { get; set; }
 
-    private StepsWithPaginationQuery Query { get; set; } = new();
+    private AllStepsWithPaginationQuery Query { get; set; } = new();
     [Inject]
     private IBlazorDownloadFileService BlazorDownloadFileService { get; set; } = null!;
     private bool _canSearch = false;
@@ -162,27 +174,42 @@
 
     private async Task SetActive(StepDto item)
     {
-        item.IsCompleted = !item.IsCompleted;
+
 
         try
         {
-            var result = await Mediator.Send(new AddEditStepCommand
+            var contentText = string.Format(ConstantString.UpdateConfirmation, item.Id);
+            var command = new DeleteStepCommand(new int[] { item.Id });
+            await DialogServiceHelper.ShowPrintConfirmationDialogAsync(command, ConstantString.UpdateConfirmationTitle, contentText, async () =>
+            {
+                await InvokeAsync(async () =>
                 {
-                    Id = item.Id,
-                    InvoiceId = item.InvoiceId,
-                    IsCompleted = item.IsCompleted,
-                    Name = item.Name
-                });
+                    item.IsCompleted = !item.IsCompleted;
 
-            result.Match(data =>
-            {
-                Snackbar.Add(ConstantString.SaveSuccess, MudBlazor.Severity.Info);
-                return data;
-            }, errors =>
-            {
-                Snackbar.Add(errors, MudBlazor.Severity.Error);
-                return -1;
+                    var result = await Mediator.Send(new AddEditStepCommand
+                        {
+                            Id = item.Id,
+                            InvoiceId = item.InvoiceId,
+                            IsCompleted = item.IsCompleted,
+                            Name = item.Name
+                        });
+
+                    result.Match(data =>
+                    {
+                        Snackbar.Add(ConstantString.SaveSuccess, MudBlazor.Severity.Info);
+                        return data;
+                    }, errors =>
+                    {
+                        Snackbar.Add(errors, MudBlazor.Severity.Error);
+                        return -1;
+                    });
+
+                    await _table.ReloadServerData();
+                    _selectedItems.Clear();
+                });
             });
+
+           
         }
         finally
         {
@@ -289,95 +316,5 @@
         }
     }
 
-    private void OnView(StepDto dto)
-    {
-        Navigation.NavigateTo($"/pages/Steps/view/{dto.Id}");
-    }
-    private async Task OnCreate()
-    {
-        var command = new AddEditStepCommand();
-        await ShowEditFormDialog(string.Format(ConstantString.CreateAnItem, L["Step"]), command);
-    }
-    private async Task OnClone()
-    {
-        var dto = _selectedItems.First();
-        var command = StepMapper.CloneFromDto(dto);
-        await ShowEditFormDialog(string.Format(ConstantString.CreateAnItem, L["Step"]), command);
-    }
-
-    private async Task OnDelete(StepDto dto)
-    {
-        var contentText = string.Format(ConstantString.DeleteConfirmation, dto.Name);
-        var command = new DeleteStepCommand(new int[] { dto.Id });
-        await DialogServiceHelper.ShowDeleteConfirmationDialogAsync(command, ConstantString.DeleteConfirmationTitle, contentText, async () =>
-        {
-            await InvokeAsync(async () =>
-            {
-                await _table.ReloadServerData();
-                _selectedItems.Clear();
-            });
-        });
-    }
-
-    private async Task OnDeleteChecked()
-    {
-        var contentText = string.Format(ConstantString.DeleteConfirmWithSelected, _selectedItems.Count);
-        var command = new DeleteStepCommand(_selectedItems.Select(x => x.Id).ToArray());
-        await DialogServiceHelper.ShowDeleteConfirmationDialogAsync(command, ConstantString.DeleteConfirmationTitle, contentText, async () =>
-        {
-            await InvokeAsync(async () =>
-            {
-                await _table.ReloadServerData();
-                _selectedItems.Clear();
-            });
-        });
-    }
-
-    private async Task OnExport()
-    {
-        _exporting = true;
-        var request = new ExportStepsQuery()
-            {
-                Keyword = Query.Keyword,
-                CurrentUser = UserProfile,
-                ListView = Query.ListView,
-                OrderBy = _table.SortDefinitions.Values.FirstOrDefault()?.SortBy ?? "Id",
-                SortDirection = (_table.SortDefinitions.Values.FirstOrDefault()?.Descending ?? true) ? SortDirection.Descending.ToString() : SortDirection.Ascending.ToString()
-            };
-        var result = await Mediator.Send(request);
-        await result.MatchAsync<byte[]>(
-            async data =>
-            {
-                var downloadresult = await BlazorDownloadFileService.DownloadFile($"{L["Steps"]}.xlsx", result.Data, contentType: "application/octet-stream");
-                Snackbar.Add($"{ConstantString.ExportSuccess}", MudBlazor.Severity.Info);
-                return data;
-            },
-            errors =>
-            {
-                Snackbar.Add($"{errors}", MudBlazor.Severity.Error);
-                return Task.FromResult(Array.Empty<byte>());
-            });
-        _exporting = false;
-    }
-    private async Task OnImportData(IBrowserFile file)
-    {
-        _uploading = true;
-        var stream = new MemoryStream();
-        await file.OpenReadStream().CopyToAsync(stream);
-        var command = new ImportStepsCommand(file.Name, stream.ToArray());
-        var result = await Mediator.Send(command);
-        await result.MatchAsync(
-            async data =>
-            {
-                await _table.ReloadServerData();
-                Snackbar.Add($"{ConstantString.ImportSuccess}", MudBlazor.Severity.Info);
-                return data;
-            }, errors =>
-            {
-                Snackbar.Add($"{errors}", MudBlazor.Severity.Error);
-                return Task.FromResult(0);
-            });
-        _uploading = false;
-    }
 
 }

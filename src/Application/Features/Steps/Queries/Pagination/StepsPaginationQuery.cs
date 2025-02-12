@@ -22,7 +22,7 @@ public class StepsWithPaginationQueryHandler(
          IApplicationDbContext context) :
          IRequestHandler<StepsWithPaginationQuery, PaginatedData<StepDto>>
 {
-        private readonly IApplicationDbContext _context = context;
+    private readonly IApplicationDbContext _context = context;
 
     public async Task<PaginatedData<StepDto>> Handle(StepsWithPaginationQuery request, CancellationToken cancellationToken)
         {
