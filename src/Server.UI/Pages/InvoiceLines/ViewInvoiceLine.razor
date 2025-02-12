@@ -65,8 +65,12 @@
             return data;
         }).Match(data =>
         {
-            _breadcrumbItems.Add(new BreadcrumbItem(data.Id.ToString(), null, disabled: true));
-            return data;
+            if (data is not null) {
+                _breadcrumbItems.Add(new BreadcrumbItem(data.Id.ToString(), null, disabled: true));
+                return data;
+            }
+
+            return null!;
 
         }, errors =>
         {

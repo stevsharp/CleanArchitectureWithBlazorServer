@@ -1,6 +1,7 @@
 ﻿@page "/pages/AllSteps"
 
 @using BlazorDownloadFile
+@using CleanArchitecture.Blazor.Application.Features.Invoices.Commands.AddEdit
 @using CleanArchitecture.Blazor.Application.Features.Steps.Caching
 @using CleanArchitecture.Blazor.Application.Features.Steps.DTOs
 @using CleanArchitecture.Blazor.Application.Features.Steps.Mappers
@@ -11,6 +12,7 @@
 @using CleanArchitecture.Blazor.Application.Features.Steps.Queries.Export
 @using CleanArchitecture.Blazor.Application.Features.Steps.Queries.Pagination
 @using CleanArchitecture.Blazor.Application.Features.Steps.Commands.AddEdit
+@using CleanArchitecture.Blazor.Server.UI.Pages.Invoices.Components
 @using CleanArchitecture.Blazor.Server.UI.Pages.Steps.Components
 
 @inject IStringLocalizer<Steps> L
@@ -69,7 +71,7 @@
                     {
                         <MudTooltip Text="@L["Click to change status to active."]" Delay="300">
                             <MudSwitch T="bool" Value="context.Item.IsCompleted" ValueChanged="@(()=>SetActive(context.Item))"
-                                       ThumbIcon="@Icons.Material.Filled.Close" ThumbIconColor="Color.Error">
+                            ThumbIcon="@Icons.Material.Filled.Close" ThumbIconColor="Color.Error">
                             </MudSwitch>
                         </MudTooltip>
                     }
@@ -77,7 +79,7 @@
                     {
                         <MudTooltip Text="@L["Click to change status to inactive."]" Delay="300">
                             <MudSwitch T="bool" Value="context.Item.IsCompleted" ValueChanged="@(()=>SetActive(context.Item))"
-                                       ThumbIcon="@Icons.Material.Filled.Done" ThumbIconColor="Color.Success">
+                            ThumbIcon="@Icons.Material.Filled.Done" ThumbIconColor="Color.Success">
                             </MudSwitch>
 
                         </MudTooltip>
@@ -91,7 +93,7 @@
                 <div>
                     <MudStack Row>
                         <MudButton Size="@Size.Small" Variant="@Variant.Filled" OnClick="@(()=> AddComment(@context.Item))"
-                                   Color="@Color.Primary">Add </MudButton>
+                        Color="@Color.Primary">Add </MudButton>
                     </MudStack>
                 </div>
             </CellTemplate>
@@ -102,18 +104,19 @@
                 <div>
                     <MudStack Row>
                         <MudButton Size="@Size.Small" Variant="@Variant.Filled" OnClick="@(()=> ViewComments(@context.Item))"
-                                   Color="@Color.Primary">View </MudButton>
+                        Color="@Color.Primary">View </MudButton>
                     </MudStack>
                 </div>
             </CellTemplate>
         </PropertyColumn>
 
-        <PropertyColumn Property="x => x.CommentsCount" Title="@L[_currentDto.GetMemberDescription(x => x.CommentsCount)]">
+        <PropertyColumn Property="x => x.Comments" Title="View Invoice">
             <CellTemplate>
                 <div>
-                    <MudBadge Content="@context.Item.CommentsCount" Overlap="true" Class="mx-6 my-4">
-                        <MudIcon Icon="@Icons.Material.Filled.Email" Color="Color.Default" />
-                    </MudBadge>
+                    <MudStack Row>
+                        <MudButton Size="@Size.Small" Variant="@Variant.Filled" OnClick="@(()=> ViewInvoce(@context.Item))"
+                        Color="@Color.Primary">View </MudButton>
+                    </MudStack>
                 </div>
             </CellTemplate>
         </PropertyColumn>
@@ -161,7 +164,7 @@
     protected override async Task OnInitializedAsync()
     {
         Title = L[_currentDto.GetClassDescription()];
-        
+
         var state = await AuthState;
 
         // _canCreate = (await AuthService.AuthorizeAsync(state.User, Permissions.Steps.Create)).Succeeded;
@@ -209,7 +212,7 @@
                 });
             });
 
-           
+
         }
         finally
         {
@@ -238,9 +241,33 @@
         var dialog = await DialogService.ShowAsync<Comments>("title", parameters, options);
         var state = await dialog.Result;
 
+        if (state != null && !state.Canceled){}
+    }
+
+    private async Task ViewInvoce(StepDto item)
+    {
+        var command = new AddEditInvoiceCommand
+        {
+                Id = item.InvoiceId.Value
+        };
+
+        await ShowInvoiceFormDialog(string.Format(ConstantString.EditTheItem, L["Invoice"]), command);
+    }
+
+    private async Task ShowInvoiceFormDialog(string title, AddEditInvoiceCommand command)
+    {
+        var parameters = new DialogParameters<InvoiceFormDialog>
+            {
+                { x=>x.model,command },
+            };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var dialog = await DialogService.ShowAsync<InvoiceFormDialog>(title, parameters, options);
+        var state = await dialog.Result;
+
         if (state != null && !state.Canceled)
         {
-
+            await _table.ReloadServerData();
+            _selectedItems.Clear();
         }
     }
 
