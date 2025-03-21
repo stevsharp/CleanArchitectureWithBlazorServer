@@ -18,8 +18,10 @@ public class AddEditProductCommand : ICacheInvalidatorRequest<Result<int>>
     public string? Brand { get; set; }
     public decimal Price { get; set; } = 0;
     public int Stock { get; set; } = 0;
-
     public string? Code { get; set; } = string.Empty;
+    public string? AdditionalInfo { get; set; }
+    public string? ProductUrl { get; set; }
+    public string? ImageUrl { get; set; }
 
     public List<ProductImage>? Pictures { get; set; }
 

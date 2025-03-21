@@ -5,7 +5,7 @@ using CleanArchitecture.Blazor.Application.Features.Steps.Specifications;
 
 public class AllStepsWithPaginationQuery : StepAdvancedFilter, ICacheableRequest<PaginatedData<StepDto>>
 {
-    public int InvoiceId { get; set; }
+    public string Role { get; set; } = string.Empty;
     public override string ToString()
     {
         return $"Listview:{ListView}:{CurrentUser?.UserId}-{LocalTimezoneOffset.TotalHours}, " +
@@ -26,8 +26,17 @@ public class AllStepsWithPaginationQueryHandler(
     {
         try
         {
+            var roleToStepOrder = new Dictionary<string, int>
+            {
+                { "WareHouse", 2 },
+                { "Print", 3 }
+            };
+
+            var stepOrder = roleToStepOrder.TryGetValue(request.Role, out var order) ? order : 0;
+
+
             var data = await _context.Steps
-                .ApplySpecification(new AllStepByIdSpecification())
+                .ApplySpecification(new AllStepByIdSpecificationWithStep(stepOrder , 1))
                 .Include(x => x.Comments)
                 .Include(x => x.Invoice)
                 .OrderBy($"{request.OrderBy} {request.SortDirection}")
@@ -46,3 +55,26 @@ public class AllStepsWithPaginationQueryHandler(
 
     }
 }
+
+
+//SELECT * 
+//FROM [dbo].[Steps] AS s1
+//WHERE s1.StepOrder = 2 -- 'Create Product' step
+//  AND s1.InvoiceId = 11
+//  AND EXISTS (
+//      SELECT 1
+//      FROM [dbo].[Steps] AS s2
+//      WHERE s2.StepOrder = 1 -- 'Make Deposit' step
+//        AND s2.IsCompleted = 1
+//        AND s2.InvoiceId = s1.InvoiceId
+//  )SELECT * 
+//FROM [dbo].[Steps] AS s1
+//WHERE s1.StepOrder = 2 -- 'Create Product' step
+//  AND s1.InvoiceId = 11
+//  AND EXISTS (
+//      SELECT 1
+//      FROM [dbo].[Steps] AS s2
+//      WHERE s2.StepOrder = 1 -- 'Make Deposit' step
+//        AND s2.IsCompleted = 1
+//        AND s2.InvoiceId = s1.InvoiceId
+//  )

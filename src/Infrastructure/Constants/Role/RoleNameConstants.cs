@@ -7,6 +7,8 @@ public abstract class RoleName
 {
     public const string Admin = nameof(Admin);
     public const string Basic = nameof(Basic);
-    public const string WhareHouse = nameof(WhareHouse);
+    public const string WareHouse = nameof(WareHouse);
+    public const string Print = nameof(Print);
+    public const string ApproveOrder = nameof(ApproveOrder);
     public const string Users = nameof(Users);
 }

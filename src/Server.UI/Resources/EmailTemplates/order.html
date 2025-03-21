@@ -1,0 +1,192 @@
+﻿<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offer Summary</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        .offer-container {
+            background-color: #ffffff;
+            padding: 20px;
+            max-width: 800px;
+            margin: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .offer-header {
+            background-color: #007bff;
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+            margin: -20px -20px 20px -20px; /* Stretch the header */
+        }
+
+        .offer-header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .offer-header p {
+            margin: 5px 0 0 0;
+            font-size: 14px;
+        }
+
+        .section {
+            padding: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section h2 {
+            font-size: 20px;
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+
+        .section p {
+            margin: 5px 0;
+            line-height: 1.6;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .items-table th, .items-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .items-table th {
+            background-color: #f4f4f4;
+            font-size: 14px;
+        }
+
+        .items-table td {
+            background-color: #ffffff;
+            font-size: 14px;
+        }
+
+        .total-section {
+            margin-top: 20px;
+            text-align: right;
+            font-size: 14px;
+        }
+
+        .total-section p {
+            margin: 5px 0;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+            margin-top: 20px;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+        }
+
+        .footer .total {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="offer-container">
+        <!-- Header -->
+        <div class="offer-header">
+            <h1>Offer Summary</h1>
+            <p>Offer ID: @Model.Id | Date: @Model.OfferDate</p>
+        </div>
+
+        <!-- Customer Info -->
+        <div class="section">
+            <h2>Customer Information</h2>
+            <p><strong>Name:</strong> @Model.ContactName</p>
+            <p><strong>Email:</strong> @Model.ContactEmail</p>
+            <p><strong>Phone:</strong> @Model.ContactPhoneNumber</p>
+            <p><strong>City:</strong> @Model.ContactCity, @Model.ContactCountry</p>
+            <p><strong>Address:</strong> @Model.ContactAddress</p>
+        </div>
+
+        <!-- Offer Details -->
+        <div class="section">
+            <h2>Offer Details</h2>
+            <p><strong>Shipping Method:</strong> @Model.ShippingMethod</p>
+            <p><strong>Payment Type:</strong> @Model.PaymentType</p>
+            <p><strong>Status:</strong> @Model.Status</p>
+        </div>
+
+        <!-- Items with Price -->
+        <div class="section">
+            <h2>Items</h2>
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Description</th>
+                        <th>Unit</th>
+                        <th>Color</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Replace with dynamic rows -->
+                    <tr>
+                        <td>@Model.Item1Name</td>
+                        <td><a href="@Model.Item1Url" target="_blank" style="color: #007bff; text-decoration: none;">@Model.Item1Description</a></td>
+                        <td>XL</td>
+                        <td>Red</td>
+                        <td>2</td>
+                        <td>100</td>
+                        <td>200</td>
+                    </tr>
+                    <tr>
+                        <td>@Model.Item2Name</td>
+                        <td><a href="@Model.Item2Url" target="_blank" style="color: #007bff; text-decoration: none;">@Model.Item2Description</a></td>
+                        <td>XL</td>
+                        <td>Red</td>
+                        <td>2</td>
+                        <td>100</td>
+                        <td>200</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Total Summary -->
+        <div class="total-section">
+            <p><strong>Advance Payment:</strong> $@Model.AdvancePaymentAmount</p>
+            <p><strong>Shipping Costs:</strong> $@Model.ShippingCosts</p>
+            <p><strong>Total Amount:</strong> <strong>$@Model.TotalAmount</strong></p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>Offer created by @Model.CreatedBy on @Model.CreatedDate.</p>
+            <p>Last modified by @Model.LastModifiedBy on @Model.LastModifiedDate.</p>
+            <p class="total">Grand Total: $@Model.TotalAmount</p>
+        </div>
+    </div>
+</body>
+</html>

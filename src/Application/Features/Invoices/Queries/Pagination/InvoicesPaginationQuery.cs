@@ -22,20 +22,17 @@ public class InvoicesWithPaginationQueryHandler :
     private readonly IApplicationDbContext _context;
 
     public InvoicesWithPaginationQueryHandler(
-        IApplicationDbContext context)
-    {
-        _context = context;
-    }
+        IApplicationDbContext context) => _context = context;
 
     public async Task<PaginatedData<InvoiceDto>> Handle(InvoicesWithPaginationQuery request, CancellationToken cancellationToken)
     {
         try
         {
             var data = await _context.Invoices
+                .AsNoTracking()
                 .Include(x=>x.Contact)
                 .Include(x => x.InvoiceLines)
                 .ThenInclude(x => x.Product)
-                .AsNoTracking()
                 .OrderBy($"{request.OrderBy} {request.SortDirection}")
                                                     .ProjectToPaginatedDataAsync(request.Specification,
                                                                                  request.PageNumber,

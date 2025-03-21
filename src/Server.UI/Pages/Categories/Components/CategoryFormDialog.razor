@@ -1,4 +1,5 @@
 ﻿@using CleanArchitecture.Blazor.Application.Features.Categories.Commands.AddEdit
+@using CleanArchitecture.Blazor.Application.Features.SubCategories.DTOs;
 
 @inherits MudComponentBase
 @inject IValidationService Validator
@@ -10,10 +11,16 @@
             <MudGrid>
                 @*TODO: define mudform that should be edit fields, for example:*@
                 <MudItem xs="12" md="6"> 
-                        <MudTextField Label="@L[model.GetMemberDescription(x=>x.Name)]" @bind-Value="model.Name" For="@(() => model.Name)" Required="true" RequiredError="@L["name is required!"]"></MudTextField>
-                </MudItem>
-                <MudItem xs="12" md="6">
-                    <MudTextField Label="@L[model.GetMemberDescription(x=>x.Comments)]" @bind-Value="model.Comments" For="@(() => model.Comments)" Required="true" RequiredError="@L["Comment is required!"]"></MudTextField>
+                    <MudTextField Label="@L[model.GetMemberDescription(x=>x.Name)]" @bind-Value="model.Name" For="@(() => model.Name)" Required="true" RequiredError="@L["name is required!"]"></MudTextField>
+                </MudItem> 
+                <MudItem xs="12" md="6"> 
+                    <MudTextField Label="@L[model.GetMemberDescription(x=>x.Comments)]" @bind-Value="model.Comments" For="@(() => model.Comments)" Required="false" RequiredError="@L["comments is required!"]"></MudTextField>
+                </MudItem> 
+
+                <MudItem xs="12">
+
+                    <CategorySubCategory OnSubSelected="HandleSelectedItems" />
+
                 </MudItem>
 
             </MudGrid>
@@ -33,11 +40,28 @@
     [CascadingParameter]
     IMudDialogInstance MudDialog { get; set; } = default!;
     AddEditCategoryCommandValidator _modelValidator = new ();
-    [EditorRequired] [Parameter] public AddEditCategoryCommand model { get; set; } = null!;
+    [EditorRequired] 
+    [Parameter] public AddEditCategoryCommand model { get; set; } = null!;
+
+    private IEnumerable<SubCategoryDto> _selectedItems = new List<SubCategoryDto>();
+
+    private void HandleSelectedItems(IEnumerable<SubCategoryDto> selectedItems)
+    {
+        _selectedItems = selectedItems;
+    }
+
     async Task Submit()
     {
         try
         {
+
+            var items = _selectedItems.Select(x => x.Id).ToList();
+
+            if (items.Count > 0)
+            {
+                model.SubCategories.AddRange(_selectedItems);
+            }
+
             _saving = true;
             await _form!.Validate().ConfigureAwait(false);
             if (!_form!.IsValid)

@@ -158,14 +158,20 @@
     private bool _canImport = false;
     private bool _canExport = false;
 
-    [Parameter]
-    public int InvoiceId { get; set; }
+
+    protected System.Security.Claims.ClaimsPrincipal User { get; set; } = default!;
+    protected string Role { get; set; } = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         Title = L[_currentDto.GetClassDescription()];
 
         var state = await AuthState;
+
+        User = state.User;
+
+        Role = User.GetRoles().Length > 0 ? User.GetRoles()[0] : string.Empty;
+       
 
         // _canCreate = (await AuthService.AuthorizeAsync(state.User, Permissions.Steps.Create)).Succeeded;
         // _canSearch = (await AuthService.AuthorizeAsync(state.User, Permissions.Steps.Search)).Succeeded;
@@ -248,7 +254,7 @@
     {
         var command = new AddEditInvoiceCommand
         {
-                Id = item.InvoiceId.Value
+            Id = item.InvoiceId.GetValueOrDefault(0)
         };
 
         await ShowInvoiceFormDialog(string.Format(ConstantString.EditTheItem, L["Invoice"]), command);
@@ -276,12 +282,12 @@
         try
         {
             _loading = true;
-            Query.InvoiceId = InvoiceId;
             Query.CurrentUser = UserProfile;
             Query.OrderBy = "Id";
             Query.SortDirection = "Id";
             Query.PageNumber = state.Page + 1;
             Query.PageSize = state.PageSize;
+            Query.Role = Role;
             Query.LocalTimezoneOffset = _localTimezoneOffset;
             var result = await Mediator.Send(Query).ConfigureAwait(false);
             return new GridData<StepDto>() { TotalItems = result.TotalItems, Items = result.Items };

@@ -93,8 +93,8 @@ public class MenuService : IMenuService
         },
         new MenuSectionModel
         {
-            Title = "WhareHouse",
-            Roles = [RoleName.WhareHouse],
+            Title = "Settings",
+            Roles = [RoleName.WareHouse, RoleName.Print],
             SectionItems =
             [
                 new()
@@ -111,7 +111,7 @@ public class MenuService : IMenuService
                             PageStatus = PageStatus.Completed
                         },
                     ]
-                }
+                },
             ]
         },
         new MenuSectionModel
@@ -149,6 +149,18 @@ public class MenuService : IMenuService
                         {
                             Title = "Profile",
                             Href = "/user/profile",
+                            PageStatus = PageStatus.Completed
+                        },
+                         new()
+                        {
+                            Title = "Sub Categories",
+                            Href = "/pages/SubCategories",
+                            PageStatus = PageStatus.Completed
+                        },
+                          new()
+                        {
+                            Title = "Categories",
+                            Href = "/pages/Categories",
                             PageStatus = PageStatus.Completed
                         }
                     }

@@ -22,7 +22,7 @@ public interface IApplicationDbContext
     DbSet<SupplyItem> SupplyItems { get; set; }
     DbSet<SubProduct> SubProducts { get; set; }
     DbSet<Invoice> Invoices { get; set; }
-
+    DbSet<SubCategory> SubCategories { get; set; }
     DbSet<Step> Steps { get; set; }
     ChangeTracker ChangeTracker { get; }
     DbSet<DataProtectionKey> DataProtectionKeys { get; set; }

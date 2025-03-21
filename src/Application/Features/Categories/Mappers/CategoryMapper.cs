@@ -14,6 +14,9 @@ public static partial class CategoryMapper
 {
     public static partial CategoryDto ToDto(Category source);
     public static partial Category FromDto(CategoryDto dto);
+    //CategoryDto
+    public static partial AddEditCategoryCommand CreateEditCommand(CategoryDto dto);
+    
     public static partial Category FromEditCommand(AddEditCategoryCommand command);
     public static partial Category FromCreateCommand(CreateCategoryCommand command);
     public static partial UpdateCategoryCommand ToUpdateCommand(CategoryDto dto);

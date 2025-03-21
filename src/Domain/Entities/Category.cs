@@ -7,4 +7,5 @@ public class Category : BaseAuditableEntity
 {
     public string Name { get; set; } = string.Empty;
     public string Comments { get; set; } = string.Empty;
+    public ICollection<SubCategory> SubCategories { get; set; } = [];
 }

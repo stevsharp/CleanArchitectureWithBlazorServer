@@ -20,6 +20,7 @@ public class ApplicationDbContext : IdentityDbContext<
 
     }
 
+    public DbSet<SubCategory> SubCategories { get; set; }
     public DbSet<Tenant> Tenants { get; set; }
     public DbSet<Logger> Loggers { get; set; }
     public DbSet<AuditTrail> AuditTrails { get; set; }

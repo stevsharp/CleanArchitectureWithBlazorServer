@@ -30,6 +30,16 @@ public record ProductDto
     [Description("Stock")]  
     public int? Stock { get; set; }
 
+    [Description("AdditionalInfo")]
+    public string? AdditionalInfo { get; set; }
+
+    [Description("ProductUrl")]
+    public string? ProductUrl { get; set; }
+
+    [Description("ImageUrl")]
+    public string? ImageUrl { get; set; }
+
+
     [Description("SubProducts")]
     public  IEnumerable<SubProduct>? SubProducts { get; set; } 
 }

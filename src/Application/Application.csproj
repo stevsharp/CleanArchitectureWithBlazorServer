@@ -34,6 +34,7 @@
         <ProjectReference Include="..\Domain\Domain.csproj" />
     </ItemGroup>
     <ItemGroup>
+      <Folder Include="Features\SubCategories\EventHandlers\" />
       <Folder Include="Features\SupplyItems\EventHandlers\" />
     </ItemGroup>
 </Project>

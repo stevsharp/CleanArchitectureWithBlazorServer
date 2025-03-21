@@ -81,7 +81,29 @@
                     </MudNumericField>
                 </MudItem>
 
-                <MudItem xs="12" sm="4">
+                <MudItem xs="12">
+                    <MudTextField Lines="4" Label="@L["AdditionalInfo"]" @bind-Value="Model.AdditionalInfo"
+                                  For="@(() => Model.AdditionalInfo)"
+                                  Required="false">
+                    </MudTextField>
+                </MudItem>
+
+                <MudItem xs="12">
+                    <MudTextField Label="@L["ProductUrl"]" @bind-Value="Model.ProductUrl"
+                                  For="@(() => Model.ProductUrl)"
+                                  Required="false">
+                    </MudTextField>
+                </MudItem>
+
+                <MudItem xs="12">
+                    <MudTextField Label="@L["Image Url"]" @bind-Value="Model.ImageUrl"
+                                  For="@(() => Model.ImageUrl)"
+                                  Required="false">
+                    </MudTextField>
+                </MudItem>
+
+
+@*                 <MudItem xs="12" sm="4">
                     <PicklistAutocomplete Picklist="Picklist.Unit" T="string"
                                           Label="@L["Unit"]"
                                           For="@(() => Model.Unit)"
@@ -92,7 +114,7 @@
                             <MudProgressLinear Size="MudBlazor.Size.Small" Indeterminate="true" />
                         </ProgressIndicatorTemplate>
                     </PicklistAutocomplete>
-                </MudItem>
+                </MudItem> *@
                 <MudItem xs="12">
                     <MudStack Spacing="1" Class="mb-2">
                         <MudText Typo="Typo.body2">@L["The recommended size for uploading images is 640X320"]</MudText>
