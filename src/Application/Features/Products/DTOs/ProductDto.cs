@@ -39,6 +39,8 @@ public record ProductDto
     [Description("ImageUrl")]
     public string? ImageUrl { get; set; }
 
+    [Description("Category Id")]
+    public int CategoryId { get; set; }
 
     [Description("SubProducts")]
     public  IEnumerable<SubProduct>? SubProducts { get; set; } 

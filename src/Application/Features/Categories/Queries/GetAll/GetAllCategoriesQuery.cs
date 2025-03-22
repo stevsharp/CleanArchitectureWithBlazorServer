@@ -24,7 +24,10 @@ public class GetAllCategoriesQueryHandler :
 
     public async Task<IEnumerable<CategoryDto>> Handle(GetAllCategoriesQuery request, CancellationToken cancellationToken)
     {
-        var data = await _context.Categories.ProjectTo()
+        var data = await _context.Categories
+                                        .Include(x=>x.SubCategories)
+                                            .AsSplitQuery()
+                                            .ProjectTo()
                                                 .AsNoTracking()
                                                 .ToListAsync(cancellationToken);
         return data;

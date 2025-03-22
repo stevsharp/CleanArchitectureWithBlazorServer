@@ -23,6 +23,8 @@ public class AddEditProductCommand : ICacheInvalidatorRequest<Result<int>>
     public string? ProductUrl { get; set; }
     public string? ImageUrl { get; set; }
 
+    public int CategoryId { get; set; }
+
     public List<ProductImage>? Pictures { get; set; }
 
     public IReadOnlyList<IBrowserFile>? UploadPictures { get; set; }
@@ -43,25 +45,35 @@ public class AddEditProductCommandHandler : IRequestHandler<AddEditProductComman
 
     public async Task<Result<int>> Handle(AddEditProductCommand request, CancellationToken cancellationToken)
     {
-        if (request.Id > 0)
+        try
         {
-            var item = await _context.Products.SingleOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
-            if (item == null)
+            if (request.Id > 0)
             {
-                return await Result<int>.FailureAsync($"Prduct with id: [{request.Id}] not found.");
+                var item = await _context.Products.SingleOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+                if (item == null)
+                {
+                    return await Result<int>.FailureAsync($"Prduct with id: [{request.Id}] not found.");
+                }
+                ProductMapper.ApplyChangesFrom(request, item);
+                item.AddDomainEvent(new UpdatedEvent<Product>(item));
+                await _context.SaveChangesAsync(cancellationToken);
+                return await Result<int>.SuccessAsync(item.Id);
             }
-            ProductMapper.ApplyChangesFrom(request, item);
-            item.AddDomainEvent(new UpdatedEvent<Product>(item));
-            await _context.SaveChangesAsync(cancellationToken);
-            return await Result<int>.SuccessAsync(item.Id);
+            else
+            {
+                var item = ProductMapper.FromEditCommand(request);
+                item.AddDomainEvent(new CreatedEvent<Product>(item));
+                _context.Products.Add(item);
+                await _context.SaveChangesAsync(cancellationToken);
+                return await Result<int>.SuccessAsync(item.Id);
+            }
         }
-        else
+        catch (Exception ex)
         {
-            var item = ProductMapper.FromEditCommand(request);
-            item.AddDomainEvent(new CreatedEvent<Product>(item));
-            _context.Products.Add(item);
-            await _context.SaveChangesAsync(cancellationToken);
-            return await Result<int>.SuccessAsync(item.Id);
+            var message = ex.ToString();
+            throw;
         }
+
+
     }
 }

@@ -1,4 +1,5 @@
-﻿@using CleanArchitecture.Blazor.Server.UI.Components.Fusion
+﻿@using CleanArchitecture.Blazor.Application.Features.Categories.Queries.GetAll
+@using CleanArchitecture.Blazor.Server.UI.Components.Fusion
 @using ResizeMode = SixLabors.ImageSharp.Processing.ResizeMode
 @using Size = SixLabors.ImageSharp.Size
 @using Image = SixLabors.ImageSharp.Image
@@ -9,7 +10,7 @@
 @using CleanArchitecture.Blazor.Domain.Common.Enums
 @using CleanArchitecture.Blazor.Server.UI.Services.JsInterop
 @using System.Collections.Immutable
-
+@using CleanArchitecture.Blazor.Application.Features.Categories.DTOs;
 @inject IStringLocalizer<Products> L
 @inject IUploadService UploadService
 
@@ -21,28 +22,28 @@
 
                 <MudItem xs="12">
                     <MudTextField Label="@L["Product Name"]" @bind-Value="Model.Code"
-                                  For="@(() => Model.Code)"
-                                  Required="true"
-                                  RequiredError="@L["product code is required!"]">
+                    For="@(() => Model.Code)"
+                    Required="true"
+                    RequiredError="@L["product code is required!"]">
                     </MudTextField>
                 </MudItem>
 
                 <MudItem xs="12">
                     <MudTextField Label="@L["Product Name"]" @bind-Value="Model.Name"
-                                  For="@(() => Model.Name)"
-                                  Required="true"
-                                  RequiredError="@L["product name is required!"]">
+                    For="@(() => Model.Name)"
+                    Required="true"
+                    RequiredError="@L["product name is required!"]">
                     </MudTextField>
                 </MudItem>
                 <MudItem xs="12">
                     <MudTextField Label="@L["Description"]"
-                                  Lines="3"
-                                  For="@(() => Model.Description)"
-                                  @bind-Value="Model.Description">
+                    Lines="3"
+                    For="@(() => Model.Description)"
+                    @bind-Value="Model.Description">
                     </MudTextField>
                 </MudItem>
                 <MudItem xs="12" sm="4">
-                    <PicklistAutocomplete Picklist="Picklist.Brand" T="string"
+                    @*  <PicklistAutocomplete Picklist="Picklist.Brand" T="string"
                                           Label="@L["Brand Name"]"
                                           For="@(() => Model.Brand)"
                                           ResetValueOnEmptyText="true"
@@ -51,59 +52,76 @@
                         <ProgressIndicatorTemplate>
                             <MudProgressLinear Size="MudBlazor.Size.Small" Indeterminate="true" />
                         </ProgressIndicatorTemplate>
-                    </PicklistAutocomplete>
+                    </PicklistAutocomplete> *@
+
+                    <MudSelect T="CategoryDto"
+                        Required="true" RequiredError="@L["customer id is required!"]"
+                               Label="@L["Category"]" @bind-Value="SelectedCategory">
+                            @if (Categories is not null)
+                            {
+                                @foreach (var contact in Categories)
+                                {
+                                    <MudSelectItem Value="contact"
+                                    Label="@($"{contact.Name}")">
+                                        @($"{contact.Name}")
+                                    </MudSelectItem>
+                                }
+                            }
+                    </MudSelect>
+
+
                 </MudItem>
                 <MudItem xs="12" sm="4">
                     <MudNumericField Label="@L["Price"]"
-                                     T="decimal"
-                                     Format="N2"
-                                     For="@(() => Model.Price)"
-                                     Min="0.00m"
-                                     @bind-Value="Model.Price">
+                    T="decimal"
+                    Format="N2"
+                    For="@(() => Model.Price)"
+                    Min="0.00m"
+                    @bind-Value="Model.Price">
                     </MudNumericField>
                 </MudItem>
 
                 <MudItem xs="12" sm="4">
                     <MudNumericField Label="@L["RetailPrice"]"
-                                     T="decimal"
-                                     Format="N2"
-                                     For="@(() => Model.RetailPrice)"
-                                     Min="0.00m"
-                                     @bind-Value="Model.RetailPrice">
+                    T="decimal"
+                    Format="N2"
+                    For="@(() => Model.RetailPrice)"
+                    Min="0.00m"
+                    @bind-Value="Model.RetailPrice">
                     </MudNumericField>
                 </MudItem>
 
                 <MudItem xs="12" sm="4">
                     <MudNumericField Label="@L["Stock"]"
-                                     T="int"
-                                     For="@(() => Model.Stock)"
-                                     @bind-Value="Model.Stock">
+                    T="int"
+                    For="@(() => Model.Stock)"
+                    @bind-Value="Model.Stock">
                     </MudNumericField>
                 </MudItem>
 
                 <MudItem xs="12">
                     <MudTextField Lines="4" Label="@L["AdditionalInfo"]" @bind-Value="Model.AdditionalInfo"
-                                  For="@(() => Model.AdditionalInfo)"
-                                  Required="false">
+                    For="@(() => Model.AdditionalInfo)"
+                    Required="false">
                     </MudTextField>
                 </MudItem>
 
                 <MudItem xs="12">
                     <MudTextField Label="@L["ProductUrl"]" @bind-Value="Model.ProductUrl"
-                                  For="@(() => Model.ProductUrl)"
-                                  Required="false">
+                    For="@(() => Model.ProductUrl)"
+                    Required="false">
                     </MudTextField>
                 </MudItem>
 
                 <MudItem xs="12">
                     <MudTextField Label="@L["Image Url"]" @bind-Value="Model.ImageUrl"
-                                  For="@(() => Model.ImageUrl)"
-                                  Required="false">
+                    For="@(() => Model.ImageUrl)"
+                    Required="false">
                     </MudTextField>
                 </MudItem>
 
 
-@*                 <MudItem xs="12" sm="4">
+                @*                 <MudItem xs="12" sm="4">
                     <PicklistAutocomplete Picklist="Picklist.Unit" T="string"
                                           Label="@L["Unit"]"
                                           For="@(() => Model.Unit)"
@@ -119,22 +137,22 @@
                     <MudStack Spacing="1" Class="mb-2">
                         <MudText Typo="Typo.body2">@L["The recommended size for uploading images is 640X320"]</MudText>
                         <MudFileUpload T="IReadOnlyList<IBrowserFile>" multiple
-                                       @bind-Files="Model.UploadPictures"
-                                       For="@(() => Model.UploadPictures)"
-                                       OnFilesChanged="UploadFiles" Accept=".pdf,image/*"
-                                       Hidden="@false"
-                                       InputClass="absolute mud-width-full mud-height-full overflow-hidden z-100"
-                                       InputStyle="opacity:0"
-                                       tabindex="-1"
-                                       @ondrop="@ClearDragClass"
-                                       @ondragenter="@SetDragClass"
-                                       @ondragleave="@ClearDragClass"
-                                       @ondragend="@ClearDragClass"
-                                       AppendMultipleFiles>
+                        @bind-Files="Model.UploadPictures"
+                        For="@(() => Model.UploadPictures)"
+                        OnFilesChanged="UploadFiles" Accept=".pdf,image/*"
+                        Hidden="@false"
+                        InputClass="absolute mud-width-full mud-height-full overflow-hidden z-100"
+                        InputStyle="opacity:0"
+                        tabindex="-1"
+                        @ondrop="@ClearDragClass"
+                        @ondragenter="@SetDragClass"
+                        @ondragleave="@ClearDragClass"
+                        @ondragend="@ClearDragClass"
+                        AppendMultipleFiles>
                             <ActivatorContent>
                                 <MudPaper Class="@_dragClass" Style="width:260px;height:70px;">
                                     <MudLoadingButton Loading="@_uploading" Disabled="@_uploading" Variant="Variant.Text" Class="align-self-center" Style="text-transform:none"
-                                                      StartIcon="@Icons.Material.Filled.CloudUpload">
+                                    StartIcon="@Icons.Material.Filled.CloudUpload">
                                         @L["choose image or pdf"]
                                     </MudLoadingButton>
                                 </MudPaper>
@@ -181,6 +199,9 @@
     private bool _saveingnew;
     private bool _uploading;
 
+    public IEnumerable<CategoryDto> Categories { get; set; } = default!;
+    private CategoryDto? SelectedCategory;
+    private GetAllCategoriesQuery getAllCategoriesQuery = new GetAllCategoriesQuery();
     private const long MaxAllowedSize = 3145728;
 
     private async Task DeleteImage(ProductImage picture)
@@ -206,6 +227,21 @@
     private string _dragClass = DefaultDragClass;
     private void SetDragClass()
         => _dragClass = $"{DefaultDragClass} mud-border-primary mud-elevation-25 border-4";
+
+    protected override async Task OnInitializedAsync()
+    {
+       
+        var result = await Mediator.Send(getAllCategoriesQuery).ConfigureAwait(false);
+
+        if (result.Any())
+        {
+            Categories = result.ToList();
+
+            if (Model.CategoryId > 0)
+                SelectedCategory = Categories.First(x => x.Id == Model.CategoryId);
+        }
+
+    }
 
     private void ClearDragClass()
         => _dragClass = DefaultDragClass;
@@ -275,6 +311,11 @@
 
             if (!_form!.IsValid)
                 return;
+
+            if (SelectedCategory is null)
+                return;
+
+            Model.CategoryId = SelectedCategory.Id;
 
             var result = await Mediator.Send(Model);
             result.Match(
