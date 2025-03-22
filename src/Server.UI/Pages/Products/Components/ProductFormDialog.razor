@@ -42,7 +42,7 @@
                     @bind-Value="Model.Description">
                     </MudTextField>
                 </MudItem>
-                <MudItem xs="12" sm="4">
+                <MudItem xs="12" sm="6">
                     @*  <PicklistAutocomplete Picklist="Picklist.Brand" T="string"
                                           Label="@L["Brand Name"]"
                                           For="@(() => Model.Brand)"
@@ -55,6 +55,7 @@
                     </PicklistAutocomplete> *@
 
                     <MudSelect T="CategoryDto"
+                               Variant="Variant.Outlined"
                         Required="true" RequiredError="@L["customer id is required!"]"
                                Label="@L["Category"]" @bind-Value="SelectedCategory">
                             @if (Categories is not null)
@@ -69,10 +70,18 @@
                             }
                     </MudSelect>
 
+                    <MudTextField ReadOnly="true"
+                                  Lines="3"
+                                  Label="@L["ProductUrl"]"
+                                  Variant="Variant.Outlined"
+                                  Value="@(string.Join(", ", SelectedCategory?.SubCategories?.Select(x => x.Name) ?? Enumerable.Empty<string>()))"
+                                  Required="false">
+                    </MudTextField>
 
                 </MudItem>
                 <MudItem xs="12" sm="4">
                     <MudNumericField Label="@L["Price"]"
+                                     Variant="Variant.Outlined"
                     T="decimal"
                     Format="N2"
                     For="@(() => Model.Price)"
@@ -83,6 +92,7 @@
 
                 <MudItem xs="12" sm="4">
                     <MudNumericField Label="@L["RetailPrice"]"
+                                     Variant="Variant.Outlined"
                     T="decimal"
                     Format="N2"
                     For="@(() => Model.RetailPrice)"
@@ -100,14 +110,15 @@
                 </MudItem>
 
                 <MudItem xs="12">
-                    <MudTextField Lines="4" Label="@L["AdditionalInfo"]" @bind-Value="Model.AdditionalInfo"
+                    <MudTextField Variant="Variant.Outlined"
+                        Lines="4" Label="@L["AdditionalInfo"]" @bind-Value="Model.AdditionalInfo"
                     For="@(() => Model.AdditionalInfo)"
                     Required="false">
                     </MudTextField>
                 </MudItem>
 
                 <MudItem xs="12">
-                    <MudTextField Label="@L["ProductUrl"]" @bind-Value="Model.ProductUrl"
+                    <MudTextField Variant="Variant.Outlined" Label="@L["ProductUrl"]" @bind-Value="Model.ProductUrl"
                     For="@(() => Model.ProductUrl)"
                     Required="false">
                     </MudTextField>

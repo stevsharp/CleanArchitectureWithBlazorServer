@@ -1,4 +1,6 @@
-﻿@using CleanArchitecture.Blazor.Application.Features.Products.Queries.Pagination
+﻿@using CleanArchitecture.Blazor.Application.Features.Categories.Queries.GetAll
+@using CleanArchitecture.Blazor.Application.Features.Products.Queries.Pagination
+@using CleanArchitecture.Blazor.Application.Features.Categories.DTOs;
 @inject IStringLocalizer<Products> L
 
 <MudExpansionPanel @bind-Expanded="_advancedSearchExpanded"
@@ -7,13 +9,22 @@
     <MudGrid Spacing="2">
         <MudItem xs="12" sm="6" md="4">
             <MudTextField @bind-Value="TRequest.Name"
+                          Variant="Variant.Outlined"
                           Placeholder="@L["Search by product name"]"
                           Clearable="true"
                           TextChanged="TextChanged">
             </MudTextField>
         </MudItem>
         <MudItem xs="12" sm="6" md="4">
-           @*  <PicklistAutocomplete Picklist="Picklist.Brand"
+
+            <MudTextField @bind-Value="TRequest.Code"
+                          Variant="Variant.Outlined"
+                          Placeholder="@L["Search by product code"]"
+                          Clearable="true"
+                          TextChanged="TextChanged">
+            </MudTextField>
+
+            @*  <PicklistAutocomplete Picklist="Picklist.Brand"
                                     T="string"
                                   Placeholder="@L["Search by brand"]"
                                   TextChanged="TextChanged"
@@ -22,35 +33,80 @@
             </PicklistAutocomplete> *@
         </MudItem>
         <MudItem xs="12" sm="6" md="4">
-           @*  <PicklistAutocomplete Picklist="Picklist.Unit" T="string"
-                                  Placeholder="@L["Search by unit"]"
-                                  TextChanged="TextChanged"
-                                  ResetValueOnEmptyText="true"
-                                  @bind-Value="TRequest.Unit">
-            </PicklistAutocomplete> *@
+
+            <MudSelect T="int"
+                       Clearable="true"
+                       Variant="Variant.Outlined"
+                       Label="@L["Category"]"
+                       Value="TRequest.CategoryId"
+                       ValueChanged="OnCategoryChanged">
+                @if (Categories is not null)
+                {
+                    foreach (var contact in Categories)
+                    {
+                        <MudSelectItem Value="@contact.Id" Label="@contact.Name">
+                            @contact.Name
+                        </MudSelectItem>
+                    }
+                }
+            </MudSelect>
+
         </MudItem>
         <MudItem xs="12" sm="6" md="4">
-            <MudNumericField Clearable="true" @bind-Value="TRequest.MinPrice"
+            @*             <MudNumericField Clearable="true" @bind-Value="TRequest.MinPrice"
                              Placeholder="@L["Search by minimum price"]"
                              TextChanged="TextChanged">
-            </MudNumericField>
+            </MudNumericField> *@
         </MudItem>
         <MudItem xs="12" sm="6" md="4">
-            <MudNumericField @bind-Value="TRequest.MaxPrice"
+            @* <MudNumericField @bind-Value="TRequest.MaxPrice"
                              Clearable="true"
                              Placeholder="@L["Search by maximum price"]"
                              TextChanged="TextChanged">
-            </MudNumericField>
+            </MudNumericField> *@
         </MudItem>
     </MudGrid>
 </MudExpansionPanel>
 
 @code
 {
-    [EditorRequired] [Parameter] public ProductsWithPaginationQuery TRequest { get; set; } = default!;
-    [EditorRequired] [Parameter] public EventCallback<string> OnConditionChanged { get; set; }
+
+    public IEnumerable<CategoryDto> Categories { get; set; } = default!;
+    private CategoryDto? SelectedCategory;
+    private GetAllCategoriesQuery getAllCategoriesQuery = new GetAllCategoriesQuery();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Categories = await Mediator.Send(getAllCategoriesQuery);
+    }
+
+    [EditorRequired][Parameter] public ProductsWithPaginationQuery TRequest { get; set; } = default!;
+    [EditorRequired][Parameter] public EventCallback<string> OnConditionChanged { get; set; }
+
+    [EditorRequired][Parameter] public EventCallback<int> OnCategoryChangedEvent { get; set; }
 
     private bool _advancedSearchExpanded;
+
+    private async Task OnCategoryChanged(int selectedId)
+    {
+        TRequest.CategoryId = selectedId;
+
+        await OnCategoryChangedEvent.InvokeAsync(selectedId);
+    }
+
+    // private async Task OnCategoryChanged(ChangeEventArgs args)
+    // {
+    //     // if (newCategory is null)
+    //     // {
+    //     //     return;
+    //     // }
+
+    //     // SelectedCategory = newCategory;
+    //     var selectedId = TRequest.CategoryId;
+
+    //     await OnCategoryChangedEvent.InvokeAsync(selectedId);
+
+    // }
 
     private async Task TextChanged(string str)
     {

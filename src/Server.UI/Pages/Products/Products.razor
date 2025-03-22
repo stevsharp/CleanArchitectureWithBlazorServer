@@ -21,7 +21,10 @@
 
 <PageTitle>@Title</PageTitle>
 
-<AdvancedSearchProducts TRequest="Query" OnConditionChanged="ConditionChanged"></AdvancedSearchProducts>
+<AdvancedSearchProducts TRequest="Query" 
+        OnCategoryChangedEvent="OnCategoryConditionChanged" 
+        OnConditionChanged="ConditionChanged">
+    </AdvancedSearchProducts>
 <MudDataGrid ServerData="@(ServerReload)"
              FixedHeader="true"
              FixedFooter="true"
@@ -243,7 +246,6 @@
 
     private ProductsWithPaginationQuery Query { get; } = new();
 
-
     protected override async Task OnInitializedAsync()
     {
         Title = L[_currentDto.GetClassDescription()];
@@ -274,6 +276,11 @@
         {
             _loading = false;
         }
+    }
+
+    private void OnCategoryConditionChanged(int s)
+    {
+        InvokeAsync(_table.ReloadServerData);
     }
 
     private void ConditionChanged(string s)

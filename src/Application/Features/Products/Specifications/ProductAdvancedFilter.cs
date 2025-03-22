@@ -3,6 +3,9 @@
 public class ProductAdvancedFilter : PaginationFilter
 {
     public string? Name { get; set; }
+    public string? Code { get; set; }
+    public int CategoryId { get; set; }
+
     public string? Brand { get; set; }
     public string? Unit { get; set; }
     public decimal? MaxPrice { get; set; }
