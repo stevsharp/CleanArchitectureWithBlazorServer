@@ -19,7 +19,7 @@
 
                 <MudItem xs="12">
 
-                    <CategorySubCategory OnSubSelected="HandleSelectedItems" />
+                    <CategorySubCategory _selectedItems="_selectedItems" SubCategories="model.SubCategories" OnSubSelected="HandleSelectedItems" />
 
                 </MudItem>
 
@@ -43,11 +43,11 @@
     [EditorRequired] 
     [Parameter] public AddEditCategoryCommand model { get; set; } = null!;
 
-    private IEnumerable<SubCategoryDto> _selectedItems = new List<SubCategoryDto>();
-
+    //private IEnumerable<SubCategoryDto> _selectedItems = new List<SubCategoryDto>();
+    public HashSet<SubCategoryDto> _selectedItems { get; set; } = new HashSet<SubCategoryDto>();
     private void HandleSelectedItems(IEnumerable<SubCategoryDto> selectedItems)
     {
-        _selectedItems = selectedItems;
+        //_selectedItems.Append (selectedItems);
     }
 
     async Task Submit()

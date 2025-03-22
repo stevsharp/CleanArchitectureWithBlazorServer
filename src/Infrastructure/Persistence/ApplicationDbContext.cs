@@ -1,10 +1,12 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data;
 using System.Reflection;
 using CleanArchitecture.Blazor.Domain.Common.Entities;
 using CleanArchitecture.Blazor.Domain.Identity;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 
 namespace CleanArchitecture.Blazor.Infrastructure.Persistence;
 
@@ -55,5 +57,28 @@ public class ApplicationDbContext : IdentityDbContext<
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
 
+    }
+
+    public async Task UpdateCategorySubCategoriesAsync(int categoryId, List<int> subCategoryIds, CancellationToken cancellationToken)
+    {
+        // Convert list to DataTable
+        var table = new DataTable();
+        table.Columns.Add("Id", typeof(int));
+        foreach (var id in subCategoryIds.Distinct())
+        {
+            table.Rows.Add(id);
+        }
+
+        var categoryParam = new SqlParameter("@CategoryId", categoryId);
+        var subCatParam = new SqlParameter("@SubCategoryIds", SqlDbType.Structured)
+        {
+            TypeName = "dbo.IntList",
+            Value = table
+        };
+
+        await this.Database.ExecuteSqlRawAsync(
+            "EXEC UpdateCategorySubCategories @CategoryId, @SubCategoryIds",
+            new[] { categoryParam, subCatParam },
+            cancellationToken);
     }
 }

@@ -4,6 +4,7 @@
 
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace CleanArchitecture.Blazor.Application.Common.Interfaces;
 
@@ -27,4 +28,5 @@ public interface IApplicationDbContext
     ChangeTracker ChangeTracker { get; }
     DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+    Task UpdateCategorySubCategoriesAsync(int categoryId, List<int> subCategoryIds, CancellationToken cancellationToken);
 }

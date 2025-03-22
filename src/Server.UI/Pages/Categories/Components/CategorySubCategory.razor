@@ -50,7 +50,7 @@
                     @if (_canSearch)
                     {
                         <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Value="@Query.Keyword" Placeholder="@ConstantString.Search" Adornment="Adornment.End"
-                                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Small">
+                        AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Small">
                         </MudTextField>
                     }
                 </MudStack>
@@ -76,7 +76,7 @@
                     {
                         <MudTooltip Text="@L["Click to change status to active."]" Delay="300">
                             <MudSwitch T="bool" Value="context.Item.IsChecked" ValueChanged="@(()=>SetActive(context.Item))"
-                                       ThumbIcon="@Icons.Material.Filled.Close" ThumbIconColor="Color.Error">
+                            ThumbIcon="@Icons.Material.Filled.Close" ThumbIconColor="Color.Error">
                             </MudSwitch>
                         </MudTooltip>
                     }
@@ -84,7 +84,7 @@
                     {
                         <MudTooltip Text="@L["Click to change status to inactive."]" Delay="300">
                             <MudSwitch T="bool" Value="context.Item.IsChecked" ValueChanged="@(()=>SetActive(context.Item))"
-                                       ThumbIcon="@Icons.Material.Filled.Done" ThumbIconColor="Color.Success">
+                            ThumbIcon="@Icons.Material.Filled.Done" ThumbIconColor="Color.Success">
                             </MudSwitch>
 
                         </MudTooltip>
@@ -111,7 +111,9 @@
 @code {
     public string? Title { get; private set; }
     private int _defaultPageSize = 10;
-    private HashSet<SubCategoryDto> _selectedItems = new HashSet<SubCategoryDto>();
+
+    [Parameter]
+    public HashSet<SubCategoryDto> _selectedItems { get; set; } = new HashSet<SubCategoryDto>();
     private MudDataGrid<SubCategoryDto> _table = default!;
     private SubCategoryDto _currentDto = new();
     private bool _loading;
@@ -127,7 +129,11 @@
     [Parameter]
     public EventCallback<List<SubCategoryDto>> OnSubSelected { get; set; }
 
+    [Parameter]
+    public IEnumerable<SubCategoryDto> SubCategories { get; set; } = default!;
+
     private SubCategoriesWithPaginationQuery Query { get; set; } = new();
+
     [Inject]
     private IBlazorDownloadFileService BlazorDownloadFileService { get; set; } = null!;
     private bool _canSearch;
@@ -152,6 +158,8 @@
     {
         try
         {
+            SubCategoryCacheKey.Refresh();
+
             _loading = true;
             Query.CurrentUser = UserProfile;
             Query.OrderBy = state.SortDefinitions.FirstOrDefault()?.SortBy ?? "Id";
@@ -160,6 +168,21 @@
             Query.PageSize = state.PageSize;
             Query.LocalTimezoneOffset = _localTimezoneOffset;
             var result = await Mediator.Send(Query).ConfigureAwait(false);
+
+            _selectedItems.Clear();
+
+            if (SubCategories.Any())
+            {
+                foreach (var item in result.Items)
+                {
+                    if (SubCategories.Any(x => x.Id == item.Id))
+                    {
+                        item.IsChecked = true;
+                        _selectedItems.Add(item);
+                    }
+                }
+            }
+
             return new GridData<SubCategoryDto>() { TotalItems = result.TotalItems, Items = result.Items };
         }
         finally

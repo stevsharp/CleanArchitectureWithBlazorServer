@@ -44,12 +44,15 @@ public class CategoriesWithPaginationQueryHandler :
 
         public async Task<PaginatedData<CategoryDto>> Handle(CategoriesWithPaginationQuery request, CancellationToken cancellationToken)
         {
-           var data = await _context.Categories.OrderBy($"{request.OrderBy} {request.SortDirection}")
-                                                   .ProjectToPaginatedDataAsync(request.Specification, 
-                                                                                request.PageNumber, 
-                                                                                request.PageSize, 
-                                                                                CategoryMapper.ToDto, 
-                                                                                cancellationToken);
-            return data;
+           var data = await _context.Categories
+                .Include(x => x.SubCategories)
+                .AsSplitQuery()
+                .OrderBy($"{request.OrderBy} {request.SortDirection}")
+                                                       .ProjectToPaginatedDataAsync(request.Specification, 
+                                                                                    request.PageNumber, 
+                                                                                    request.PageSize, 
+                                                                                    CategoryMapper.ToDto, 
+                                                                                    cancellationToken);
+                return data;
         }
 }
