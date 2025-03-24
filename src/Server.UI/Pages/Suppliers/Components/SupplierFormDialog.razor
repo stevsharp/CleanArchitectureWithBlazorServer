@@ -25,8 +25,56 @@
                     <MudTextField Label="@L[model.GetMemberDescription(x=>x.VAT)]" @bind-Value="model.VAT" For="@(() => model.VAT)" Required="false" RequiredError="@L["vat is required!"]"></MudTextField>
                 </MudItem>
                 <MudItem xs="12" md="6">
-                    <MudTextField Label="@L[model.GetMemberDescription(x=>x.Country)]" @bind-Value="model.Country" For="@(() => model.Country)" Required="false" RequiredError="@L["country is required!"]"></MudTextField>
+                    <MudTextField Label="@L[model.GetMemberDescription(x=>x.Country)]" @bind-Value="model.Country" For="@(() => model.Country)" Required="false" 
+                        RequiredError="@L["country is required!"]"></MudTextField>
                 </MudItem>
+
+                <MudItem xs="12" md="6">
+                    <MudTextField Label="@L[model.GetMemberDescription(x=>x.TaxIdentificationNumber)]" @bind-Value="model.TaxIdentificationNumber" For="@(() => model.TaxIdentificationNumber)" 
+                                Required="false"
+                                  RequiredError="@L["TaxIdentificationNumber is required!"]"></MudTextField>
+                </MudItem>
+
+                <MudItem xs="12" md="6">
+                    <MudTextField Label="@L[model.GetMemberDescription(x=>x.PublicFinancialService)]" @bind-Value="model.PublicFinancialService" For="@(() => model.PublicFinancialService)"
+                                  Required="false"
+                                  RequiredError="@L["PublicFinancialService is required!"]"></MudTextField>
+                </MudItem>
+
+                <MudItem xs="12" md="6">
+                    <MudTextField Label="@L[model.GetMemberDescription(x=>x.CompanyType)]" @bind-Value="model.CompanyType" For="@(() => model.CompanyType)"
+                                  Required="false"
+                                  RequiredError="@L["CompanyType is required!"]"></MudTextField>
+                </MudItem>
+
+                <MudItem xs="12" md="6">
+                    <MudTextField Label="@L[model.GetMemberDescription(x=>x.IBAN)]" @bind-Value="model.IBAN" For="@(() => model.IBAN)"
+                                  Required="false"
+                                  RequiredError="@L["IBAN is required!"]"></MudTextField>
+                </MudItem>
+
+
+                <MudItem xs="12" md="6">
+                    <MudTextField Label="@L[model.GetMemberDescription(x=>x.SWIFT)]" @bind-Value="model.SWIFT" For="@(() => model.SWIFT)"
+                                  Required="false"
+                                  RequiredError="@L["SWIFT is required!"]"></MudTextField>
+                </MudItem>
+
+
+                <MudItem xs="12" md="6">
+                    <MudTextField Label="@L[model.GetMemberDescription(x=>x.ContactPerson)]" @bind-Value="model.ContactPerson" For="@(() => model.ContactPerson)"
+                                  Required="false"
+                                  RequiredError="@L["ContactPerson is required!"]"></MudTextField>
+                </MudItem>
+
+
+                <MudItem xs="12" md="6">
+                    <MudTextField Lines=5 Label="@L[model.GetMemberDescription(x=>x.Notes)]" @bind-Value="model.Notes" For="@(() => model.Notes)"
+                                  Required="false"
+                                  RequiredError="@L["Notes is required!"]"></MudTextField>
+                </MudItem>
+
+
             </MudGrid>
         </MudForm>
     </DialogContent>

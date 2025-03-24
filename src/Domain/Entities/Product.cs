@@ -19,6 +19,8 @@ public class Product : BaseAuditableEntity
     public string? AdditionalInfo { get; set; }
     public string? ProductUrl { get; set; }
     public string? ImageUrl { get; set; }
+
+
     public int CategoryId { get; set; } // Foreign Key  
 
     public virtual List<ProductImage>? Pictures { get; set; }

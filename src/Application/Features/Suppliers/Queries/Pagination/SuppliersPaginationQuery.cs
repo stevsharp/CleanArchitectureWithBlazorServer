@@ -11,7 +11,9 @@ public class SuppliersWithPaginationQuery : SupplierAdvancedFilter, ICacheableRe
 {
     public override string ToString()
     {
-        return $"Listview:{ListView}:{CurrentUser?.UserId}-{LocalTimezoneOffset.TotalHours}, Search:{Keyword}, {OrderBy}, {SortDirection}, {PageNumber}, {PageSize}";
+        return
+            $"CurrentUser:{CurrentUser?.UserId},ListView:{ListView},Search:{Keyword},Name:{Name},Country:{Country},Email:{Email},Unit{IBAN},TaxIdentificationNumber{TaxIdentificationNumber}" +
+            $"SortDirection:{SortDirection},OrderBy:{OrderBy},{PageNumber},{PageSize}";
     }
     public string CacheKey => SupplierCacheKey.GetPaginationCacheKey($"{this}");
     public IEnumerable<string>? Tags => SupplierCacheKey.Tags;

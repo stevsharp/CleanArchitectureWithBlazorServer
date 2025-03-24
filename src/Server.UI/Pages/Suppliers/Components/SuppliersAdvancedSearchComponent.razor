@@ -6,13 +6,46 @@
                    Class="mud-elevation-25 pa-2 mb-3" Text="@ConstantString.AdvancedSearch">
     <MudGrid>
         <MudItem xs="12" sm="6" md="4">
-            @*TODO: define advanced search query fields, for example:*@
-            @*<MudTextField @bind-Value="TRequest.Name" 
+
+            <MudTextField @bind-Value="TRequest.Name" 
                           Placeholder="@L["Search for name"]"
                           Clearable="true"
                           TextChanged="TextChanged">
-            </MudTextField>*@
+            </MudTextField>
         </MudItem>
+        <MudItem xs="12" sm="6" md="4">
+
+            <MudTextField @bind-Value="TRequest.Email"
+                          Placeholder="@L["Search for Email"]"
+                          Clearable="true"
+                          TextChanged="TextChanged">
+            </MudTextField>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="4">
+            <MudTextField @bind-Value="TRequest.Country"
+                          Placeholder="@L["Search for Country"]"
+                          Clearable="true"
+                          TextChanged="TextChanged">
+            </MudTextField>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="4">
+            <MudTextField @bind-Value="TRequest.TaxIdentificationNumber"
+                          Placeholder="@L["Search for TaxIdentificationNumber"]"
+                          Clearable="true"
+                          TextChanged="TextChanged">
+            </MudTextField>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="4">
+            <MudTextField @bind-Value="TRequest.IBAN"
+                          Placeholder="@L["Search for IBAN"]"
+                          Clearable="true"
+                          TextChanged="TextChanged">
+            </MudTextField>
+        </MudItem>
+
      </MudGrid>
 </MudExpansionPanel>
 

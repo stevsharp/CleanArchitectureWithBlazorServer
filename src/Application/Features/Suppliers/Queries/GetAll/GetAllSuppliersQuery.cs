@@ -2,13 +2,14 @@
 using CleanArchitecture.Blazor.Application.Features.Suppliers.DTOs;
 using CleanArchitecture.Blazor.Application.Features.Suppliers.Mappers;
 using CleanArchitecture.Blazor.Application.Features.Suppliers.Caching;
+using CleanArchitecture.Blazor.Application.Features.Suppliers.Specifications;
 
 namespace CleanArchitecture.Blazor.Application.Features.Suppliers.Queries.GetAll;
 
-public class GetAllSuppliersQuery : ICacheableRequest<IEnumerable<SupplierDto>>
+public class GetAllSuppliersQuery :  ICacheableRequest<IEnumerable<SupplierDto>>
 {
    public string CacheKey => SupplierCacheKey.GetAllCacheKey;
-   public IEnumerable<string>? Tags => SupplierCacheKey.Tags;
+    public IEnumerable<string>? Tags => SupplierCacheKey.Tags;
 }
 
 public class GetAllSuppliersQueryHandler(

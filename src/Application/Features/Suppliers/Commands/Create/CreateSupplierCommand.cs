@@ -22,8 +22,29 @@ public class CreateSupplierCommand: ICacheInvalidatorRequest<Result<int>>
     [Description("Country")]
     public string? Country {get;set;}
 
-    [Description("Code")]
-    public string Code { get; set; } = string.Empty;
+    [Description("CompanyType")]
+    public string? CompanyType { get; set; } // New property for CompanyType
+
+    [Description("IBAN")]
+    public string? IBAN { get; set; }
+
+    [Description("SWIFT")]
+    public string? SWIFT { get; set; }
+
+    [Description("TaxIdentificationNumber")]
+    public string? TaxIdentificationNumber { get; set; }
+
+    [Description("PublicFinancialService")]
+    public string? PublicFinancialService { get; set; }
+
+    [Description("ContactPerson")]
+    public string? ContactPerson { get; set; }
+
+    [Description("Notes")]
+    public string? Notes { get; set; }
+
+    [Description("IsActive")]
+    public bool IsActive { get; set; }
     public string CacheKey => SupplierCacheKey.GetAllCacheKey;
       public IEnumerable<string>? Tags => SupplierCacheKey.Tags;
 }

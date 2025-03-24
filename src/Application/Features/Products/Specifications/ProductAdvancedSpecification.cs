@@ -13,7 +13,7 @@ public class ProductAdvancedSpecification : Specification<Product>
             .Where(x => x.Name.Contains(filter.Name), !string.IsNullOrEmpty(filter.Name))
             .Where(x => x.Code.Contains(filter.Code), !string.IsNullOrEmpty(filter.Code))
             .Where(x => x.CategoryId == filter.CategoryId, filter.CategoryId != 0)
-            //.Where(x => x.Unit == filter.Unit, !string.IsNullOrEmpty(filter.Unit))
+            .Where(x => x.Unit == filter.Unit, !string.IsNullOrEmpty(filter.Unit))
             //.Where(x => x.Brand == filter.Brand, !string.IsNullOrEmpty(filter.Brand))
             //.Where(x => x.Price <= filter.MaxPrice, filter.MaxPrice is not null)
             //.Where(x => x.Price >= filter.MinPrice, filter.MinPrice is not null)

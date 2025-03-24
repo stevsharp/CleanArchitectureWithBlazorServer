@@ -14,6 +14,14 @@ public class Supplier : BaseAuditableEntity
     public string? Email { get; set; }
     public string? VAT { get; set; } // New property for VAT
     public string? Country { get; set; } // New property for Country
+    public string? CompanyType {get; set; } // New property for CompanyType
+    public string? IBAN { get;set; }
+    public string? SWIFT { get; set; }
+    public string? TaxIdentificationNumber { get; set; }
+    public string? PublicFinancialService { get; set; }
+    public string? ContactPerson { get; set; }
+    public string? Notes { get; set; }
+    public bool IsActive { get; set; }
 
     public List<SupplyItem>? SupplyItems { get; set; }
 

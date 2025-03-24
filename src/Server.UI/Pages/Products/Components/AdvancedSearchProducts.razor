@@ -1,6 +1,7 @@
 ﻿@using CleanArchitecture.Blazor.Application.Features.Categories.Queries.GetAll
 @using CleanArchitecture.Blazor.Application.Features.Products.Queries.Pagination
 @using CleanArchitecture.Blazor.Application.Features.Categories.DTOs;
+@using CleanArchitecture.Blazor.Server.UI.Components.Autocompletes;
 @inject IStringLocalizer<Products> L
 
 <MudExpansionPanel @bind-Expanded="_advancedSearchExpanded"
@@ -57,14 +58,22 @@
                              Placeholder="@L["Search by minimum price"]"
                              TextChanged="TextChanged">
             </MudNumericField> *@
+
+            <PicklistAutocomplete Picklist="Picklist.Unit" T="string"
+                                  Label="@L["Unit"]"
+                                  For="@(() => TRequest.Unit)"
+                                  TextChanged="TextChanged"
+                                  ResetValueOnEmptyText="true"
+                                  ShowProgressIndicator="true"
+                                  @bind-Value="TRequest.Unit">
+                <ProgressIndicatorTemplate>
+                    <MudProgressLinear Size="MudBlazor.Size.Small" Indeterminate="true" />
+                </ProgressIndicatorTemplate>
+            </PicklistAutocomplete>
+
+
         </MudItem>
-        <MudItem xs="12" sm="6" md="4">
-            @* <MudNumericField @bind-Value="TRequest.MaxPrice"
-                             Clearable="true"
-                             Placeholder="@L["Search by maximum price"]"
-                             TextChanged="TextChanged">
-            </MudNumericField> *@
-        </MudItem>
+      
     </MudGrid>
 </MudExpansionPanel>
 
@@ -94,19 +103,6 @@
         await OnCategoryChangedEvent.InvokeAsync(selectedId);
     }
 
-    // private async Task OnCategoryChanged(ChangeEventArgs args)
-    // {
-    //     // if (newCategory is null)
-    //     // {
-    //     //     return;
-    //     // }
-
-    //     // SelectedCategory = newCategory;
-    //     var selectedId = TRequest.CategoryId;
-
-    //     await OnCategoryChangedEvent.InvokeAsync(selectedId);
-
-    // }
 
     private async Task TextChanged(string str)
     {
