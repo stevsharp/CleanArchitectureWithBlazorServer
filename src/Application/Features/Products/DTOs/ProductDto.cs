@@ -17,6 +17,10 @@ public record ProductDto
 
     [Description("Unit")] public string? Unit { get; set; }
 
+    [Description("Color")] public string? Color { get; set; }
+
+    [Description("Color")] public string? Properties { get; set; }
+
     [Description("Brand Name")] public string? Brand { get; set; }
 
     [Description("Price")] public decimal Price { get; set; }

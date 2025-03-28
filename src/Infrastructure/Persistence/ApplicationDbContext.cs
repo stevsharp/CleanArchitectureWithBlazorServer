@@ -22,6 +22,8 @@ public class ApplicationDbContext : IdentityDbContext<
 
     }
 
+    public DbSet<PurchaseItem> PurchaseItems { get; set; }
+    public DbSet<PurchaseInvoice> PurchaseInvoices { get; set; } 
     public DbSet<SubCategory> SubCategories { get; set; }
     public DbSet<Tenant> Tenants { get; set; }
     public DbSet<Logger> Loggers { get; set; }

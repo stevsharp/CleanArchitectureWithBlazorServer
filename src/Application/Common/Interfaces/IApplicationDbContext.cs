@@ -19,6 +19,8 @@ public interface IApplicationDbContext
     DbSet<Tenant> Tenants { get; set; }
     DbSet<Contact> Contacts { get; set; }
     DbSet<Category> Categories { get; set; }
+    DbSet<PurchaseItem> PurchaseItems { get; set; }
+    DbSet<PurchaseInvoice> PurchaseInvoices { get; set; }   
     DbSet<Offer> Offers { get; set; }
     DbSet<SupplyItem> SupplyItems { get; set; }
     DbSet<SubProduct> SubProducts { get; set; }

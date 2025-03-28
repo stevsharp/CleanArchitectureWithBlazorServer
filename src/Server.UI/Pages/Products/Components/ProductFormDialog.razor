@@ -72,7 +72,7 @@
 
                     <MudTextField ReadOnly="true"
                                   Lines="3"
-                                  Label="@L["ProductUrl"]"
+                                  Label="@L["Sub Categories"]"
                                   Variant="Variant.Outlined"
                                   Value="@(string.Join(", ", SelectedCategory?.SubCategories?.Select(x => x.Name) ?? Enumerable.Empty<string>()))"
                                   Required="false">
@@ -82,30 +82,30 @@
                 <MudItem xs="12" sm="4">
                     <MudNumericField Label="@L["Price"]"
                                      Variant="Variant.Outlined"
-                    T="decimal"
-                    Format="N2"
-                    For="@(() => Model.Price)"
-                    Min="0.00m"
-                    @bind-Value="Model.Price">
+                        T="decimal"
+                        Format="N2"
+                        For="@(() => Model.Price)"
+                        Min="0.00m"
+                        @bind-Value="Model.Price">
                     </MudNumericField>
                 </MudItem>
 
                 <MudItem xs="12" sm="4">
                     <MudNumericField Label="@L["RetailPrice"]"
                                      Variant="Variant.Outlined"
-                    T="decimal"
-                    Format="N2"
-                    For="@(() => Model.RetailPrice)"
-                    Min="0.00m"
-                    @bind-Value="Model.RetailPrice">
+                        T="decimal"
+                        Format="N2"
+                        For="@(() => Model.RetailPrice)"
+                        Min="0.00m"
+                        @bind-Value="Model.RetailPrice">
                     </MudNumericField>
                 </MudItem>
 
                 <MudItem xs="12" sm="4">
                     <MudNumericField Label="@L["Stock"]"
-                    T="int"
-                    For="@(() => Model.Stock)"
-                    @bind-Value="Model.Stock">
+                        T="int"
+                        For="@(() => Model.Stock)"
+                        @bind-Value="Model.Stock">
                     </MudNumericField>
                 </MudItem>
 
@@ -144,6 +144,20 @@
                         </ProgressIndicatorTemplate>
                     </PicklistAutocomplete>
                 </MudItem>
+
+                <MudItem xs="12">
+                    <PicklistAutocomplete Picklist="Picklist.Color" T="string"
+                                          Label="@L["Color"]"
+                                          For="@(() => Model.Color)"
+                                          ResetValueOnEmptyText="true"
+                                          ShowProgressIndicator="true"
+                                          @bind-Value="Model.Color">
+                        <ProgressIndicatorTemplate>
+                            <MudProgressLinear Size="MudBlazor.Size.Small" Indeterminate="true" />
+                        </ProgressIndicatorTemplate>
+                    </PicklistAutocomplete>
+                </MudItem>
+
                 <MudItem xs="12">
                     <MudStack Spacing="1" Class="mb-2">
                         <MudText Typo="Typo.body2">@L["The recommended size for uploading images is 640X320"]</MudText>
@@ -204,7 +218,7 @@
     [EditorRequired][Parameter] public AddEditProductCommand Model { get; set; } = default!;
 
     [Parameter] public Action? Refresh { get; set; }
-
+    private HashSet<string> _StringSelectedItems = new();
     private MudForm? _form;
     private bool _saving;
     private bool _saveingnew;

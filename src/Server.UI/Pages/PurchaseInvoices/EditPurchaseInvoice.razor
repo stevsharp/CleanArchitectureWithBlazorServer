@@ -1,0 +1,128 @@
+﻿@page "/pages/PurchaseInvoices/edit/{id:int}"
+@using CleanArchitecture.Blazor.Application.Features.PurchaseInvoices.Commands.Update
+@using CleanArchitecture.Blazor.Application.Features.PurchaseInvoices.Mappers
+@using CleanArchitecture.Blazor.Application.Features.PurchaseInvoices.Queries.GetById
+@using CleanArchitecture.Blazor.Server.UI.Components.Fusion
+
+@inherits MudComponentBase
+@inject IValidationService Validator
+@inject IStringLocalizer<PurchaseInvoices> L
+
+<PageTitle>@Title</PageTitle>
+<Breadcrumbs OnSaveButtonClick="Submit" Saving="_saving" BreadcrumbItems="_breadcrumbItems"></Breadcrumbs>
+<MudContainer Class="mt-3" MaxWidth="MaxWidth.Small">
+@if (model != null)
+{
+    <MudCard Class="pa-2">
+        <MudCardHeader>
+            <CardHeaderContent>
+                 <MudText Typo="Typo.h6">@Title</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+        <ActiveUserSession PageComponent="@($"{nameof(EditPurchaseInvoice)}/{ model.Id }")" />
+        <MudForm Model="@model" @ref="@_form" Validation="@(Validator.ValidateValue(model))">
+            <MudGrid Spacing="2">
+                <MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[model.GetMemberDescription(x=>x.SupplierId)]" @bind-Value="model.SupplierId" For="@(() => model.SupplierId)" Min="0" Required="false" RequiredError="@L["supplier id is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudTextField Label="@L[model.GetMemberDescription(x=>x.InvoiceNumber)]" @bind-Value="model.InvoiceNumber" For="@(() => model.InvoiceNumber)" Required="false" RequiredError="@L["invoice number is required!"]"></MudTextField>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudDatePicker Label="@L[model.GetMemberDescription(x=>x.InvoiceDate)]" @bind-Date="model.InvoiceDate" For="@(() => model.InvoiceDate)" Required="false" RequiredError="@L["invoice date is required!"]"></MudDatePicker>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudTextField Label="@L[model.GetMemberDescription(x=>x.InvoiceType)]" @bind-Value="model.InvoiceType" For="@(() => model.InvoiceType)" Required="false" RequiredError="@L["invoice type is required!"]"></MudTextField>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[model.GetMemberDescription(x=>x.TotalAmount)]" @bind-Value="model.TotalAmount" For="@(() => model.TotalAmount)" Min="0.00m" Required="false" RequiredError="@L["total amount is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[model.GetMemberDescription(x=>x.VATAmount)]" @bind-Value="model.VATAmount" For="@(() => model.VATAmount)" Min="0.00m" Required="false" RequiredError="@L["vat amount is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudTextField Label="@L[model.GetMemberDescription(x=>x.PaymentStatus)]" @bind-Value="model.PaymentStatus" For="@(() => model.PaymentStatus)" Required="false" RequiredError="@L["payment status is required!"]"></MudTextField>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudTextField Label="@L[model.GetMemberDescription(x=>x.PaymentMethod)]" @bind-Value="model.PaymentMethod" For="@(() => model.PaymentMethod)" Required="false" RequiredError="@L["payment method is required!"]"></MudTextField>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudTextField Label="@L[model.GetMemberDescription(x=>x.IBAN)]" @bind-Value="model.IBAN" For="@(() => model.IBAN)" Required="false" RequiredError="@L["iban is required!"]"></MudTextField>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudTextField Label="@L[model.GetMemberDescription(x=>x.SWIFT)]" @bind-Value="model.SWIFT" For="@(() => model.SWIFT)" Required="false" RequiredError="@L["swift is required!"]"></MudTextField>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudTextField Label="@L[model.GetMemberDescription(x=>x.Notes)]" @bind-Value="model.Notes" For="@(() => model.Notes)" Required="false" RequiredError="@L["notes is required!"]"></MudTextField>
+                </MudItem> 
+
+            </MudGrid>
+        </MudForm>
+        </MudCardContent>
+        <MudCardActions Class="d-flex justify-end gap-2">
+                    <MudLoadingButton Color="Color.Primary" DropShadow="false" Loading="@_saving" OnClick="Submit">@ConstantString.Save</MudLoadingButton>
+        </MudCardActions>
+        </MudCard>
+    }
+</MudContainer>
+ 
+
+@code {
+    public string? Title { get; private set; }
+    [Parameter]
+    public int Id { get; set; }
+    MudForm? _form;
+    private bool _saving = false;
+    private List<BreadcrumbItem> _breadcrumbItems = new List<BreadcrumbItem>
+    {
+        new BreadcrumbItem("Home", href: "/"),
+        new BreadcrumbItem("PurchaseInvoices", href: "/pages/PurchaseInvoices")
+    };
+    private UpdatePurchaseInvoiceCommand? model;
+    protected override async Task OnInitializedAsync()
+    {
+        Title = L["Edit PurchaseInvoice"];
+        var result = await Mediator.Send(new GetPurchaseInvoiceByIdQuery() { Id = Id });
+        result.Map(data =>
+        {
+            //model = PurchaseInvoiceMapper.ToUpdateCommand(data);
+            return data;
+        }).Match(data =>
+        {
+            _breadcrumbItems.Add(new BreadcrumbItem(data.InvoiceNumber ?? string.Empty, href: $"/pages/PurchaseInvoices/edit/{Id}"));
+            return data;
+        }, errors =>
+        {
+            Snackbar.Add($"{errors}", Severity.Error);
+            return null!;
+        });
+
+    }
+    async Task Submit()
+    {
+        try
+        {
+            _saving = true;
+            await _form!.Validate().ConfigureAwait(false);
+            if (!_form!.IsValid)
+                return;
+            var result = await Mediator.Send(model);
+            result.Match(
+                data=>
+                {
+                    Snackbar.Add(ConstantString.SaveSuccess, MudBlazor.Severity.Info);
+                    return data;
+                },
+                errors=>
+                {
+                    Snackbar.Add(errors, MudBlazor.Severity.Error);
+                    return 0;
+                });
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}

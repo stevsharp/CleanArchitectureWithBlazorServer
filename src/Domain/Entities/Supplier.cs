@@ -25,4 +25,6 @@ public class Supplier : BaseAuditableEntity
 
     public List<SupplyItem>? SupplyItems { get; set; }
 
+    public ICollection<PurchaseInvoice> PurchaseInvoices { get; set; } = [];
+
 }

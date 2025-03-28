@@ -1,0 +1,110 @@
+﻿@* @page "/pages/PurchaseInvoices/view/{id:int}"
+@using CleanArchitecture.Blazor.Application.Features.PurchaseInvoices.Commands.Delete
+@using CleanArchitecture.Blazor.Application.Features.PurchaseInvoices.DTOs
+@using CleanArchitecture.Blazor.Application.Features.PurchaseInvoices.Queries.GetById
+@inherits MudComponentBase
+@inject IStringLocalizer<PurchaseInvoices> L
+
+<PageTitle>@Title</PageTitle>
+<Breadcrumbs  OnGoEditClick="GoEdit" OnDeleteClick="Delete" BreadcrumbItems="_breadcrumbItems"></Breadcrumbs>
+<MudContainer Class="mt-3" MaxWidth="MaxWidth.Small">
+@if (model != null)
+{
+    <MudCard Class="pa-2">
+        <MudCardHeader>
+            <CardHeaderContent>
+                 <MudText Typo="Typo.h6">@Title</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudGrid Spacing="3" Class="readonly-grid">
+                <MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[model.GetMemberDescription(x=>x.SupplierId)]" Value="model.SupplierId"></ReadOnlyFieldX6>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[model.GetMemberDescription(x=>x.InvoiceNumber)]" Value="model.InvoiceNumber"></ReadOnlyFieldX6>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[model.GetMemberDescription(x=>x.InvoiceDate)]" Value="model.InvoiceDate?.ToString("d")"></ReadOnlyFieldX6>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[model.GetMemberDescription(x=>x.InvoiceType)]" Value="model.InvoiceType"></ReadOnlyFieldX6>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[model.GetMemberDescription(x=>x.TotalAmount)]" Value="model.TotalAmount"></ReadOnlyFieldX6>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[model.GetMemberDescription(x=>x.VATAmount)]" Value="model.VATAmount"></ReadOnlyFieldX6>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[model.GetMemberDescription(x=>x.PaymentStatus)]" Value="model.PaymentStatus"></ReadOnlyFieldX6>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[model.GetMemberDescription(x=>x.PaymentMethod)]" Value="model.PaymentMethod"></ReadOnlyFieldX6>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[model.GetMemberDescription(x=>x.IBAN)]" Value="model.IBAN"></ReadOnlyFieldX6>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[model.GetMemberDescription(x=>x.SWIFT)]" Value="model.SWIFT"></ReadOnlyFieldX6>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[model.GetMemberDescription(x=>x.Notes)]" Value="model.Notes"></ReadOnlyFieldX6>
+                </MudItem> 
+
+            </MudGrid>
+        </MudCardContent>
+        <MudCardActions></MudCardActions>
+    </MudCard>
+ }
+</MudContainer>
+ 
+
+@code {
+    public string? Title { get; private set; }
+    [Parameter]
+    public int Id { get; set; }
+    private List<BreadcrumbItem> _breadcrumbItems = new List<BreadcrumbItem>
+    {
+        new BreadcrumbItem("Home", href: "/"),
+        new BreadcrumbItem("PurchaseInvoices", href: "/pages/PurchaseInvoices")
+    };
+    private PurchaseInvoiceDto? model;
+    protected override async Task OnInitializedAsync()
+    {
+        Title = L["PurchaseInvoice"];
+        var result = await Mediator.Send(new GetPurchaseInvoiceByIdQuery() { Id = Id });
+        result.Map(data =>
+        {
+            model = data;
+            return data;
+        }).Match(data =>
+        {
+            _breadcrumbItems.Add(new BreadcrumbItem(data?.InvoiceNumber, null, disabled: true));
+            return data;
+
+        }, errors =>
+        {
+            Snackbar.Add(errors, MudBlazor.Severity.Error);
+            return null!;
+        });
+
+    }
+    void GoEdit()
+    {
+        Navigation.NavigateTo($"/pages/PurchaseInvoices/edit/{Id}");
+    }
+    async Task Delete()
+    {
+        var contentText = string.Format(ConstantString.DeleteConfirmation, model.Name);
+        var command = new DeletePurchaseInvoiceCommand(new int[] { model.Id });
+        await DialogServiceHelper.ShowDeleteConfirmationDialogAsync(command, ConstantString.DeleteConfirmationTitle, contentText, async () =>
+        {
+            await InvokeAsync(() =>
+            {
+                Navigation.NavigateTo($"/pages/PurchaseInvoices");
+            });
+        });
+    }
+}
+ *@

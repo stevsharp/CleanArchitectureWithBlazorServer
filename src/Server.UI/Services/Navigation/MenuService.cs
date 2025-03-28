@@ -5,6 +5,7 @@ namespace CleanArchitecture.Blazor.Server.UI.Services.Navigation;
 
 public class MenuService : IMenuService
 {
+
     private readonly List<MenuSectionModel> _features = new()
     {
         new MenuSectionModel
@@ -27,6 +28,13 @@ public class MenuService : IMenuService
                             Href = "/pages/products",
                             PageStatus = PageStatus.Completed
                         },
+                         new()
+                        {
+                            Title = "PurchaseInvoices",
+                            Href = "/pages/PurchaseInvoices",
+                            PageStatus = PageStatus.Completed
+                        },
+
                         new()
                         {
                             Title = "Documents",

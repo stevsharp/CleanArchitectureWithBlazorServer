@@ -20,7 +20,8 @@ public class Product : BaseAuditableEntity
     public string? ProductUrl { get; set; }
     public string? ImageUrl { get; set; }
 
-
+    public string? Properties { get; set; }
+    public string? Color { get; set; }
     public int CategoryId { get; set; } // Foreign Key  
 
     public virtual List<ProductImage>? Pictures { get; set; }
