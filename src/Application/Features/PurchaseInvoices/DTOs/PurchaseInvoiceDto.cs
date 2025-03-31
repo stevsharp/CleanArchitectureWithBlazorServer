@@ -36,7 +36,7 @@ public class PurchaseInvoiceDto
 {
     [Description("Id")]
     public int Id { get; set; }
-        [Description("Supplier id")]
+    [Description("Supplier id")]
     public int SupplierId {get;set;} 
     [Description("Invoice number")]
     public string? InvoiceNumber {get;set;} 
@@ -58,8 +58,8 @@ public class PurchaseInvoiceDto
     public string? SWIFT {get;set;} 
     [Description("Notes")]
     public string? Notes {get;set;}
-    [Description("Supplier")]
-    public SupplierDto Supplier { get; set; }
+    //[Description("Supplier")]
+    //public SupplierDto Supplier { get; set; }
     [Description("Items")]
     public List<PurchaseItemDto>? Items {get;set;} 
 

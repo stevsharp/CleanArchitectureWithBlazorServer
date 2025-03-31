@@ -48,7 +48,7 @@
                     @if (_canCreate)
                     {
                         <MudButton StartIcon="@Icons.Material.Outlined.Add"
-                                   OnClick="OnCreate">
+                        OnClick="OnCreate">
                             @ConstantString.New
                         </MudButton>
                     }
@@ -60,14 +60,14 @@
                         @if (_canDelete)
                         {
                             <MudMenuItem Disabled="@(!(_selectedItems.Count > 0))"
-                                         OnClick="OnDeleteChecked">
+                            OnClick="OnDeleteChecked">
                                 @ConstantString.Delete
                             </MudMenuItem>
                         }
                         @if (_canExport)
                         {
                             <MudMenuItem Disabled="@_exporting"
-                                         OnClick="OnExport">
+                            OnClick="OnExport">
                                 @ConstantString.Export
                             </MudMenuItem>
                         }
@@ -77,8 +77,8 @@
                                 <MudFileUpload T="IBrowserFile" FilesChanged="OnImportData" Accept=".xlsx">
                                     <ActivatorContent>
                                         <MudButton Class="pa-0 ma-0" Style="font-weight:400;text-transform:none;"
-                                                   Variant="Variant.Text"
-                                                   Disabled="@_uploading">
+                                        Variant="Variant.Text"
+                                        Disabled="@_uploading">
                                             @ConstantString.Import
                                         </MudButton>
                                     </ActivatorContent>
@@ -91,67 +91,67 @@
                     @if (_canSearch)
                     {
                         <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Value="@Query.Keyword" Placeholder="@ConstantString.Search" Adornment="Adornment.End"
-                                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Small">
+                        AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Small">
                         </MudTextField>
                     }
                 </MudStack>
             </MudStack>
         </MudStack>
-            </ToolBarContent>
-            <Columns>
-                <SelectColumn ShowInFooter="false"></SelectColumn>
-                <TemplateColumn HeaderStyle="width:60px" Title="@ConstantString.Actions" Sortable="false">
-                    <CellTemplate>
-                        @if (_canEdit || _canDelete)
+    </ToolBarContent>
+    <Columns>
+        <SelectColumn ShowInFooter="false"></SelectColumn>
+        <TemplateColumn HeaderStyle="width:60px" Title="@ConstantString.Actions" Sortable="false">
+            <CellTemplate>
+                @if (_canEdit || _canDelete)
+                {
+                    <MudMenu Icon="@Icons.Material.Filled.Edit" Variant="Variant.Filled" Size="Size.Small"
+                    Dense="true"
+                    EndIcon="@Icons.Material.Filled.KeyboardArrowDown" IconColor="Color.Info" AnchorOrigin="Origin.CenterLeft">
+                        @if (_canEdit)
                         {
-                            <MudMenu Icon="@Icons.Material.Filled.Edit" Variant="Variant.Filled" Size="Size.Small"
-                                     Dense="true"
-                                     EndIcon="@Icons.Material.Filled.KeyboardArrowDown" IconColor="Color.Info" AnchorOrigin="Origin.CenterLeft">
-                                @if (_canEdit)
-                                {
-                                    <MudMenuItem OnClick="@(()=>OnEdit(context.Item))">@ConstantString.Edit</MudMenuItem>
-                                }
-                                @if (_canDelete)
-                                {
-                                    <MudMenuItem OnClick="@(()=>OnDelete(context.Item))">@ConstantString.Delete</MudMenuItem>
-                                }
-                            </MudMenu>
+                            <MudMenuItem OnClick="@(()=>OnEdit(context.Item))">@ConstantString.Edit</MudMenuItem>
                         }
-                        else
+                        @if (_canDelete)
                         {
-                            <MudIconButton Variant="Variant.Filled"  
-                                       Disabled="true"
-                                       Icon="@Icons.Material.Filled.DoNotTouch"
-                                       Size="Size.Small"
-                                       Color="Color.Surface">
-                                @ConstantString.NoAllowed
-                            </MudIconButton>
+                            <MudMenuItem OnClick="@(()=>OnDelete(context.Item))">@ConstantString.Delete</MudMenuItem>
                         }
-                    </CellTemplate>
-                </TemplateColumn>
-                @*TODO: Define the fields that should be displayed in data table*@
-                                <PropertyColumn Property="x => x.SupplierId" Title="@L[_currentDto.GetMemberDescription(x=>x.SupplierId)]" />
-                <PropertyColumn Property="x => x.InvoiceNumber" Title="@L[_currentDto.GetMemberDescription(x=>x.InvoiceNumber)]" />
-                <PropertyColumn Property="x => x.InvoiceDate" Title="@L[_currentDto.GetMemberDescription(x=>x.InvoiceDate)]" />
-                <PropertyColumn Property="x => x.InvoiceType" Title="@L[_currentDto.GetMemberDescription(x=>x.InvoiceType)]" />
-                <PropertyColumn Property="x => x.TotalAmount" Title="@L[_currentDto.GetMemberDescription(x=>x.TotalAmount)]" />
-                <PropertyColumn Property="x => x.VATAmount" Title="@L[_currentDto.GetMemberDescription(x=>x.VATAmount)]" />
-                <PropertyColumn Property="x => x.PaymentStatus" Title="@L[_currentDto.GetMemberDescription(x=>x.PaymentStatus)]" />
-                <PropertyColumn Property="x => x.PaymentMethod" Title="@L[_currentDto.GetMemberDescription(x=>x.PaymentMethod)]" />
-                <PropertyColumn Property="x => x.IBAN" Title="@L[_currentDto.GetMemberDescription(x=>x.IBAN)]" />
-                <PropertyColumn Property="x => x.SWIFT" Title="@L[_currentDto.GetMemberDescription(x=>x.SWIFT)]" />
-                <PropertyColumn Property="x => x.Notes" Title="@L[_currentDto.GetMemberDescription(x=>x.Notes)]" />
+                    </MudMenu>
+                }
+                else
+                {
+                    <MudIconButton Variant="Variant.Filled"  
+                    Disabled="true"
+                    Icon="@Icons.Material.Filled.DoNotTouch"
+                    Size="Size.Small"
+                    Color="Color.Surface">
+                        @ConstantString.NoAllowed
+                    </MudIconButton>
+                }
+            </CellTemplate>
+        </TemplateColumn>
+        @*TODO: Define the fields that should be displayed in data table*@
+        <PropertyColumn Property="x => x.SupplierId" Title="@L[_currentDto.GetMemberDescription(x=>x.SupplierId)]" />
+        <PropertyColumn Property="x => x.InvoiceNumber" Title="@L[_currentDto.GetMemberDescription(x=>x.InvoiceNumber)]" />
+        <PropertyColumn Property="x => x.InvoiceDate" Title="@L[_currentDto.GetMemberDescription(x=>x.InvoiceDate)]" />
+        <PropertyColumn Property="x => x.InvoiceType" Title="@L[_currentDto.GetMemberDescription(x=>x.InvoiceType)]" />
+        <PropertyColumn Property="x => x.TotalAmount" Title="@L[_currentDto.GetMemberDescription(x=>x.TotalAmount)]" />
+        <PropertyColumn Property="x => x.VATAmount" Title="@L[_currentDto.GetMemberDescription(x=>x.VATAmount)]" />
+        <PropertyColumn Property="x => x.PaymentStatus" Title="@L[_currentDto.GetMemberDescription(x=>x.PaymentStatus)]" />
+        <PropertyColumn Property="x => x.PaymentMethod" Title="@L[_currentDto.GetMemberDescription(x=>x.PaymentMethod)]" />
+        <PropertyColumn Property="x => x.IBAN" Title="@L[_currentDto.GetMemberDescription(x=>x.IBAN)]" />
+        <PropertyColumn Property="x => x.SWIFT" Title="@L[_currentDto.GetMemberDescription(x=>x.SWIFT)]" />
+        <PropertyColumn Property="x => x.Notes" Title="@L[_currentDto.GetMemberDescription(x=>x.Notes)]" />
 
-            </Columns>
-            <NoRecordsContent>
-                <MudText>@ConstantString.NoRecords</MudText>
-            </NoRecordsContent>
-            <LoadingContent>
-                <MudText>@ConstantString.Loading</MudText>
-            </LoadingContent>
-            <PagerContent>
-                <MudDataGridPager PageSizeOptions="@(new int[]{10,15,30,50,100,500,1000})" />
-            </PagerContent>
+    </Columns>
+    <NoRecordsContent>
+        <MudText>@ConstantString.NoRecords</MudText>
+    </NoRecordsContent>
+    <LoadingContent>
+        <MudText>@ConstantString.Loading</MudText>
+    </LoadingContent>
+    <PagerContent>
+        <MudDataGridPager PageSizeOptions="@(new int[]{10,15,30,50,100,500,1000})" />
+    </PagerContent>
 </MudDataGrid>
 
 
@@ -238,7 +238,7 @@
                 { x=>x.model,command },
             };
         var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
-        var dialog = DialogService.Show<PurchaseInvoiceFormDialog>(title, parameters, options);
+        var dialog = await DialogService.ShowAsync<PurchaseInvoiceFormDialog>(title, parameters, options);
         var state = await dialog.Result;
 
         if (state != null && !state.Canceled)
@@ -264,7 +264,10 @@
     }
     private async Task OnEdit(PurchaseInvoiceDto dto)
     {
-       Navigation.NavigateTo($"/pages/PurchaseInvoices/edit/{dto.Id}");
+        var command = PurchaseInvoiceMapper.ToEditCommand(dto);
+
+        await ShowEditFormDialog(string.Format(ConstantString.CreateAnItem, L["PurchaseInvoice"]), command);
+       // Navigation.NavigateTo($"/pages/PurchaseInvoices/edit/{dto.Id}");
     }
 
     private async Task OnDelete(PurchaseInvoiceDto dto)

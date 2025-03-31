@@ -33,6 +33,8 @@ public class SupplierConfiguration : IEntityTypeConfiguration<Supplier>
             .IsRequired()
             .HasDefaultValue(true);
 
+
+
         builder.Ignore(e => e.DomainEvents);
     }
 }

@@ -31,6 +31,8 @@ public static partial class PurchaseInvoiceMapper
     public static partial PurchaseInvoiceDto ToDto(PurchaseInvoice source);
     //public static partial PurchaseInvoice FromDto(PurchaseInvoiceDto dto);
     public static partial PurchaseInvoice FromEditCommand(AddEditPurchaseInvoiceCommand command);
+
+    public static partial AddEditPurchaseInvoiceCommand ToEditCommand(PurchaseInvoiceDto command);
     public static partial PurchaseInvoice FromCreateCommand(CreatePurchaseInvoiceCommand command);
     //public static partial UpdatePurchaseInvoiceCommand ToUpdateCommand(PurchaseInvoiceDto dto);
     //public static partial AddEditPurchaseInvoiceCommand CloneFromDto(PurchaseInvoiceDto dto);
