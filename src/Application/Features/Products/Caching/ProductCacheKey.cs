@@ -10,6 +10,12 @@ public static class ProductCacheKey
     {
         return $"GetProductById,{id}";
     }
+
+    public static string GetProductByCodeCacheKey(string code)
+    {
+        return $"GetProductByCode,{code}";
+    }
+
     public static string GetPaginationCacheKey(string parameters)
     {
         return $"ProductsWithPaginationQuery,{parameters}";

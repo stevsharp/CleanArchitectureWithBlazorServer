@@ -21,9 +21,20 @@ public class GetProductQuery : ICacheableRequest<ProductDto?>
     public IEnumerable<string>? Tags => ProductCacheKey.Tags;
 }
 
+
+public class GetProductByCodeQuery : ICacheableRequest<ProductDto?>
+{
+    public required string Code { get; set; }
+
+    public string CacheKey => ProductCacheKey.GetProductByCodeCacheKey(Code);
+    public IEnumerable<string>? Tags => ProductCacheKey.Tags;
+}
+
+
 public class GetAllProductsQueryHandler :
     IRequestHandler<GetAllProductsQuery, IEnumerable<ProductDto>>,
-    IRequestHandler<GetProductQuery, ProductDto?>
+    IRequestHandler<GetProductQuery, ProductDto?>,
+    IRequestHandler<GetProductByCodeQuery, ProductDto?>
 
 {
     private readonly IApplicationDbContext _context;
@@ -51,6 +62,17 @@ public class GetAllProductsQueryHandler :
                         .AsNoTracking()
                        .ProjectTo()
                        .FirstOrDefaultAsync(cancellationToken);
+
+        return data;
+    }
+
+    public async Task<ProductDto?> Handle(GetProductByCodeQuery request, CancellationToken cancellationToken)
+    {
+        var data = await _context.Products
+                               .Where(x => x.Code == request.Code)
+                               .AsNoTracking()
+                              .ProjectTo()
+                              .FirstOrDefaultAsync(cancellationToken);
 
         return data;
     }

@@ -1,4 +1,6 @@
 ﻿
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using CleanArchitecture.Blazor.Application.Features.PurchaseItems.Caching;
 using CleanArchitecture.Blazor.Application.Features.PurchaseItems.Mappers;
 
@@ -6,12 +8,28 @@ namespace CleanArchitecture.Blazor.Application.Features.PurchaseItems.Commands.A
 
 public class AddEditPurchaseItemCommand : ICacheInvalidatorRequest<Result<int>>
 {
+
+    public readonly BehaviorSubject<string> _itemCodeSubject = new(string.Empty);
+
+    public IObservable<string?> ItemCodeChanged => _itemCodeSubject.AsObservable();
+
+    [Description("Item code")]
+    public string ItemCode
+    {
+        get => _itemCodeSubject.Value;
+        set
+        {
+            _itemCodeSubject.OnNext(value);
+            _itemCode = value;
+        }
+    }
+    private string? _itemCode;
+
     [Description("Id")]
     public int Id { get; set; }
     [Description("Invoice id")]
     public int InvoiceId { get; set; }
-    [Description("Item code")]
-    public string? ItemCode { get; set; }
+
     [Description("Item description")]
     public string? ItemDescription { get; set; }
     [Description("Quantity")]
@@ -33,7 +51,7 @@ public class AddEditPurchaseItemCommand : ICacheInvalidatorRequest<Result<int>>
     //[Description("Invoice")]
     //public PurchaseInvoiceDto Invoice {get;set;} 
 
-
+    public int ProductId { get; set; } = 0;
     public string CacheKey => PurchaseItemCacheKey.GetAllCacheKey;
     public IEnumerable<string>? Tags => PurchaseItemCacheKey.Tags;
 }

@@ -1,4 +1,8 @@
-﻿@using CleanArchitecture.Blazor.Application.Features.PurchaseItems.Commands.AddEdit
+﻿@using CleanArchitecture.Blazor.Application.Features.Products.Caching
+@using CleanArchitecture.Blazor.Application.Features.Products.Commands.AddEdit
+@using CleanArchitecture.Blazor.Application.Features.Products.Queries.GetAll
+@using CleanArchitecture.Blazor.Application.Features.PurchaseItems.Commands.AddEdit
+@using CleanArchitecture.Blazor.Server.UI.Pages.Products.Components
 
 @inherits MudComponentBase
 @inject IValidationService Validator
@@ -9,34 +13,31 @@
         <MudForm Model="@model" @ref="@_form" Validation="@(Validator.ValidateValue(model))">
             <MudGrid>
 
-@*                 <MudItem xs="12" md="6"> 
-                        <MudNumericField  Label="@L[model.GetMemberDescription(x=>x.InvoiceId)]" @bind-Value="model.InvoiceId" For="@(() => model.InvoiceId)" Min="0" Required="false" RequiredError="@L["invoice id is required!"]"></MudNumericField >
-                </MudItem>  *@
                 <MudItem xs="12" md="6"> 
-                        <MudTextField Label="@L[model.GetMemberDescription(x=>x.ItemCode)]" 
-                            @bind-Value="model.ItemCode" For="@(() => model.ItemCode)" 
-                            Required="false" RequiredError="@L["item code is required!"]"></MudTextField>
+                    <MudTextField Label="@L[model.GetMemberDescription(x=>x.ItemCode)]" 
+                    @bind-Value="model.ItemCode" For="@(() => model.ItemCode)" 
+                    Required="false" RequiredError="@L["item code is required!"]"></MudTextField>
                 </MudItem> 
                 <MudItem xs="12" md="6"> 
-                        <MudTextField Label="@L[model.GetMemberDescription(x=>x.ItemDescription)]" 
-                            @bind-Value="model.ItemDescription" 
-                            For="@(() => model.ItemDescription)" 
-                            Required="false" RequiredError="@L["item description is required!"]"></MudTextField>
+                    <MudTextField ReadOnly="true" Label="@L[model.GetMemberDescription(x=>x.ItemDescription)]" 
+                    @bind-Value="model.ItemDescription" 
+                    For="@(() => model.ItemDescription)" 
+                    Required="false" RequiredError="@L["item description is required!"]"></MudTextField>
                 </MudItem> 
                 <MudItem xs="12" md="6"> 
-                        <MudNumericField  Label="@L[model.GetMemberDescription(x=>x.Quantity)]" 
-                            @bind-Value="model.Quantity" For="@(() => model.Quantity)" 
-                            Min="0" Required="false" RequiredError="@L["quantity is required!"]"></MudNumericField >
+                    <MudNumericField  Label="@L[model.GetMemberDescription(x=>x.Quantity)]" 
+                    @bind-Value="model.Quantity" For="@(() => model.Quantity)" 
+                    Min="0" Required="false" RequiredError="@L["quantity is required!"]"></MudNumericField >
                 </MudItem> 
 
 
                 <MudItem xs="12" md="6">
                     <PicklistAutocomplete Picklist="Picklist.Unit" T="string"
-                                          Label="@L["Unit"]"
-                                          For="@(() => model.Unit)"
-                                          ResetValueOnEmptyText="true"
-                                          ShowProgressIndicator="true"
-                                          @bind-Value="model.Unit">
+                    Label="@L["Unit"]"
+                    For="@(() => model.Unit)"
+                    ResetValueOnEmptyText="true"
+                    ShowProgressIndicator="true"
+                    @bind-Value="model.Unit">
                         <ProgressIndicatorTemplate>
                             <MudProgressLinear Size="MudBlazor.Size.Small" Indeterminate="true" />
                         </ProgressIndicatorTemplate>
@@ -45,11 +46,11 @@
 
                 <MudItem xs="12" md="6">
                     <PicklistAutocomplete Picklist="Picklist.Color" T="string"
-                                          Label="@L["Color"]"
-                                          For="@(() => model.Color)"
-                                          ResetValueOnEmptyText="true"
-                                          ShowProgressIndicator="true"
-                                          @bind-Value="model.Color">
+                    Label="@L["Color"]"
+                    For="@(() => model.Color)"
+                    ResetValueOnEmptyText="true"
+                    ShowProgressIndicator="true"
+                    @bind-Value="model.Color">
                         <ProgressIndicatorTemplate>
                             <MudProgressLinear Size="MudBlazor.Size.Small" Indeterminate="true" />
                         </ProgressIndicatorTemplate>
@@ -57,24 +58,24 @@
                 </MudItem>
 
                 <MudItem xs="12" md="6"> 
-                        <MudNumericField  Label="@L[model.GetMemberDescription(x=>x.UnitPrice)]"
-                            @bind-Value="model.UnitPrice" For="@(() => model.UnitPrice)" Min="0.00m" 
-                            Required="false" RequiredError="@L["unit price is required!"]"></MudNumericField >
+                    <MudNumericField  Label="@L[model.GetMemberDescription(x=>x.UnitPrice)]"
+                    @bind-Value="model.UnitPrice" For="@(() => model.UnitPrice)" Min="0.00m" 
+                    Required="false" RequiredError="@L["unit price is required!"]"></MudNumericField >
                 </MudItem> 
                 <MudItem xs="12" md="6"> 
-                        <MudNumericField  Label="@L[model.GetMemberDescription(x=>x.VATPercentage)]" 
-                            @bind-Value="model.VATPercentage" For="@(() => model.VATPercentage)"
-                            Min="0.00m" Required="false" RequiredError="@L["vat percentage is required!"]"></MudNumericField >
+                    <MudNumericField  Label="@L[model.GetMemberDescription(x=>x.VATPercentage)]" 
+                    @bind-Value="model.VATPercentage" For="@(() => model.VATPercentage)"
+                    Min="0.00m" Required="false" RequiredError="@L["vat percentage is required!"]"></MudNumericField >
                 </MudItem> 
                 <MudItem xs="12" md="6"> 
-                        <MudNumericField Disabled="true" Label="@L[model.GetMemberDescription(x=>x.VATAmount)]" 
-                            Value="model.VATAmount" 
-                            Required="false" RequiredError="@L["vat amount is required!"]"></MudNumericField >
+                    <MudNumericField Disabled="true" Label="@L[model.GetMemberDescription(x=>x.VATAmount)]" 
+                    Value="model.VATAmount" 
+                    Required="false" RequiredError="@L["vat amount is required!"]"></MudNumericField >
                 </MudItem> 
                 <MudItem xs="12" md="6">
-                            <MudNumericField Disabled="true" Label="@L[model.GetMemberDescription(x=>x.TotalAmount)]"
-                             Value="model.TotalAmount"  
-                             Required="false" RequiredError="@L["total amount is required!"]"></MudNumericField >
+                    <MudNumericField Disabled="true" Label="@L[model.GetMemberDescription(x=>x.TotalAmount)]"
+                    Value="model.TotalAmount"  
+                    Required="false" RequiredError="@L["total amount is required!"]"></MudNumericField >
                 </MudItem> 
 
             </MudGrid>
@@ -94,7 +95,88 @@
     [CascadingParameter]
     IMudDialogInstance MudDialog { get; set; } = default!;
     AddEditPurchaseItemCommandValidator _modelValidator = new ();
-    [EditorRequired] [Parameter] public AddEditPurchaseItemCommand model { get; set; } = null!;
+    [EditorRequired] 
+    [Parameter] 
+    public AddEditPurchaseItemCommand model { get; set; } = null!;
+
+
+    private IDisposable? _itemCodeSubscription;
+
+    protected override Task OnInitializedAsync()
+    {
+        SubscribeToItemCodeChanges();
+        return Task.CompletedTask;
+    }
+
+    private void SubscribeToItemCodeChanges()
+    {
+        _itemCodeSubscription?.Dispose(); // Unsubscribe previous, if any
+        _itemCodeSubscription = model.ItemCodeChanged.Subscribe(async newValue =>
+        {
+            if (string.IsNullOrWhiteSpace(newValue))
+                return;
+
+            ProductCacheKey.Refresh();
+
+            await OnItemCodeChanged(newValue);
+        });
+    }
+
+
+    protected async Task OnItemCodeChanged(string newValue)
+    {
+        if (string.IsNullOrWhiteSpace(newValue))
+            return;
+        var query = new GetProductByCodeQuery { Code = newValue };
+        var result = await Mediator.Send(query);
+
+        if (result is not null)
+        {
+            model.ItemDescription = result.Description;
+            model.UnitPrice = result.RetailPrice.GetValueOrDefault(0);
+            model.ProductId = result.Id;    
+        }
+        else
+        {
+            var command = new AddEditProductCommand { Pictures = new List<ProductImage>() };
+
+            command.Code = newValue;
+
+            await ShowEditFormDialog(string.Format(ConstantString.CreateAnItem, L["Product"]), command);
+
+        }
+
+    }
+
+    private async Task ShowEditFormDialog(string title, AddEditProductCommand command)
+    {
+        var parameters = new DialogParameters<ProductFormDialog>
+        {
+            { x => x.Model, command }
+        };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var dialog = await DialogService.ShowAsync<ProductFormDialog>(title, parameters, options);
+        var state = await dialog.Result;
+
+        if (state is not null && !state.Canceled)
+        {
+            var result = state.Data as AddEditProductCommand;
+
+            if (result is not null)
+            {
+                model.ItemCode = result.Code ?? "no code";
+                model.ItemDescription = result.Description;
+            }
+        }
+    }
+
+    public void Dispose()
+    {
+        _itemCodeSubscription?.Dispose();
+    }
+
+
+
     async Task Submit()
     {
         try
