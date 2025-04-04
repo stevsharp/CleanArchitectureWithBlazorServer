@@ -1,5 +1,6 @@
 ﻿@using CleanArchitecture.Blazor.Application.Features.PurchaseInvoices.Commands.AddEdit
-
+@using CleanArchitecture.Blazor.Application.Features.Suppliers.DTOs
+@using CleanArchitecture.Blazor.Server.UI.Pages.PurchaseItems
 @inherits MudComponentBase
 @inject IValidationService Validator
 @inject IStringLocalizer<PurchaseInvoices> L
@@ -9,39 +10,52 @@
         <MudForm Model="@model" @ref="@_form" Validation="@(Validator.ValidateValue(model))">
             <MudGrid>
                 @*TODO: define mudform that should be edit fields, for example:*@
+                <MudItem xs="12" >
+
+                    <MudTextField Label="@($"Supplier: {model.Supplier.Name} (ID: {model.Supplier.Id})")"
+                                  @bind-Value="model.Supplier.Name"
+                                  For="@(() => model.Supplier.Name)"
+                                  ReadOnly="true" />
+
+                    <MudLoadingButton Color="Color.Info" OnClick="SelectSupplier">Select Supplier..</MudLoadingButton>
+
+                </MudItem> 
                 <MudItem xs="12" md="6"> 
-                        <MudNumericField  Label="@L[model.GetMemberDescription(x=>x.SupplierId)]" @bind-Value="model.SupplierId" For="@(() => model.SupplierId)" Min="0" Required="false" RequiredError="@L["supplier id is required!"]"></MudNumericField >
+                    <MudTextField Label="@L[model.GetMemberDescription(x=>x.InvoiceNumber)]" @bind-Value="model.InvoiceNumber" For="@(() => model.InvoiceNumber)" Required="false" RequiredError="@L["invoice number is required!"]"></MudTextField>
                 </MudItem> 
-<MudItem xs="12" md="6"> 
-                        <MudTextField Label="@L[model.GetMemberDescription(x=>x.InvoiceNumber)]" @bind-Value="model.InvoiceNumber" For="@(() => model.InvoiceNumber)" Required="false" RequiredError="@L["invoice number is required!"]"></MudTextField>
+                <MudItem xs="12" md="6"> 
+                    <MudDatePicker Label="@L[model.GetMemberDescription(x=>x.InvoiceDate)]" @bind-Date="model.InvoiceDate" 
+                    For="@(() => model.InvoiceDate)" Required="false" RequiredError="@L["invoice date is required!"]"></MudDatePicker>
                 </MudItem> 
-<MudItem xs="12" md="6"> 
-                        <MudDatePicker Label="@L[model.GetMemberDescription(x=>x.InvoiceDate)]" @bind-Date="model.InvoiceDate" For="@(() => model.InvoiceDate)" Required="false" RequiredError="@L["invoice date is required!"]"></MudDatePicker>
+                <MudItem xs="12" md="6"> 
+                    <MudTextField Label="@L[model.GetMemberDescription(x=>x.InvoiceType)]" @bind-Value="model.InvoiceType" For="@(() => model.InvoiceType)" Required="false" RequiredError="@L["invoice type is required!"]"></MudTextField>
                 </MudItem> 
-<MudItem xs="12" md="6"> 
-                        <MudTextField Label="@L[model.GetMemberDescription(x=>x.InvoiceType)]" @bind-Value="model.InvoiceType" For="@(() => model.InvoiceType)" Required="false" RequiredError="@L["invoice type is required!"]"></MudTextField>
+                <MudItem xs="12" md="6"> 
+                    <MudNumericField  Label="@L[model.GetMemberDescription(x=>x.TotalAmount)]" @bind-Value="model.TotalAmount" For="@(() => model.TotalAmount)" Min="0.00m" Required="false" RequiredError="@L["total amount is required!"]"></MudNumericField >
                 </MudItem> 
-<MudItem xs="12" md="6"> 
-                        <MudNumericField  Label="@L[model.GetMemberDescription(x=>x.TotalAmount)]" @bind-Value="model.TotalAmount" For="@(() => model.TotalAmount)" Min="0.00m" Required="false" RequiredError="@L["total amount is required!"]"></MudNumericField >
+                <MudItem xs="12" md="6"> 
+                    <MudNumericField  Label="@L[model.GetMemberDescription(x=>x.VATAmount)]" @bind-Value="model.VATAmount" For="@(() => model.VATAmount)" Min="0.00m" Required="false" RequiredError="@L["vat amount is required!"]"></MudNumericField >
                 </MudItem> 
-<MudItem xs="12" md="6"> 
-                        <MudNumericField  Label="@L[model.GetMemberDescription(x=>x.VATAmount)]" @bind-Value="model.VATAmount" For="@(() => model.VATAmount)" Min="0.00m" Required="false" RequiredError="@L["vat amount is required!"]"></MudNumericField >
+                <MudItem xs="12" md="6"> 
+                    <MudTextField Label="@L[model.GetMemberDescription(x=>x.PaymentStatus)]" @bind-Value="model.PaymentStatus" For="@(() => model.PaymentStatus)" Required="false" RequiredError="@L["payment status is required!"]"></MudTextField>
                 </MudItem> 
-<MudItem xs="12" md="6"> 
-                        <MudTextField Label="@L[model.GetMemberDescription(x=>x.PaymentStatus)]" @bind-Value="model.PaymentStatus" For="@(() => model.PaymentStatus)" Required="false" RequiredError="@L["payment status is required!"]"></MudTextField>
+                <MudItem xs="12" md="6"> 
+                    <MudTextField Label="@L[model.GetMemberDescription(x=>x.PaymentMethod)]" @bind-Value="model.PaymentMethod" For="@(() => model.PaymentMethod)" Required="false" RequiredError="@L["payment method is required!"]"></MudTextField>
                 </MudItem> 
-<MudItem xs="12" md="6"> 
-                        <MudTextField Label="@L[model.GetMemberDescription(x=>x.PaymentMethod)]" @bind-Value="model.PaymentMethod" For="@(() => model.PaymentMethod)" Required="false" RequiredError="@L["payment method is required!"]"></MudTextField>
+                <MudItem xs="12" md="6"> 
+                    <MudTextField Label="@L[model.GetMemberDescription(x=>x.IBAN)]" @bind-Value="model.IBAN" For="@(() => model.IBAN)" Required="false" RequiredError="@L["iban is required!"]"></MudTextField>
                 </MudItem> 
-<MudItem xs="12" md="6"> 
-                        <MudTextField Label="@L[model.GetMemberDescription(x=>x.IBAN)]" @bind-Value="model.IBAN" For="@(() => model.IBAN)" Required="false" RequiredError="@L["iban is required!"]"></MudTextField>
+                <MudItem xs="12" md="6"> 
+                    <MudTextField Label="@L[model.GetMemberDescription(x=>x.SWIFT)]" @bind-Value="model.SWIFT" For="@(() => model.SWIFT)" Required="false" RequiredError="@L["swift is required!"]"></MudTextField>
                 </MudItem> 
-<MudItem xs="12" md="6"> 
-                        <MudTextField Label="@L[model.GetMemberDescription(x=>x.SWIFT)]" @bind-Value="model.SWIFT" For="@(() => model.SWIFT)" Required="false" RequiredError="@L["swift is required!"]"></MudTextField>
-                </MudItem> 
-<MudItem xs="12" md="6"> 
-                        <MudTextField Label="@L[model.GetMemberDescription(x=>x.Notes)]" @bind-Value="model.Notes" For="@(() => model.Notes)" Required="false" RequiredError="@L["notes is required!"]"></MudTextField>
-                </MudItem> 
+                <MudItem xs="12" md="6"> 
+                    <MudTextField Label="@L[model.GetMemberDescription(x=>x.Notes)]" @bind-Value="model.Notes" For="@(() => model.Notes)" Required="false" RequiredError="@L["notes is required!"]"></MudTextField>
+                </MudItem>
+
+                <MudItem xs="12" >
+                   <PurchaseItems PurchaseInvoiceId="model.Id" />
+                </MudItem>
+
 
             </MudGrid>
         </MudForm>
@@ -60,7 +74,10 @@
     [CascadingParameter]
     IMudDialogInstance MudDialog { get; set; } = default!;
     AddEditPurchaseInvoiceCommandValidator _modelValidator = new ();
-    [EditorRequired] [Parameter] public AddEditPurchaseInvoiceCommand model { get; set; } = null!;
+    [EditorRequired] 
+    [Parameter] 
+    public AddEditPurchaseInvoiceCommand model { get; set; } = null!;
+
     async Task Submit()
     {
         try
@@ -86,6 +103,28 @@
             _saving = false;
         }
     }
+
+    private async Task SelectSupplier()
+    {
+        var parameters = new DialogParameters<ViewSupplierDialog>
+        {
+
+        };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var dialog = await DialogService.ShowAsync<ViewSupplierDialog>("title", parameters, options);
+        var state = await dialog.Result;
+
+        if (state != null && !state.Canceled)
+        {
+            var supplier = state.Data as SupplierDto;
+            if (supplier is not null)
+            {
+                model.SupplierId = supplier.Id;
+                model.Supplier = supplier;
+            }
+        }
+    }
+
     async Task SaveAndNew()
     {
         try

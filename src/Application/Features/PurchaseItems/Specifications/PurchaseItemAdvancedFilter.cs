@@ -39,4 +39,5 @@ public class PurchaseItemAdvancedFilter: PaginationFilter
     public TimeSpan LocalTimezoneOffset { get; set; }
     public PurchaseItemListView ListView { get; set; } = PurchaseItemListView.All;
     public UserProfile? CurrentUser { get; set; }
+    public int PurchaseInvoiceId { get; set; } = 0;
 }

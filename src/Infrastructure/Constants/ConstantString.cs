@@ -39,6 +39,8 @@ public static class ConstantString
     public static string Import => Localize("Import from Excel");
     public static string Actions => Localize("Actions");
     public static string Save => Localize("Save");
+
+    public static string SelectSupplier => Localize("Select Supplier");
     public static string SaveAndNew => Localize("Save & New");
     public static string SaveChanges => Localize("Save Changes");
     public static string Cancel => Localize("Cancel");

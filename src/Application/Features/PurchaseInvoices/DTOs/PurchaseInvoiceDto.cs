@@ -58,10 +58,11 @@ public class PurchaseInvoiceDto
     public string? SWIFT {get;set;} 
     [Description("Notes")]
     public string? Notes {get;set;}
-    //[Description("Supplier")]
-    //public SupplierDto Supplier { get; set; }
+    [Description("Supplier")]
+    public SupplierDto Supplier { get; set; }
+
     [Description("Items")]
-    public List<PurchaseItemDto>? Items {get;set;} 
+    public IEnumerable<PurchaseItemDto>? Items {get;set;} 
 
 
 }

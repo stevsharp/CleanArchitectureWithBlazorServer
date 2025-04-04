@@ -89,7 +89,6 @@ public static class DependencyInjection
         services.AddProblemDetails();
         services.AddHealthChecks();
 
-
         services.AddHttpClient("ocr", c =>
         {
             c.BaseAddress = new Uri("http://10.33.1.150:8000/ocr/predict-by-file");

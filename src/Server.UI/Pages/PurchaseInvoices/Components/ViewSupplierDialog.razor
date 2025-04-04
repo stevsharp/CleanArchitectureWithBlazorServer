@@ -1,0 +1,49 @@
+﻿@using CleanArchitecture.Blazor.Application.Features.PurchaseInvoices.Commands.AddEdit
+@using CleanArchitecture.Blazor.Server.UI.Pages.Suppliers
+@using CleanArchitecture.Blazor.Application.Features.Suppliers.DTOs
+
+@inherits MudComponentBase
+@inject IValidationService Validator
+@inject IStringLocalizer<PurchaseInvoices> L
+
+<MudDialog>
+    <DialogContent>
+        <Suppliers _currentDto="_currentDto" OnChanged="NotifyChangeAsync" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">@ConstantString.Cancel</MudButton>
+        <MudLoadingButton Loading="@_saving" OnClick="Submit">@ConstantString.SelectSupplier</MudLoadingButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    MudForm? _form;
+    private bool _saving = false;
+    private bool _savingnew = false;
+    [CascadingParameter]
+    IMudDialogInstance MudDialog { get; set; } = default!;
+
+    public SupplierDto _currentDto { get; set; } = new SupplierDto();
+
+    private void NotifyChangeAsync(SupplierDto supplierDto)
+    {
+        _currentDto = supplierDto;
+    }
+
+    Task Submit()
+    {
+        try
+        {
+            MudDialog.Close(DialogResult.Ok(_currentDto));
+
+            return Task.CompletedTask;
+
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    void Cancel() => MudDialog.Cancel();
+}

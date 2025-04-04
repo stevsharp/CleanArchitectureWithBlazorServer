@@ -22,11 +22,12 @@ public class PurchaseItemConfiguration : IEntityTypeConfiguration<PurchaseItem>
 {
     public void Configure(EntityTypeBuilder<PurchaseItem> builder)
     {
-            builder.Property(x => x.ItemCode).HasMaxLength(255); 
-    builder.Property(x => x.ItemDescription).HasMaxLength(255); 
-    builder.Property(x => x.Unit).HasMaxLength(255); 
-    builder.Property(x => x.Color).HasMaxLength(255); 
-    builder.HasOne(x => x.Invoice).WithMany().HasForeignKey(x => x.InvoiceId); 
+        builder.Property(x => x.ItemCode).HasMaxLength(255); 
+        builder.Property(x => x.ItemDescription).HasMaxLength(255); 
+        builder.Property(x => x.Unit).HasMaxLength(255); 
+        builder.Property(x => x.Color).HasMaxLength(255); 
+
+        //builder.HasOne(x => x.Invoice).WithMany().HasForeignKey(x => x.InvoiceId); 
 
         builder.Ignore(e => e.DomainEvents);
     }

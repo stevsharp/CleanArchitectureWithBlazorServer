@@ -130,7 +130,7 @@
             </CellTemplate>
         </TemplateColumn>
         @*TODO: Define the fields that should be displayed in data table*@
-        <PropertyColumn Property="x => x.SupplierId" Title="@L[_currentDto.GetMemberDescription(x=>x.SupplierId)]" />
+        <PropertyColumn Property="x => x.Supplier.Name" Title="@L[_currentDto.GetMemberDescription(x=>x.Supplier.Name)]" />
         <PropertyColumn Property="x => x.InvoiceNumber" Title="@L[_currentDto.GetMemberDescription(x=>x.InvoiceNumber)]" />
         <PropertyColumn Property="x => x.InvoiceDate" Title="@L[_currentDto.GetMemberDescription(x=>x.InvoiceDate)]" />
         <PropertyColumn Property="x => x.InvoiceType" Title="@L[_currentDto.GetMemberDescription(x=>x.InvoiceType)]" />
@@ -153,7 +153,6 @@
         <MudDataGridPager PageSizeOptions="@(new int[]{10,15,30,50,100,500,1000})" />
     </PagerContent>
 </MudDataGrid>
-
 
 
 @code {

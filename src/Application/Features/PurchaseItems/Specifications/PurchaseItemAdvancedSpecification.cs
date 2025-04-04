@@ -18,6 +18,8 @@ public class PurchaseItemAdvancedSpecification : Specification<PurchaseItem>
         //     .Where(q => q.CreatedBy == filter.CurrentUser.UserId, filter.ListView == PurchaseItemListView.My && filter.CurrentUser is not null)
         //     .Where(x => x.Created >= todayrange.Start && x.Created < todayrange.End.AddDays(1), filter.ListView == PurchaseItemListView.TODAY)
         //     .Where(x => x.Created >= last30daysrange.Start, filter.ListView == PurchaseItemListView.LAST_30_DAYS);
-       
+
+
+        Query.Where(q => q.InvoiceId == filter.PurchaseInvoiceId);  
     }
 }

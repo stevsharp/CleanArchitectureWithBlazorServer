@@ -63,6 +63,7 @@ public static class DependencyInjection
 
         services.AddSingleton<IUsersStateContainer, UsersStateContainer>();
         services.AddScoped<IScopedMediator, ScopedMediator>();
+
         return services;
     }
 

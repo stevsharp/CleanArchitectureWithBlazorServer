@@ -8,36 +8,73 @@
     <DialogContent>
         <MudForm Model="@model" @ref="@_form" Validation="@(Validator.ValidateValue(model))">
             <MudGrid>
-                @*TODO: define mudform that should be edit fields, for example:*@
-                <MudItem xs="12" md="6"> 
+
+@*                 <MudItem xs="12" md="6"> 
                         <MudNumericField  Label="@L[model.GetMemberDescription(x=>x.InvoiceId)]" @bind-Value="model.InvoiceId" For="@(() => model.InvoiceId)" Min="0" Required="false" RequiredError="@L["invoice id is required!"]"></MudNumericField >
+                </MudItem>  *@
+                <MudItem xs="12" md="6"> 
+                        <MudTextField Label="@L[model.GetMemberDescription(x=>x.ItemCode)]" 
+                            @bind-Value="model.ItemCode" For="@(() => model.ItemCode)" 
+                            Required="false" RequiredError="@L["item code is required!"]"></MudTextField>
                 </MudItem> 
-<MudItem xs="12" md="6"> 
-                        <MudTextField Label="@L[model.GetMemberDescription(x=>x.ItemCode)]" @bind-Value="model.ItemCode" For="@(() => model.ItemCode)" Required="false" RequiredError="@L["item code is required!"]"></MudTextField>
+                <MudItem xs="12" md="6"> 
+                        <MudTextField Label="@L[model.GetMemberDescription(x=>x.ItemDescription)]" 
+                            @bind-Value="model.ItemDescription" 
+                            For="@(() => model.ItemDescription)" 
+                            Required="false" RequiredError="@L["item description is required!"]"></MudTextField>
                 </MudItem> 
-<MudItem xs="12" md="6"> 
-                        <MudTextField Label="@L[model.GetMemberDescription(x=>x.ItemDescription)]" @bind-Value="model.ItemDescription" For="@(() => model.ItemDescription)" Required="false" RequiredError="@L["item description is required!"]"></MudTextField>
+                <MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[model.GetMemberDescription(x=>x.Quantity)]" 
+                            @bind-Value="model.Quantity" For="@(() => model.Quantity)" 
+                            Min="0" Required="false" RequiredError="@L["quantity is required!"]"></MudNumericField >
                 </MudItem> 
-<MudItem xs="12" md="6"> 
-                        <MudNumericField  Label="@L[model.GetMemberDescription(x=>x.Quantity)]" @bind-Value="model.Quantity" For="@(() => model.Quantity)" Min="0" Required="false" RequiredError="@L["quantity is required!"]"></MudNumericField >
+
+
+                <MudItem xs="12" md="6">
+                    <PicklistAutocomplete Picklist="Picklist.Unit" T="string"
+                                          Label="@L["Unit"]"
+                                          For="@(() => model.Unit)"
+                                          ResetValueOnEmptyText="true"
+                                          ShowProgressIndicator="true"
+                                          @bind-Value="model.Unit">
+                        <ProgressIndicatorTemplate>
+                            <MudProgressLinear Size="MudBlazor.Size.Small" Indeterminate="true" />
+                        </ProgressIndicatorTemplate>
+                    </PicklistAutocomplete>
+                </MudItem>
+
+                <MudItem xs="12" md="6">
+                    <PicklistAutocomplete Picklist="Picklist.Color" T="string"
+                                          Label="@L["Color"]"
+                                          For="@(() => model.Color)"
+                                          ResetValueOnEmptyText="true"
+                                          ShowProgressIndicator="true"
+                                          @bind-Value="model.Color">
+                        <ProgressIndicatorTemplate>
+                            <MudProgressLinear Size="MudBlazor.Size.Small" Indeterminate="true" />
+                        </ProgressIndicatorTemplate>
+                    </PicklistAutocomplete>
+                </MudItem>
+
+                <MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[model.GetMemberDescription(x=>x.UnitPrice)]"
+                            @bind-Value="model.UnitPrice" For="@(() => model.UnitPrice)" Min="0.00m" 
+                            Required="false" RequiredError="@L["unit price is required!"]"></MudNumericField >
                 </MudItem> 
-<MudItem xs="12" md="6"> 
-                        <MudTextField Label="@L[model.GetMemberDescription(x=>x.Unit)]" @bind-Value="model.Unit" For="@(() => model.Unit)" Required="false" RequiredError="@L["unit is required!"]"></MudTextField>
+                <MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[model.GetMemberDescription(x=>x.VATPercentage)]" 
+                            @bind-Value="model.VATPercentage" For="@(() => model.VATPercentage)"
+                            Min="0.00m" Required="false" RequiredError="@L["vat percentage is required!"]"></MudNumericField >
                 </MudItem> 
-<MudItem xs="12" md="6"> 
-                        <MudTextField Label="@L[model.GetMemberDescription(x=>x.Color)]" @bind-Value="model.Color" For="@(() => model.Color)" Required="false" RequiredError="@L["color is required!"]"></MudTextField>
+                <MudItem xs="12" md="6"> 
+                        <MudNumericField Disabled="true" Label="@L[model.GetMemberDescription(x=>x.VATAmount)]" 
+                            Value="model.VATAmount" 
+                            Required="false" RequiredError="@L["vat amount is required!"]"></MudNumericField >
                 </MudItem> 
-<MudItem xs="12" md="6"> 
-                        <MudNumericField  Label="@L[model.GetMemberDescription(x=>x.UnitPrice)]" @bind-Value="model.UnitPrice" For="@(() => model.UnitPrice)" Min="0.00m" Required="false" RequiredError="@L["unit price is required!"]"></MudNumericField >
-                </MudItem> 
-<MudItem xs="12" md="6"> 
-                        <MudNumericField  Label="@L[model.GetMemberDescription(x=>x.VATPercentage)]" @bind-Value="model.VATPercentage" For="@(() => model.VATPercentage)" Min="0.00m" Required="false" RequiredError="@L["vat percentage is required!"]"></MudNumericField >
-                </MudItem> 
-<MudItem xs="12" md="6"> 
-                        <MudNumericField  Label="@L[model.GetMemberDescription(x=>x.VATAmount)]" @bind-Value="model.VATAmount" For="@(() => model.VATAmount)" Min="0.00m" Required="false" RequiredError="@L["vat amount is required!"]"></MudNumericField >
-                </MudItem> 
-<MudItem xs="12" md="6"> 
-                        <MudNumericField  Label="@L[model.GetMemberDescription(x=>x.TotalAmount)]" @bind-Value="model.TotalAmount" For="@(() => model.TotalAmount)" Min="0.00m" Required="false" RequiredError="@L["total amount is required!"]"></MudNumericField >
+                <MudItem xs="12" md="6">
+                            <MudNumericField Disabled="true" Label="@L[model.GetMemberDescription(x=>x.TotalAmount)]"
+                             Value="model.TotalAmount"  
+                             Required="false" RequiredError="@L["total amount is required!"]"></MudNumericField >
                 </MudItem> 
 
             </MudGrid>

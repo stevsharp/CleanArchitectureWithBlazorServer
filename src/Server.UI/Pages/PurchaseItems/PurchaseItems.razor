@@ -110,7 +110,7 @@
                     </CellTemplate>
                 </TemplateColumn>
                 @*TODO: Define the fields that should be displayed in data table*@
-                                <PropertyColumn Property="x => x.InvoiceId" Title="@L[_currentDto.GetMemberDescription(x=>x.InvoiceId)]" />
+@*                                 <PropertyColumn Property="x => x.InvoiceId" Title="@L[_currentDto.GetMemberDescription(x=>x.InvoiceId)]" /> *@
                 <PropertyColumn Property="x => x.ItemCode" Title="@L[_currentDto.GetMemberDescription(x=>x.ItemCode)]" />
                 <PropertyColumn Property="x => x.ItemDescription" Title="@L[_currentDto.GetMemberDescription(x=>x.ItemDescription)]" />
                 <PropertyColumn Property="x => x.Quantity" Title="@L[_currentDto.GetMemberDescription(x=>x.Quantity)]" />
@@ -151,6 +151,9 @@
     [CascadingParameter(Name = "LocalTimezoneOffset")]
     private TimeSpan _localTimezoneOffset { get; set; }
 
+    [Parameter]
+    public int PurchaseInvoiceId { get; set; }
+
     private PurchaseItemsWithPaginationQuery Query { get; set; } = new();
     [Inject]
     private IBlazorDownloadFileService BlazorDownloadFileService { get; set; } = null!;
@@ -163,6 +166,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        PurchaseItemCacheKey.Refresh();
+
         Title = L[_currentDto.GetClassDescription()];
         var state = await AuthState;
         _canCreate = (await AuthService.AuthorizeAsync(state.User, Permissions.PurchaseItems.Create)).Succeeded;
@@ -177,12 +182,15 @@
         try
         {
             _loading = true;
+
             Query.CurrentUser = UserProfile;
             Query.OrderBy = state.SortDefinitions.FirstOrDefault()?.SortBy ?? "Id";
             Query.SortDirection = state.SortDefinitions.FirstOrDefault()?.Descending ?? true ? SortDirection.Descending.ToString() : SortDirection.Ascending.ToString();
             Query.PageNumber = state.Page + 1;
             Query.PageSize = state.PageSize;
             Query.LocalTimezoneOffset = _localTimezoneOffset;
+            Query.PurchaseInvoiceId = PurchaseInvoiceId;
+
             var result = await Mediator.Send(Query).ConfigureAwait(false);
             return new GridData<PurchaseItemDto>() { TotalItems = result.TotalItems, Items = result.Items };
         }
@@ -217,7 +225,7 @@
                 { x=>x.model,command },
             };
         var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
-        var dialog = DialogService.Show<PurchaseItemFormDialog>(title, parameters, options);
+        var dialog = await DialogService.ShowAsync<PurchaseItemFormDialog>(title, parameters, options);
         var state = await dialog.Result;
 
         if (state != null && !state.Canceled)
@@ -233,6 +241,9 @@
     private async Task OnCreate()
     {
         var command = new AddEditPurchaseItemCommand();
+
+        command.InvoiceId = PurchaseInvoiceId;
+
         await ShowEditFormDialog(string.Format(ConstantString.CreateAnItem, L["PurchaseItem"]), command);
     }
     private async Task OnClone()
@@ -243,7 +254,11 @@
     }
     private async Task OnEdit(PurchaseItemDto dto)
     {
-       Navigation.NavigateTo($"/pages/PurchaseItems/edit/{dto.Id}");
+       //Navigation.NavigateTo($"/pages/PurchaseItems/edit/{dto.Id}");
+
+        var command = PurchaseItemMapper.ToCommand(dto);
+        command.InvoiceId = PurchaseInvoiceId;
+        await ShowEditFormDialog(string.Format(ConstantString.EditTheItem, L["PurchaseItem"]), command);
     }
 
     private async Task OnDelete(PurchaseItemDto dto)
