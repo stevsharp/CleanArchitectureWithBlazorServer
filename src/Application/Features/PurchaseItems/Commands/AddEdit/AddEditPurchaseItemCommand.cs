@@ -9,21 +9,22 @@ namespace CleanArchitecture.Blazor.Application.Features.PurchaseItems.Commands.A
 public class AddEditPurchaseItemCommand : ICacheInvalidatorRequest<Result<int>>
 {
 
-    public readonly BehaviorSubject<string> _itemCodeSubject = new(string.Empty);
+    private readonly Subject<string> _itemCodeSubject = new();
 
-    public IObservable<string?> ItemCodeChanged => _itemCodeSubject.AsObservable();
+    public IObservable<string> ItemCodeChanged => _itemCodeSubject.AsObservable();
+
+    private string _itemCode = string.Empty;
 
     [Description("Item code")]
     public string ItemCode
     {
-        get => _itemCodeSubject.Value;
+        get => _itemCode;
         set
         {
-            _itemCodeSubject.OnNext(value);
             _itemCode = value;
+            _itemCodeSubject.OnNext(value);
         }
     }
-    private string? _itemCode;
 
     [Description("Id")]
     public int Id { get; set; }
@@ -76,7 +77,6 @@ public class AddEditPurchaseItemCommandHandler(IApplicationDbContext context) : 
                 {
                     return await Result<int>.FailureAsync($"Purchase with id: [{request.Id}] not found.");
                 }
-
 
                 var items = purchaseInvoice.Items.ToList();
                 if (!items.Any())

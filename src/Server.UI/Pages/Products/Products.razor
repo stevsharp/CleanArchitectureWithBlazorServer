@@ -1,4 +1,5 @@
 ﻿@page "/pages/products"
+@using CleanArchitecture.Blazor.Application.Features.PicklistSets.DTOs
 @using CleanArchitecture.Blazor.Application.Features.Products.DTOs
 @using CleanArchitecture.Blazor.Application.Features.Products.Mappers
 @using CleanArchitecture.Blazor.Application.Features.Products.Queries.Export
@@ -58,8 +59,8 @@
                     @if (_canCreate)
                     {
                         <MudButton  
-                                   StartIcon="@Icons.Material.Outlined.Add"
-                                   OnClick="OnCreate">
+                        StartIcon="@Icons.Material.Outlined.Add"
+                        OnClick="OnCreate">
                             @ConstantString.New
                         </MudButton>
                     }
@@ -71,18 +72,18 @@
                         @if (_canDelete)
                         {
                             <MudMenuItem Disabled="@(!(_selectedItems.Count > 0))"
-                                         OnClick="OnDeleteChecked">
+                            OnClick="OnDeleteChecked">
                                 @ConstantString.Delete
                             </MudMenuItem>
                         }
                         @if (_canExport)
                         {
                             <MudMenuItem Disabled="@_exporting"
-                                         OnClick="OnExport">
+                            OnClick="OnExport">
                                 @ConstantString.Export
                             </MudMenuItem>
                             <MudMenuItem Disabled="@_pdfExporting"
-                                         OnClick="OnExportPDF">
+                            OnClick="OnExportPDF">
                                 @ConstantString.ExportPDF
                             </MudMenuItem>
                         }
@@ -92,10 +93,10 @@
                                 <MudFileUpload T="IBrowserFile" FilesChanged="OnImportData" Accept=".xlsx">
                                     <ActivatorContent>
                                         <MudButton Class="pa-0 ma-0" Style="font-weight:400;text-transform:none;"
-                                                   Variant="Variant.Text"
-                                                   Disabled="@_uploading"
-                                                   >
-                                                @ConstantString.Import
+                                        Variant="Variant.Text"
+                                        Disabled="@_uploading"
+                                        >
+                                            @ConstantString.Import
                                         </MudButton>
                                     </ActivatorContent>
                                 </MudFileUpload>
@@ -108,7 +109,7 @@
                     @if (_canSearch)
                     {
                         <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Value="@Query.Keyword" Placeholder="@ConstantString.Search" Adornment="Adornment.End"
-                                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Small">
+                        AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Small">
                         </MudTextField>
                     }
                 </MudStack>
@@ -122,8 +123,8 @@
                 @if (_canEdit && _canDelete)
                 {
                     <MudMenu Icon="@Icons.Material.Filled.Edit" Variant="Variant.Filled" Size="Size.Small"
-                             Dense="true"
-                             IconColor="Color.Info" AnchorOrigin="Origin.CenterLeft">
+                    Dense="true"
+                    IconColor="Color.Info" AnchorOrigin="Origin.CenterLeft">
                         @if (_canEdit)
                         {
                             <MudMenuItem OnClick="@(() => OnEdit(context.Item))">@ConstantString.Edit</MudMenuItem>
@@ -155,20 +156,20 @@
                 {
                     <MudTooltip Text="@ConstantString.NoAllowed" Delay="300">
                         <MudIconButton Variant="Variant.Filled" Disabled="true"
-                                       Icon="@Icons.Material.Filled.DoNotTouch" Size="Size.Small"
-                                       Color="Color.Surface">
+                        Icon="@Icons.Material.Filled.DoNotTouch" Size="Size.Small"
+                        Color="Color.Surface">
                         </MudIconButton>
                     </MudTooltip>
                 }
 
-              
+
 
             </CellTemplate>
         </TemplateColumn>
 
-           <PropertyColumn Property="x => x.Code" Title="@L[_currentDto.GetMemberDescription(x => x.Code)]" />
+        <PropertyColumn Property="x => x.Code" Title="@L[_currentDto.GetMemberDescription(x => x.Code)]" />
 
-@*         <PropertyColumn Property="x => x.Brand" Title="@L[_currentDto.GetMemberDescription(x => x.Brand)]">
+        @*         <PropertyColumn Property="x => x.Brand" Title="@L[_currentDto.GetMemberDescription(x => x.Brand)]">
             <FooterTemplate>
                 @ConstantString.Selected: @_selectedItems.Count
             </FooterTemplate>
@@ -201,7 +202,7 @@
             </FooterTemplate>
         </PropertyColumn>
 
-@*         <PropertyColumn Property="x => x.Unit" Title="@L[_currentDto.GetMemberDescription(x => x.Unit)]" /> *@
+        @*         <PropertyColumn Property="x => x.Unit" Title="@L[_currentDto.GetMemberDescription(x => x.Unit)]" /> *@
     </Columns>
     <NoRecordsContent>
         <MudText>@ConstantString.NoRecords</MudText>
@@ -218,8 +219,8 @@
     @@import url("https://cdn.jsdelivr.net/npm/@@fancyapps/ui@@5.0.36/dist/fancybox/fancybox.css");
 
     .fancybox__container {
-        --fancybox-bg: rgba(24, 24, 27, 0.85);
-        z-index: 9999;
+    --fancybox-bg: rgba(24, 24, 27, 0.85);
+    z-index: 9999;
     }
 </style>
 
@@ -343,6 +344,35 @@
     private async Task OnEdit(ProductDto dto)
     {
         var command = ProductMapper.ToEditCommand(dto);
+
+        if (dto.ColorOptions.Any())
+        {
+            foreach (var color in dto.ColorOptions)
+            {
+                command.ColorData.Add(new PicklistSetDto
+                {
+                    Value = color.Value , 
+                    Description = color.Description,
+                    Name = Picklist.Color,
+                    Text = color.Text
+                }); 
+            }
+        }
+
+        if (dto.UnitOptions.Any())
+        {
+            foreach (var unit in dto.UnitOptions)
+            {
+                command.UnitData.Add(new PicklistSetDto
+                {
+                   Value = unit.Value,
+                   Description = unit.Description,
+                   Name = Picklist.Unit,
+                   Text = unit.Text
+                });
+            }
+        }
+
         await ShowEditFormDialog(string.Format(ConstantString.EditTheItem, L["Product"]), command);
     }
 

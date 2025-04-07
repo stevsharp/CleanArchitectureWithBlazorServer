@@ -11,6 +11,7 @@
 @using CleanArchitecture.Blazor.Server.UI.Services.JsInterop
 @using System.Collections.Immutable
 @using CleanArchitecture.Blazor.Application.Features.Categories.DTOs;
+@using CleanArchitecture.Blazor.Application.Features.PicklistSets.DTOs;
 @inject IStringLocalizer<Products> L
 @inject IUploadService UploadService
 
@@ -42,76 +43,80 @@
                     @bind-Value="Model.Description">
                     </MudTextField>
                 </MudItem>
+
+                <MudItem xs="12" >
+                    <MudPaper Class="d-flex gap-4">
+
+                        <PicklistMultiSelect Name="Picklist.Color" SelectedValues="colorData"
+                        SelectedValuesChanged="ColorSelectedValuesChanged"
+                        Label="@L["Select Product Color"]" />
+
+                        <PicklistMultiSelect Name="Picklist.Unit" SelectedValues="unitData" SelectedValuesChanged="UnitSelectedValuesChanged"
+                        Label="@L["Select Product Unit"]" />
+                    </MudPaper>
+                </MudItem>
+
+
                 <MudItem xs="12" sm="6">
-                     <PicklistAutocomplete Picklist="Picklist.Brand" T="string"
-                                          Label="@L["Brand Name"]"
-                                          For="@(() => Model.Brand)"
-                                          ResetValueOnEmptyText="true"
-                                          ShowProgressIndicator="true"
-                                          @bind-Value="Model.Brand">
-                        <ProgressIndicatorTemplate>
-                            <MudProgressLinear Size="MudBlazor.Size.Small" Indeterminate="true" />
-                        </ProgressIndicatorTemplate>
-                    </PicklistAutocomplete>
 
                     <MudSelect T="CategoryDto"
-                               Variant="Variant.Outlined"
-                        Required="true" RequiredError="@L["customer id is required!"]"
-                               Label="@L["Category"]" @bind-Value="SelectedCategory">
-                            @if (Categories is not null)
+                    Variant="Variant.Outlined"
+                    Required="true" RequiredError="@L["customer id is required!"]"
+                    Label="@L["Category"]" @bind-Value="SelectedCategory">
+                        @if (Categories is not null)
+                        {
+                            @foreach (var contact in Categories)
                             {
-                                @foreach (var contact in Categories)
-                                {
-                                    <MudSelectItem Value="contact"
-                                    Label="@($"{contact.Name}")">
-                                        @($"{contact.Name}")
-                                    </MudSelectItem>
-                                }
+                                <MudSelectItem Value="contact"
+                                Label="@($"{contact.Name}")">
+                                    @($"{contact.Name}")
+                                </MudSelectItem>
                             }
+                        }
                     </MudSelect>
 
                     <MudTextField ReadOnly="true"
-                                  Lines="3"
-                                  Label="@L["Sub Categories"]"
-                                  Variant="Variant.Outlined"
-                                  Value="@(string.Join(", ", SelectedCategory?.SubCategories?.Select(x => x.Name) ?? Enumerable.Empty<string>()))"
-                                  Required="false">
+                    Lines="3"
+                    Label="@L["Sub Categories"]"
+                    Variant="Variant.Outlined"
+                    Value="@(string.Join(", ", SelectedCategory?.SubCategories?.Select(x => x.Name) ?? Enumerable.Empty<string>()))"
+                    Required="false">
                     </MudTextField>
 
                 </MudItem>
                 <MudItem xs="12" sm="4">
                     <MudNumericField Label="@L["Price"]"
-                                     Variant="Variant.Outlined"
-                        T="decimal"
-                        Format="N2"
-                        For="@(() => Model.Price)"
-                        Min="0.00m"
-                        @bind-Value="Model.Price">
+                    Variant="Variant.Outlined"
+                    T="decimal"
+                    Format="N2"
+                    For="@(() => Model.Price)"
+                    Min="0.00m"
+                    @bind-Value="Model.Price">
                     </MudNumericField>
                 </MudItem>
 
                 <MudItem xs="12" sm="4">
                     <MudNumericField Label="@L["RetailPrice"]"
-                                     Variant="Variant.Outlined"
-                        T="decimal"
-                        Format="N2"
-                        For="@(() => Model.RetailPrice)"
-                        Min="0.00m"
-                        @bind-Value="Model.RetailPrice">
+                    Variant="Variant.Outlined"
+                    T="decimal"
+                    Format="N2"
+                    For="@(() => Model.RetailPrice)"
+                    Min="0.00m"
+                    @bind-Value="Model.RetailPrice">
                     </MudNumericField>
                 </MudItem>
 
                 <MudItem xs="12" sm="4">
                     <MudNumericField Label="@L["Stock"]"
-                        T="int"
-                        For="@(() => Model.Stock)"
-                        @bind-Value="Model.Stock">
+                    T="int"
+                    For="@(() => Model.Stock)"
+                    @bind-Value="Model.Stock">
                     </MudNumericField>
                 </MudItem>
 
                 <MudItem xs="12">
                     <MudTextField Variant="Variant.Outlined"
-                        Lines="4" Label="@L["AdditionalInfo"]" @bind-Value="Model.AdditionalInfo"
+                    Lines="4" Label="@L["AdditionalInfo"]" @bind-Value="Model.AdditionalInfo"
                     For="@(() => Model.AdditionalInfo)"
                     Required="false">
                     </MudTextField>
@@ -132,13 +137,13 @@
                 </MudItem>
 
 
-               <MudItem xs="12">
+                @*  <MudItem xs="12">
                     <PicklistAutocomplete Picklist="Picklist.Unit" T="string"
-                                          Label="@L["Unit"]"
-                                          For="@(() => Model.Unit)"
-                                          ResetValueOnEmptyText="true"
-                                          ShowProgressIndicator="true"
-                                          @bind-Value="Model.Unit">
+                    Label="@L["Unit"]"
+                    For="@(() => Model.Unit)"
+                    ResetValueOnEmptyText="true"
+                    ShowProgressIndicator="true"
+                    @bind-Value="Model.Unit">
                         <ProgressIndicatorTemplate>
                             <MudProgressLinear Size="MudBlazor.Size.Small" Indeterminate="true" />
                         </ProgressIndicatorTemplate>
@@ -147,16 +152,16 @@
 
                 <MudItem xs="12">
                     <PicklistAutocomplete Picklist="Picklist.Color" T="string"
-                                          Label="@L["Color"]"
-                                          For="@(() => Model.Color)"
-                                          ResetValueOnEmptyText="true"
-                                          ShowProgressIndicator="true"
-                                          @bind-Value="Model.Color">
+                    Label="@L["Color"]"
+                    For="@(() => Model.Color)"
+                    ResetValueOnEmptyText="true"
+                    ShowProgressIndicator="true"
+                    @bind-Value="Model.Color">
                         <ProgressIndicatorTemplate>
                             <MudProgressLinear Size="MudBlazor.Size.Small" Indeterminate="true" />
                         </ProgressIndicatorTemplate>
                     </PicklistAutocomplete>
-                </MudItem>
+                </MudItem> *@
 
                 <MudItem xs="12">
                     <MudStack Spacing="1" Class="mb-2">
@@ -253,9 +258,11 @@
     private void SetDragClass()
         => _dragClass = $"{DefaultDragClass} mud-border-primary mud-elevation-25 border-4";
 
+    protected IEnumerable<PicklistSetDto> colorData = new List<PicklistSetDto>();
+    protected IEnumerable<PicklistSetDto> unitData = new List<PicklistSetDto>();
+
     protected override async Task OnInitializedAsync()
     {
-       
         var result = await Mediator.Send(getAllCategoriesQuery).ConfigureAwait(false);
 
         if (result.Any())
@@ -265,6 +272,9 @@
             if (Model.CategoryId > 0)
                 SelectedCategory = Categories.First(x => x.Id == Model.CategoryId);
         }
+
+        this.colorData = Model.ColorData;
+        this.unitData = Model.UnitData;
 
     }
 
@@ -332,6 +342,9 @@
         try
         {
             _saving = true;
+
+            Model.SetDefaultValues();
+
             await _form!.Validate().ConfigureAwait(false);
 
             if (!_form!.IsValid)
@@ -341,6 +354,8 @@
                 return;
 
             Model.CategoryId = SelectedCategory.Id;
+            Model.ColorData.AddRange(colorData);
+            Model.UnitData.AddRange(unitData);
 
             var result = await Mediator.Send(Model);
             result.Match(
@@ -373,6 +388,10 @@
             if (!_form!.IsValid)
                 return;
             var result = await Mediator.Send(Model);
+
+            Model.ColorData.AddRange(colorData);
+            Model.UnitData.AddRange(unitData);
+
             result.Match(
             data=>
             {
@@ -391,6 +410,16 @@
         {
             _saveingnew = false;
         }
+    }
+
+    private void ColorSelectedValuesChanged(IEnumerable<PicklistSetDto> selectedValues)
+    {
+        colorData = selectedValues;
+    }
+
+    private void UnitSelectedValuesChanged(IEnumerable<PicklistSetDto> selectedValues)
+    {
+        unitData = selectedValues;
     }
 
     private void Cancel()

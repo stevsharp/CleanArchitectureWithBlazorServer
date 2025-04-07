@@ -19,7 +19,7 @@
                     Required="false" RequiredError="@L["item code is required!"]"></MudTextField>
                 </MudItem> 
                 <MudItem xs="12" md="6"> 
-                    <MudTextField ReadOnly="true" Label="@L[model.GetMemberDescription(x=>x.ItemDescription)]" 
+                    <MudTextField  Label="@L[model.GetMemberDescription(x=>x.ItemDescription)]" 
                     @bind-Value="model.ItemDescription" 
                     For="@(() => model.ItemDescription)" 
                     Required="false" RequiredError="@L["item description is required!"]"></MudTextField>
@@ -132,9 +132,11 @@
 
         if (result is not null)
         {
-            model.ItemDescription = result.Description;
+            model.ItemDescription = result.Name;
             model.UnitPrice = result.RetailPrice.GetValueOrDefault(0);
-            model.ProductId = result.Id;    
+            model.ProductId = result.Id;
+
+            StateHasChanged();
         }
         else
         {

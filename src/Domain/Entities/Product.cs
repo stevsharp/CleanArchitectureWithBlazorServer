@@ -24,10 +24,34 @@ public class Product : BaseAuditableEntity
     public string? Color { get; set; }
     public int CategoryId { get; set; } // Foreign Key  
 
-    public virtual List<ProductImage>? Pictures { get; set; }
+    public virtual List<ProductImage>? Pictures { get; set; } = [];
+    public virtual List<SupplyItem>? SupplyItems { get; set; } = [];
+    public ICollection<SubProduct>? SubProducts { get; set; } = [];
+    public ICollection<ProductColorOption> ColorOptions { get; set; } = [];
+    public ICollection<ProductUnitOption> UnitOptions { get; set; } = [];
 
-    public virtual List<SupplyItem>? SupplyItems { get; set; }
+}
 
-    public virtual  List<SubProduct>? SubProducts { get; set; } = [];
+public class ProductUnitOption 
+{
+    public int Id { get; set; } 
+    public int ProductId { get; set; }
+    public int UnitId { get; set; } // Foreign Key
+    public string Name { get; set; } = null!;
+    public string Value { get; set; } = null!;
+    public string Text { get; set; } = null!;
+    public string? Description { get; set; }
+
+}
+
+public class ProductColorOption 
+{
+    public int Id { get; set; }
+    public int ProductId { get; set; }
+    public int UnitId { get; set; } // Foreign Key
+    public string Name { get; set; } = null!;
+    public string Value { get; set; } = null!;
+    public string Text { get; set; } = null!;
+    public string? Description { get; set; }
 
 }

@@ -22,14 +22,13 @@ public class PicklistService : IPicklistService
     public event  Func<Task>? OnChange;
     public List<PicklistSetDto> DataSource { get; private set; } = new();
 
-
     public void Initialize()
     {
         DataSource = _fusionCache.GetOrSet(PicklistSetCacheKey.PicklistCacheKey,
             _ => _context.PicklistSets.OrderBy(x => x.Name).ThenBy(x => x.Value)
                 .ProjectTo()
                 .ToList()
-        ) ?? new List<PicklistSetDto>();
+        ) ?? [];
     }
 
     public void Refresh()
@@ -39,7 +38,7 @@ public class PicklistService : IPicklistService
             _ => _context.PicklistSets.OrderBy(x => x.Name).ThenBy(x => x.Value)
                 .ProjectTo()
                 .ToList()
-        ) ?? new List<PicklistSetDto>();
+        ) ?? [];
         OnChange?.Invoke();
     }
 }

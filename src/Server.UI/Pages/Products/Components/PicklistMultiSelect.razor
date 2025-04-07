@@ -1,0 +1,71 @@
+﻿@using CleanArchitecture.Blazor.Application.Features.PicklistSets.DTOs
+@inject IPicklistService PicklistService
+
+<MudSelect T="PicklistSetDto"
+           Label="@Label"
+           MultiSelection="true"
+           Clearable="true"
+           CoerceText="true"
+           @bind-SelectedValues="InternalSelectedValues"
+           ToStringFunc="item => item.Text">
+    @if (Options.Any())
+    {
+        @foreach (var item in Options)
+        {
+            <MudSelectItem T="PicklistSetDto" Value="item">
+                @item.Text
+            </MudSelectItem>
+        }
+    }
+</MudSelect>
+
+@code {
+    [Parameter]
+    public string Label { get; set; } = "Select Options";
+
+    [Parameter]
+    public Picklist Name { get; set; }
+
+    [Parameter]
+    public IEnumerable<PicklistSetDto> SelectedValues { get; set; } = new HashSet<PicklistSetDto>();
+
+    [Parameter]
+    public EventCallback<IEnumerable<PicklistSetDto>> SelectedValuesChanged { get; set; }
+
+    protected IEnumerable<PicklistSetDto> Options = new List<PicklistSetDto>();
+
+    private IEnumerable<PicklistSetDto> _internalSelectedValues = new HashSet<PicklistSetDto>();
+
+    private IEnumerable<PicklistSetDto> InternalSelectedValues
+    {
+        get => _internalSelectedValues;
+        set
+        {
+            if (_internalSelectedValues != value)
+            {
+                _internalSelectedValues = value;
+                SelectedValuesChanged.InvokeAsync(_internalSelectedValues);
+            }
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Options = await Task.FromResult(PicklistService.DataSource
+            .Where(x => x.Name == Name)
+            .ToList());
+
+        _internalSelectedValues = new HashSet<PicklistSetDto>(
+            Options.Where(x => SelectedValues.Any(s => s.Value == x.Value))
+        );
+    }
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        await base.SetParametersAsync(parameters);
+
+        _internalSelectedValues = new HashSet<PicklistSetDto>(
+            Options.Where(x => SelectedValues.Any(s => s.Value == x.Value))
+        );
+    }
+}
