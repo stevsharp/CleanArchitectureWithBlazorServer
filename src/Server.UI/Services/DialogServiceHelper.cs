@@ -76,7 +76,39 @@ public class DialogServiceHelper
             await onCancel().ConfigureAwait(false);
         }
     }
+    /// <summary>
+    /// ConfirmPurchaseInvoiceCommand
+    /// </summary>
+    /// <param name="command"></param>
+    /// <param name="title"></param>
+    /// <param name="contentText"></param>
+    /// <param name="onConfirm"></param>
+    /// <param name="onCancel"></param>
+    /// <returns></returns>
+    public async Task ConfirmationPurchaseDialogAsync(IRequest<Result<int>> command, string title, string contentText,
+    Func<Task> onConfirm,
+    Func<Task>? onCancel = null)
+    {
+        var parameters = new DialogParameters
+            {
+                { nameof(FinalzeConfirmationDialog.ContentText), contentText },
+                { nameof(FinalzeConfirmationDialog.Command), command }
+            };
 
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+
+        var dialog = await _dialogService.ShowAsync<FinalzeConfirmationDialog>(title, parameters, options).ConfigureAwait(false);
+        var result = await dialog.Result.ConfigureAwait(false);
+
+        if (result is not null && !result.Canceled)
+        {
+            await onConfirm().ConfigureAwait(false);
+        }
+        else if (onCancel != null)
+        {
+            await onCancel().ConfigureAwait(false);
+        }
+    }
 
     /// <summary>
     /// Shows a confirmation dialog.

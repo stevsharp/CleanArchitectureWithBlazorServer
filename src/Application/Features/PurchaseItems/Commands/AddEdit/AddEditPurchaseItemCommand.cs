@@ -4,6 +4,7 @@ using System.Reactive.Subjects;
 using CleanArchitecture.Blazor.Application.Features.PurchaseItems.Caching;
 using CleanArchitecture.Blazor.Application.Features.PurchaseItems.Mappers;
 
+
 namespace CleanArchitecture.Blazor.Application.Features.PurchaseItems.Commands.AddEdit;
 
 public class AddEditPurchaseItemCommand : ICacheInvalidatorRequest<Result<int>>
@@ -25,6 +26,9 @@ public class AddEditPurchaseItemCommand : ICacheInvalidatorRequest<Result<int>>
             _itemCodeSubject.OnNext(value);
         }
     }
+
+    [Description("ProductId")]
+    public int ProductId { get; set; } = 0;
 
     [Description("Id")]
     public int Id { get; set; }
@@ -52,7 +56,6 @@ public class AddEditPurchaseItemCommand : ICacheInvalidatorRequest<Result<int>>
     //[Description("Invoice")]
     //public PurchaseInvoiceDto Invoice {get;set;} 
 
-    public int ProductId { get; set; } = 0;
     public string CacheKey => PurchaseItemCacheKey.GetAllCacheKey;
     public IEnumerable<string>? Tags => PurchaseItemCacheKey.Tags;
 }
@@ -65,42 +68,161 @@ public class AddEditPurchaseItemCommandHandler(IApplicationDbContext context) : 
     {
         try
         {
-            if (request.InvoiceId > 0)
+            if (request.InvoiceId <= 0)
+                return await Result<int>.FailureAsync("Invalid invoice ID.");
+
+            var purchaseInvoice = await _context.PurchaseInvoices
+                .Include(x => x.Items)
+                .AsSingleQuery()
+                .FirstOrDefaultAsync(x => x.Id == request.InvoiceId, cancellationToken);
+
+            if (purchaseInvoice is null)
+                return await Result<int>.FailureAsync($"Purchase invoice with ID [{request.InvoiceId}] not found.");
+
+            // Determine if we're updating or adding
+            var existingItem = purchaseInvoice.Items.FirstOrDefault(x => x.Id == request.Id);
+            var quantityDiff = existingItem is null
+                ? request.Quantity
+                : request.Quantity - existingItem.Quantity;
+
+            // Map and save purchase item
+            if (existingItem is null)
             {
-                var purchaseInvoice = await _context.PurchaseInvoices
-                    .Include(x => x.Items)
-                    .AsSingleQuery()
-                    .FirstOrDefaultAsync(x => x.Id == request.InvoiceId, cancellationToken);
 
-                //var item = await _context.PurchaseItems.FindAsync(request.Id, cancellationToken);
-                if (purchaseInvoice is null)
-                {
-                    return await Result<int>.FailureAsync($"Purchase with id: [{request.Id}] not found.");
-                }
+                //var updatedCount = 0;
+                //// Try batch stock update
+                //if (quantityDiff != 0)
+                //{
+                //    updatedCount = await _context.SubProducts
+                //        .Where(x => x.Unit == request.Unit && x.Color == request.Color && x.ProductId == request.ProductId)
+                //        .ExecuteUpdateAsync(setters => setters
+                //            .SetProperty(p => p.Stock, p => (p.Stock ?? 0) + quantityDiff)
+                //            .SetProperty(p => p.Price, p => request.UnitPrice),
+                //            cancellationToken);
+                //}
 
-                var items = purchaseInvoice.Items.ToList();
-                if (!items.Any())
-                {
-                    var item = PurchaseItemMapper.FromEditCommand(request);
-                    items.Add(item);
+                //// Insert SubProduct if not found during batch update
+                //if (updatedCount == 0)
+                //{
+                //    var newSubProduct = new SubProduct
+                //    {
+                //        Unit = request.Unit,
+                //        Color = request.Color,
+                //        ProductId = request.ProductId,
+                //        Price = request.UnitPrice,
+                //        Stock = quantityDiff
+                //    };
 
-                    await _context.SaveChangesAsync(cancellationToken);
-                    return await Result<int>.SuccessAsync(item.Id);
-                }
+                //    _context.SubProducts.Add(newSubProduct);
+                //}
 
-                var existingItem = items.FirstOrDefault(x => x.Id == request.Id);
-                if (existingItem is not null)
-                {
-                    PurchaseItemMapper.ApplyChangesFrom(request, existingItem);
-
-                    await _context.SaveChangesAsync(cancellationToken);
-                    return await Result<int>.SuccessAsync(existingItem.Id);
-                }
-
-                // raise a update domain event
-                //item.AddDomainEvent(new PurchaseItemUpdatedEvent(item));
-
+                var newItem = PurchaseItemMapper.FromEditCommand(request);
+                purchaseInvoice.Items.Add(newItem);
+                await _context.SaveChangesAsync(cancellationToken);
+                return await Result<int>.SuccessAsync(newItem.Id);
             }
+            else
+            {
+
+                quantityDiff = request.Quantity - existingItem.Quantity;
+
+                // Update the item itself
+                PurchaseItemMapper.ApplyChangesFrom(request, existingItem);
+
+                // Only adjust stock if there's a quantity change
+                //if (quantityDiff != 0)
+                //{
+                //    var updatedCount = await _context.SubProducts
+                //        .Where(x => x.Unit == request.Unit && x.Color == request.Color && x.ProductId == request.ProductId)
+                //        .ExecuteUpdateAsync(setters => setters
+                //            .SetProperty(p => p.Stock, p => (p.Stock ?? 0) + quantityDiff)
+                //            .SetProperty(p => p.Price, p => request.UnitPrice),
+                //            cancellationToken);
+
+                //    // Optional: log if the SubProduct was not found (should never happen during update)
+                //    if (updatedCount == 0)
+                //    {
+                //        return await Result<int>.FailureAsync("Associated SubProduct not found for stock update.");
+                //    }
+                //}
+
+                await _context.SaveChangesAsync(cancellationToken);
+                return await Result<int>.SuccessAsync(existingItem.Id);
+
+                //PurchaseItemMapper.ApplyChangesFrom(request, existingItem);
+                //await _context.SaveChangesAsync(cancellationToken);
+                //return await Result<int>.SuccessAsync(existingItem.Id);
+            }
+
+
+            //if (request.InvoiceId <= 0)
+            //    return await Result<int>.FailureAsync("Invalid invoice ID.");
+
+            //var purchaseInvoice = await _context.PurchaseInvoices
+            //    .Include(x => x.Items)
+            //    .AsSingleQuery()
+            //    .FirstOrDefaultAsync(x => x.Id == request.InvoiceId, cancellationToken);
+
+            //if (purchaseInvoice is null)
+            //    return await Result<int>.FailureAsync($"Purchase invoice with ID [{request.InvoiceId}] not found.");
+
+            //// Extract method to get or create SubProduct
+            //async Task<SubProduct> GetOrCreateSubProductAsync(CancellationToken ct)
+            //{
+            //    var productItem = await _context.SubProducts
+            //        .Where(x => x.Unit == request.Unit 
+            //        && x.Color == request.Color 
+            //        && x.ProductId == request.ProductId)
+            //        .FirstOrDefaultAsync(ct);
+
+            //    if (productItem is not null)
+            //        return productItem;
+
+            //    var newSubProduct = new SubProduct
+            //    {
+            //        Unit = request.Unit,
+            //        Color = request.Color,
+            //        ProductId = request.ProductId,
+            //        Price = request.UnitPrice,
+            //        Stock = 0
+            //    };
+
+            //    _context.SubProducts.Add(newSubProduct);
+            //    return newSubProduct;
+            //}
+
+            //var item = purchaseInvoice.Items.FirstOrDefault(x => x.Id == request.Id);
+            //var subProduct = await GetOrCreateSubProductAsync(cancellationToken);
+
+            //if (item is null)
+            //{
+            //    // New item
+            //    var newItem = PurchaseItemMapper.FromEditCommand(request);
+            //    purchaseInvoice.Items.Add(newItem);
+
+            //    int updatedCount = await _context.SubProducts
+            //        .Where(x => x.Unit == request.Unit && x.Color == request.Color && x.ProductId == request.ProductId)
+            //        .ExecuteUpdateAsync(setters => setters
+            //            .SetProperty(p => p.Stock, p => p.Stock + newItem.Quantity),
+            //            cancellationToken);
+
+            //    _context.SubProducts.Update(subProduct); 
+
+            //    await _context.SaveChangesAsync(cancellationToken);
+
+            //    return await Result<int>.SuccessAsync(newItem.Id);
+            //}
+            //else
+            //{
+            //    // Update existing item
+            //    var quantityDiff = request.Quantity - item.Quantity;
+
+            //    PurchaseItemMapper.ApplyChangesFrom(request, item);
+            //    subProduct.Stock += quantityDiff;
+
+            //    await _context.SaveChangesAsync(cancellationToken);
+            //    return await Result<int>.SuccessAsync(item.Id);
+            //}
             //else
             //{
             //    var item = PurchaseItemMapper.FromEditCommand(request);
@@ -117,7 +239,6 @@ public class AddEditPurchaseItemCommandHandler(IApplicationDbContext context) : 
             throw;
         }
 
-        return await Result<int>.SuccessAsync(0);
     }
 }
 

@@ -83,4 +83,12 @@ public class ApplicationDbContext : IdentityDbContext<
             new[] { categoryParam, subCatParam },
             cancellationToken);
     }
+
+    public void AddOrUpdate<TEntity>(TEntity entity) where TEntity : class
+    {
+        if (this.Entry(entity).IsKeySet)
+            this.Update(entity);
+        else
+            this.Add(entity);
+    }
 }

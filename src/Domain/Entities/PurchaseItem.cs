@@ -9,6 +9,8 @@ public class PurchaseItem : BaseAuditableEntity
 
     public int InvoiceId { get; set; }
     public string ItemCode { get; set; } = string.Empty;
+
+    public int ProductId { get; set; } = 0;
     public string ItemDescription { get; set; } = string.Empty;
     public int Quantity { get; set; }
     public string Unit { get; set; } = string.Empty;

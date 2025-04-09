@@ -31,4 +31,6 @@ public interface IApplicationDbContext
     DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     Task UpdateCategorySubCategoriesAsync(int categoryId, List<int> subCategoryIds, CancellationToken cancellationToken);
+
+    void AddOrUpdate<TEntity>(TEntity entity) where TEntity : class;
 }

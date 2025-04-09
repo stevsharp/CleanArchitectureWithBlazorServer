@@ -43,6 +43,9 @@ public class AddEditPurchaseInvoiceCommand : ICacheInvalidatorRequest<Result<int
     [Description("Items")]
     public List<PurchaseItemDto>? Items { get; set; } = [];
 
+    [Description("Is finalized")]
+    public int Isfinalized { get; set; } = 0;
+
     public string CacheKey => PurchaseInvoiceCacheKey.GetAllCacheKey;
     public IEnumerable<string>? Tags => PurchaseInvoiceCacheKey.Tags;
 
@@ -61,10 +64,13 @@ public class AddEditPurchaseInvoiceCommandHandler : IRequestHandler<AddEditPurch
         if (request.Id > 0)
         {
             var item = await _context.PurchaseInvoices.FindAsync(request.Id, cancellationToken);
-            if (item == null)
+            if (item is null)
             {
                 return await Result<int>.FailureAsync($"PurchaseInvoice with id: [{request.Id}] not found.");
             }
+
+            item.Supplier = null;
+
             PurchaseInvoiceMapper.ApplyChangesFrom(request, item);
             //// raise a update domain event
             //item.AddDomainEvent(new PurchaseInvoiceUpdatedEvent(item));
@@ -74,6 +80,7 @@ public class AddEditPurchaseInvoiceCommandHandler : IRequestHandler<AddEditPurch
         else
         {
             var item = PurchaseInvoiceMapper.FromEditCommand(request);
+            item.Supplier = null;
             //         // raise a create domain event
             //item.AddDomainEvent(new PurchaseInvoiceCreatedEvent(item));
             _context.PurchaseInvoices.Add(item);

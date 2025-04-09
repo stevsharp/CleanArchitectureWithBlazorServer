@@ -61,9 +61,16 @@ public class PurchaseInvoiceDto
     [Description("Supplier")]
     public SupplierDto Supplier { get; set; }
 
+    [Description("Is finalized")]
+    public int? Isfinalized { get; set; } = 0;
+
     [Description("Items")]
-    public IEnumerable<PurchaseItemDto>? Items {get;set;} 
+    public IEnumerable<PurchaseItemDto>? Items {get;set;}
 
+    [Description("Total Items Amount")]
+    public decimal TotalItemsAmount => Items?.Sum(x => x.TotalAmount) ?? 0;
 
+    [Description("VAT Amount ")]
+    public decimal TotalVATAmount => Items?.Sum(x => x.VATAmount) ?? 0;
 }
 

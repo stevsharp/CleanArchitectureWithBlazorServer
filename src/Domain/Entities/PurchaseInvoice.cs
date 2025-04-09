@@ -18,6 +18,7 @@ public class PurchaseInvoice : BaseAuditableEntity
     public string? SWIFT { get; set; }
     public string? Notes { get; set; }
 
+    public int? Isfinalized { get; set; } = 0;
     public Supplier Supplier { get; set; } = null!;
     public ICollection<PurchaseItem> Items { get; set; } = [];
 }

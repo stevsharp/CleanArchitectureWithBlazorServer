@@ -30,6 +30,7 @@ public class PurchaseInvoicesWithPaginationQueryHandler(
             {
                 var data = await _context.PurchaseInvoices
                                                         .Include(x => x.Supplier)
+                                                        .Include(x => x.Items)
                                                         .AsSplitQuery()
                                                         .OrderBy($"{request.OrderBy} {request.SortDirection}")
                                                         .ProjectToPaginatedDataAsync(request.Specification,

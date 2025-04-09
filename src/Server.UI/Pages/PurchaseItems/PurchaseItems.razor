@@ -14,6 +14,8 @@
 @attribute [Authorize(Policy = Permissions.PurchaseItems.View)]
 <PageTitle>@Title</PageTitle>
 
+<PurchaseItemsAdvancedSearchComponent TRequest="Query" OnConditionChanged="ConditionChanged" />
+
 <MudDataGrid ServerData="@(ServerReload)"
                   FixedHeader="true"
                   FixedFooter="true"
@@ -200,6 +202,17 @@
         }
 
     }
+
+    private void OnConditionChanged(int s)
+    {
+        InvokeAsync(_table.ReloadServerData);
+    }
+
+    private void ConditionChanged(string s)
+    {
+        InvokeAsync(_table.ReloadServerData);
+    }
+
     private async Task OnSearch(string text)
     {
         _selectedItems = new();

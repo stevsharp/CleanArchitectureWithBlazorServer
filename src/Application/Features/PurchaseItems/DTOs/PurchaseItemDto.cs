@@ -1,7 +1,5 @@
 ﻿
 
-using CleanArchitecture.Blazor.Application.Features.PurchaseInvoices.DTOs;
-
 namespace CleanArchitecture.Blazor.Application.Features.PurchaseItems.DTOs;
 
 [Description("PurchaseItems")]
@@ -9,7 +7,7 @@ public record PurchaseItemDto
 {
     [Description("Id")]
     public int Id { get; set; }
-        [Description("Invoice id")]
+    [Description("Invoice id")]
     public int InvoiceId {get;set;} 
     [Description("Item code")]
     public string? ItemCode {get;set;} 
@@ -28,7 +26,11 @@ public record PurchaseItemDto
     [Description("Vat amount")]
     public decimal VATAmount {get;set;} 
     [Description("Total amount")]
-    public decimal TotalAmount {get;set;} 
+    public decimal TotalAmount {get;set;}
+
+    [Description("ProductId")]
+    public int ProductId { get; set; } = 0;
+
     //[Description("Invoice")]
     //public PurchaseInvoiceDto Invoice {get;set;} 
 

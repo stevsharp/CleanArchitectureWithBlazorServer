@@ -17,6 +17,7 @@ public class PurchaseInvoiceConfiguration : IEntityTypeConfiguration<PurchaseInv
         builder.Property(x => x.IBAN).HasMaxLength(255); 
         builder.Property(x => x.SWIFT).HasMaxLength(255); 
         builder.Property(x => x.Notes).HasMaxLength(255);
+        builder.Property(x => x.Isfinalized);
 
         builder.HasOne(x => x.Supplier)
             .WithMany(x => x.PurchaseInvoices) // Explicitly defining the relationship

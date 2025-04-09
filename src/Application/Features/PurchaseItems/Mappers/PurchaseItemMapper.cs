@@ -1,7 +1,5 @@
 ﻿
 using CleanArchitecture.Blazor.Application.Features.PurchaseItems.Commands.AddEdit;
-using CleanArchitecture.Blazor.Application.Features.PurchaseItems.Commands.Create;
-using CleanArchitecture.Blazor.Application.Features.PurchaseItems.Commands.Update;
 using CleanArchitecture.Blazor.Application.Features.PurchaseItems.DTOs;
 
 namespace CleanArchitecture.Blazor.Application.Features.PurchaseItems.Mappers;

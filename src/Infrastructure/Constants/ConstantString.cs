@@ -22,6 +22,8 @@ public static class ConstantString
     public static string GoBack => Localize("Back");
     public static string Refresh => Localize("Refresh");
     public static string Edit => Localize("Edit");
+
+    public static string FinalizePurchase => Localize("Complete Purchase");
     public static string CreateInvoice => Localize("Create Invoice from Offer");
     public static string Submit => Localize("Submit");
     public static string Delete => Localize("Delete");
@@ -70,6 +72,8 @@ public static class ConstantString
     // for toast message
     public static string SaveSuccess => Localize("Save successfully");
     public static string DeleteSuccess => Localize("Delete successfully");
+
+    public static string CompletePurchaseSuccess => Localize("Complete Purchase successfully");
     public static string DeleteFail => Localize("Delete fail");
     public static string UpdateSuccess => Localize("AddOrUpdate successfully");
     public static string CreateSuccess => Localize("Create successfully");
