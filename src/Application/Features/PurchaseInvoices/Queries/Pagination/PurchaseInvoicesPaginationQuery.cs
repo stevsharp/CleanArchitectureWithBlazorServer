@@ -11,7 +11,7 @@ public class PurchaseInvoicesWithPaginationQuery : PurchaseInvoiceAdvancedFilter
 {
     public override string ToString()
     {
-        return $"Listview:{ListView}:{CurrentUser?.UserId}-{LocalTimezoneOffset.TotalHours}, Search:{Keyword}, {OrderBy}, {SortDirection}, {PageNumber}, {PageSize}";
+        return $"Listview:{ListView}:{CurrentUser?.UserId}-{LocalTimezoneOffset.TotalHours}, Search:{Keyword}, {InvoiceNumber} {OrderBy}, {SortDirection}, {PageNumber}, {PageSize}";
     }
     public string CacheKey => PurchaseInvoiceCacheKey.GetPaginationCacheKey($"{this}");
     public IEnumerable<string>? Tags => PurchaseInvoiceCacheKey.Tags;

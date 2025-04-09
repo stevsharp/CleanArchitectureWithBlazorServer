@@ -14,6 +14,9 @@
 @attribute [Authorize(Policy = Permissions.PurchaseInvoices.View)]
 <PageTitle>@Title</PageTitle>
 
+<PurchaseInvoicesAdvancedSearchComponent TRequest="Query" 
+    OnConditionChanged="ConditionChanged" />
+
 <MudDataGrid ServerData="@(ServerReload)"
              FixedHeader="true"
              FixedFooter="true"
@@ -194,6 +197,13 @@
         _canImport = (await AuthService.AuthorizeAsync(state.User, Permissions.PurchaseInvoices.Import)).Succeeded;
         _canExport = (await AuthService.AuthorizeAsync(state.User, Permissions.PurchaseInvoices.Export)).Succeeded;
     }
+
+    private void ConditionChanged(string s)
+    {
+        InvokeAsync(_table.ReloadServerData);
+    }
+
+
     private async Task<GridData<PurchaseInvoiceDto>> ServerReload(GridState<PurchaseInvoiceDto> state)
     {
         try

@@ -46,7 +46,7 @@ public class AddEditPurchaseItemCommand : ICacheInvalidatorRequest<Result<int>>
     [Description("Unit price")]
     public decimal UnitPrice { get; set; }
     [Description("Vat percentage")]
-    public decimal VATPercentage { get; set; }
+    public decimal VATPercentage { get; set; } = 24;
 
     [Description("Ποσό ΦΠΑ")]
     public decimal VATAmount => UnitPrice * Quantity * VATPercentage / 100;

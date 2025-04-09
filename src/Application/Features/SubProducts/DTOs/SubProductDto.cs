@@ -22,6 +22,9 @@ public class SubProductDto
     [Description("Price")]
     public decimal? Price { get; set; }
 
+    [Description("Stock")]
+    public int Stock { get; set; } = 0;
+
     [Description("RetailPrice")]
     public decimal? RetailPrice { get; set; }
 

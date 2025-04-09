@@ -131,12 +131,64 @@
             </CellTemplate>
         </TemplateColumn>
         @*TODO: Define the fields that should be displayed in data table*@
-        <PropertyColumn Property="x => x.ProductId" Title="@L[_currentDto.GetMemberDescription(x=>x.ProductId)]" />
-        <PropertyColumn Property="x => x.Product.Code" Title="@L[_currentDto.GetMemberDescription(x=>x.Product.Code)]" />
+@*         <PropertyColumn Property="x => x.ProductId" Title="@L[_currentDto.GetMemberDescription(x=>x.ProductId)]" /> *@
+@*         <PropertyColumn Property="x => x.Product.Code" Title="@L[_currentDto.GetMemberDescription(x=>x.Product.Code)]" /> *@
         <PropertyColumn Property="x => x.Unit" Title="@L[_currentDto.GetMemberDescription(x=>x.Unit)]" />
         <PropertyColumn Property="x => x.Color" Title="@L[_currentDto.GetMemberDescription(x=>x.Color)]" />
-        <PropertyColumn Property="x => x.Price" Title="@L[_currentDto.GetMemberDescription(x=>x.Price)]" />
+@*         <PropertyColumn Property="x => x.Price" Title="@L[_currentDto.GetMemberDescription(x=>x.Price)]" />
         <PropertyColumn Property="x => x.RetailPrice" Title="@L[_currentDto.GetMemberDescription(x=>x.RetailPrice)]" />
+        <PropertyColumn Property="x => x.Stock" Title="@L[_currentDto.GetMemberDescription(x=>x.Stock)]" /> *@
+
+@*         <PropertyColumn Style="width:120px" Property="x => x.Stock" Title="@L[_currentDto.GetMemberDescription(x => x.Stock)]">
+            <CellTemplate>
+                @switch (context.Item.Stock)
+                {
+                    case > 10:
+                        <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" />
+                        break;
+                    case < 10:
+                        <MudIcon Icon="@Icons.Material.Filled.Cancel" Color="Color.Warning" />
+                        break;
+                    default:
+                        <MudIcon Icon="@Icons.Material.Filled.Cancel" Color="Color.Info" />
+                        break;
+                }
+            </CellTemplate>
+        </PropertyColumn> *@
+
+@*         <PropertyColumn Property="x => x.ProductId" Title="@L[_currentDto.GetMemberDescription(x=>x.ProductId)]" /> *@
+        <PropertyColumn Property="x => x.Price" Title="@L[_currentDto.GetMemberDescription(x => x.Price)]">
+            <FooterTemplate>
+                @ConstantString.SelectedTotal: @_selectedItems.Sum(x => x.Price)
+            </FooterTemplate>
+        </PropertyColumn>
+
+        <PropertyColumn Property="x => x.RetailPrice" Title="@L[_currentDto.GetMemberDescription(x => x.RetailPrice)]">
+            <FooterTemplate>
+                @ConstantString.SelectedTotal: @_selectedItems.Sum(x => x.RetailPrice)
+            </FooterTemplate>
+        </PropertyColumn>
+
+        <PropertyColumn Property="x => x.Stock" Title="@L[_currentDto.GetMemberDescription(x => x.Stock)]">
+            <CellTemplate>
+                @switch (context.Item.Stock)
+                {
+                    case > 10:
+                        <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" />
+                        break;
+                    case < 10:
+                        <MudIcon Icon="@Icons.Material.Filled.Cancel" Color="Color.Warning" />
+                        break;
+                    default:
+                        <MudIcon Icon="@Icons.Material.Filled.Cancel" Color="Color.Info" />
+                        break;
+                }
+            </CellTemplate>
+            <FooterTemplate>
+                @ConstantString.SelectedTotal: @_selectedItems.Sum(x => x.Stock)
+            </FooterTemplate>
+        </PropertyColumn>
+
 
     </Columns>
     <NoRecordsContent>
@@ -183,6 +235,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        SubProductCacheKey.Refresh();
         Title = L[_currentDto.GetClassDescription()];
         var state = await AuthState;
         _canCreate = (await AuthService.AuthorizeAsync(state.User, Permissions.SubProducts.Create)).Succeeded;
