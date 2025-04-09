@@ -21,7 +21,7 @@ public class ConfirmPurchaseInvoiceCommandHandler(
             .Include(x => x.Items)  
             .Where(x => request.Id.Contains(x.Id)).ToListAsync(cancellationToken);
         
-        //items.ForEach(x => x.Isfinalized = 1);
+        items.ForEach(x => x.Isfinalized = 1);
 
         foreach (var item in items)
         {
