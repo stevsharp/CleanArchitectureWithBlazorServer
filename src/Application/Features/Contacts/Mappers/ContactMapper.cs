@@ -31,6 +31,7 @@ public static partial class ContactMapper
     public static partial ContactDto ToDto(Contact source);
     public static partial Contact FromDto(ContactDto dto);
     public static partial Contact FromEditCommand(AddEditContactCommand command);
+    public static partial AddEditContactCommand FromDtoToCommand(ContactDto dto);
     public static partial Contact FromCreateCommand(CreateContactCommand command);
     public static partial UpdateContactCommand ToUpdateCommand(ContactDto dto);
     public static partial AddEditContactCommand CloneFromDto(ContactDto dto);

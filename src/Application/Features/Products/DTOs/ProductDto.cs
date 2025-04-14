@@ -52,10 +52,10 @@ public record ProductDto
     public  IEnumerable<SubProduct>? SubProducts { get; set; } = [];
 
     [Description("ColorOptions")]
-    public IEnumerable<ProductColorOptionDto> UnitOptions { get; set; } =[];
+    public IEnumerable<ProductUnitOptionDto> UnitOptions { get; set; } =[];
 
     [Description("ColorOptions")]
-    public IEnumerable<ProductUnitOptionDto> ColorOptions { get; set; } = [];
+    public IEnumerable<ProductColorOptionDto> ColorOptions { get; set; } = [];
 }
 
 public record ProductUnitOptionDto

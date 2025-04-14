@@ -53,26 +53,6 @@
             </MudSelect>
 
         </MudItem>
-        <MudItem xs="12" sm="6" md="4">
-            @*             <MudNumericField Clearable="true" @bind-Value="TRequest.MinPrice"
-                             Placeholder="@L["Search by minimum price"]"
-                             TextChanged="TextChanged">
-            </MudNumericField> *@
-
-            <PicklistAutocomplete Picklist="Picklist.Unit" T="string"
-                                  Label="@L["Unit"]"
-                                  For="@(() => TRequest.Unit)"
-                                  TextChanged="TextChanged"
-                                  ResetValueOnEmptyText="true"
-                                  ShowProgressIndicator="true"
-                                  @bind-Value="TRequest.Unit">
-                <ProgressIndicatorTemplate>
-                    <MudProgressLinear Size="MudBlazor.Size.Small" Indeterminate="true" />
-                </ProgressIndicatorTemplate>
-            </PicklistAutocomplete>
-
-
-        </MudItem>
       
     </MudGrid>
 </MudExpansionPanel>

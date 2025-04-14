@@ -26,7 +26,7 @@ public class Product : BaseAuditableEntity
 
     public virtual List<ProductImage>? Pictures { get; set; } = [];
     public virtual List<SupplyItem>? SupplyItems { get; set; } = [];
-    public ICollection<SubProduct>? SubProducts { get; set; } = [];
+    public ICollection<SubProduct> SubProducts { get; set; } = [];
     public ICollection<ProductColorOption> ColorOptions { get; set; } = [];
     public ICollection<ProductUnitOption> UnitOptions { get; set; } = [];
 

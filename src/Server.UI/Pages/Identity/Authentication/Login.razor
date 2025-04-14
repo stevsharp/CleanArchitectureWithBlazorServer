@@ -26,7 +26,8 @@
                 <div class="mud-input-control-input-container">
                     <!--!--><!--!-->
                     <div class="mud-input mud-input-outlined mud-shrink">
-                        <InputText @bind-Value="Input.UserName" class="mud-input-slot mud-input-root mud-input-root-outlined" type="text" autocomplete="username" aria-required="true" placeholder="user name"/>
+                        <InputText @bind-Value="Input.UserName" class="mud-input-slot mud-input-root mud-input-root-outlined" type="text" 
+                        autocomplete="username" aria-required="true" placeholder="user name"/>
                         <div class="mud-input-slot mud-input-root mud-input-root-outlined" style="display:none"></div>
                         <!--!-->
                         <div class="mud-input-outlined-border"></div>
@@ -44,7 +45,8 @@
                 <div class="mud-input-control-input-container">
                     <!--!--><!--!-->
                     <div class="mud-input mud-input-outlined mud-shrink">
-                        <InputText type="password" @bind-Value="Input.Password" class="mud-input-slot mud-input-root mud-input-root-outlined" autocomplete="current-password" aria-required="true" placeholder="password"/>
+                        <InputText type="password" @bind-Value="Input.Password" class="mud-input-slot mud-input-root mud-input-root-outlined"
+                        autocomplete="current-password" aria-required="true" placeholder="password"/>
                         <div class="mud-input-slot mud-input-root mud-input-root-outlined" style="display:none"></div>
                         <!--!-->
                         <div class="mud-input-outlined-border"></div>
@@ -90,10 +92,18 @@
     [SupplyParameterFromForm]
     private InputModel Input { get; set; } = new()
     {
-        UserName = "administrator",
-        Password = "Password123!",
+            UserName = string.Empty,
+        Password = string.Empty,
         RememberMe = true
     };
+
+    // private InputModel Input { get; set; } = new()
+    //     {
+    //         UserName = "administrator",
+    //         Password = "Password123!",
+    //         RememberMe = true
+    //     };
+
 
     protected override async Task OnInitializedAsync()
     {

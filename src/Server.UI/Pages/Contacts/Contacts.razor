@@ -16,6 +16,10 @@
 @attribute [Authorize(Policy = Permissions.Contacts.View)]
 <PageTitle>@Title</PageTitle>
 
+<ContactsAdvancedSearchComponent TRequest="Query"
+                                 OnConditionChanged="ConditionChanged" />
+
+
 <MudDataGrid ServerData="@(ServerReload)"
              FixedHeader="true"
              FixedFooter="true"
@@ -146,6 +150,26 @@
         <PropertyColumn Property="x => x.City" Title="@L[_currentDto.GetMemberDescription(x=>x.City)]" />
         <PropertyColumn Property="x => x.Country" Title="@L[_currentDto.GetMemberDescription(x=>x.Country)]" />
 
+        <PropertyColumn Style="width:120px" Property="x => x.CustomerType" Title="@L[_currentDto.GetMemberDescription(x => x.CustomerType)]">
+            <CellTemplate>
+                @switch (context.Item.CustomerType)
+                {
+                    case 1:
+                        <div class="d-flex flex-column">
+                            <MudText Typo="Typo.body1">Πελάτης χονδρικής</MudText>
+                        </div>
+                        <MudIcon Icon="@Icons.Material.Outlined.Man2" Color="Color.Success" />
+                        break;
+                    case 0:
+                        <div class="d-flex flex-column">
+                            <MudText Typo="Typo.body1">Πελάτης λιανικής</MudText>
+                        </div>
+                        <MudIcon Icon="@Icons.Material.Outlined.Man" Color="Color.Info" />
+                        break;
+                }
+            </CellTemplate>
+        </PropertyColumn>
+
     </Columns>
 
     <PagerContent>
@@ -212,12 +236,19 @@
         }
 
     }
+    
     private async Task OnSearch(string text)
     {
         _selectedItems = new();
         Query.Keyword = text;
         await _table.ReloadServerData();
     }
+
+    private void ConditionChanged(string s)
+    {
+        InvokeAsync(_table.ReloadServerData);
+    }
+
     private async Task OnChangedListView(ContactListView listview)
     {
         Query.ListView = listview;
@@ -248,11 +279,12 @@
     }
     private void OnView(ContactDto dto)
     {
-        Navigation.NavigateTo($"/pages/Contacts/view/{dto.Id}");
+        // Navigation.NavigateTo($"/pages/Contacts/view/{dto.Id}");
     }
     private async Task OnCreate()
     {
         var command = new AddEditContactCommand();
+
         await ShowEditFormDialog(string.Format(ConstantString.CreateAnItem, L["Contact"]), command);
     }
     private async Task OnClone()
@@ -261,10 +293,11 @@
         var command = ContactMapper.CloneFromDto(dto);
         await ShowEditFormDialog(string.Format(ConstantString.CreateAnItem, L["Contact"]), command);
     }
-    private Task OnEdit(ContactDto dto)
+    private async Task OnEdit(ContactDto dto)
     {
-        Navigation.NavigateTo($"/pages/Contacts/edit/{dto.Id}");
-        return Task.CompletedTask;
+        var command = ContactMapper.FromDtoToCommand(dto);
+
+        await ShowEditFormDialog(string.Format(ConstantString.EditTheItem, L["Contact"]), command);
     }
 
     private async Task OnDelete(ContactDto dto)

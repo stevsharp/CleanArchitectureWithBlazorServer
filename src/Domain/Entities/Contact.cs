@@ -13,6 +13,8 @@ public class Contact : BaseAuditableEntity
     public string? City { get; set; }
     public string? TaxIdentificationNumber { get; set; }
     public string? PublicFinancialService { get; set; }
+    public int? CustomerType { get; set; } = 0;
+
     public List<Offer> Offers { get; set; } = [];
     public virtual ICollection<Invoice> Invoices { get; set; } = [];
 

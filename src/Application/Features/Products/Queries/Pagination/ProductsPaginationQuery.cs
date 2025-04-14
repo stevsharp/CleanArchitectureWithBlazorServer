@@ -1,8 +1,4 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-
-
-using System.Threading;
+﻿
 using CleanArchitecture.Blazor.Application.Features.Products.Caching;
 using CleanArchitecture.Blazor.Application.Features.Products.DTOs;
 using CleanArchitecture.Blazor.Application.Features.Products.Mappers;
@@ -45,11 +41,11 @@ public class ProductsWithPaginationQueryHandler :
             var data = await _context.Products
                 .Include(x => x.UnitOptions)
                 .Include(x => x.ColorOptions)
+                .Include(x => x.SubProducts)
                 //.Include(x => x.Pictures)
                 //.Include(x => x.SupplyItems)
                 //.Include(x => x.SubProducts)
                 .AsSplitQuery()
-                .OrderBy($"{request.OrderBy} {request.SortDirection}")
                 .OrderBy($"{request.OrderBy} {request.SortDirection}")
                 .ProjectToPaginatedDataAsync(request.Specification, request.PageNumber,
                     request.PageSize, ProductMapper.ToDto, cancellationToken);

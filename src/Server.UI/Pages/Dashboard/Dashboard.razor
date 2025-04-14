@@ -4,11 +4,12 @@
 @inject IStringLocalizer<Dashboard> L
 <PageTitle>@Title</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Large">
+
+@* <MudContainer MaxWidth="MaxWidth.Large">
     <div class="@ContentClassNames">
         <MudPaper Class="pa-4 mb-3">
             <style>
-               
+
                 .circle {
                     width: 0.5rem;
                     height: 0.5rem;
@@ -146,15 +147,13 @@
                         <div class="progress-bar bg-dark" role="progressbar" style="width: 1%;" aria-valuenow="1" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                 </div>
-               
+
             </div>
-   
-     
-   
+
+
+
 </MudPaper>
         <div class="lp-app-grid">
-            
-
             <MudPaper Class="py-4 px-6 rounded-lg d-flex align-center">
                 <div class="flex-grow-1">
                     <MudText Typo="Typo.h6">@L["Graphite on roof"]</MudText>
@@ -280,19 +279,87 @@
         <MudText Typo="Typo.h3" Align="Align.Center" Class="mt-16 mb-8">“Never had such a good time making a site“</MudText>
          <Carousel />
     </LandingSection>
-</MudContainer>
+</MudContainer> *@
+
+<MudGrid Class="mobile-menu">
+    @foreach (var item in MenuItems)
+    {
+@*         <MudItem xs="6" sm="4" md="3">
+            <MudPaper Class="menu-tile" Elevation="3" OnClick="@(() => NavigateTo(item.Link))">
+                <MudIcon Icon="@item.Icon" Size="Size.Large" />
+                <MudText Typo="Typo.subtitle2" OnClick="@(() => NavigateTo(item.Link))" Align="Align.Center">@item.Title</MudText>
+            </MudPaper>
+        </MudItem> *@
+
+         <MudItem xs="6" sm="4" md="3">
+        <MudPaper Class="menu-tile animated-tile"
+                  Elevation="3"
+                  @onclick="@(() => NavigateTo(item.Link))"
+                  style="cursor:pointer;">
+            <MudIcon Icon="@item.Icon" Size="Size.Large" />
+            <MudText Typo="Typo.subtitle2" Align="Align.Center">@item.Title</MudText>
+        </MudPaper>
+        </MudItem>
+    }
+</MudGrid>
 
 <style>
     .lp-app-grid {
-        display: grid;
-        gap: 24px;
-        grid-template-columns: repeat(auto-fit,minmax(300px,1fr));
+    display: grid;
+    gap: 24px;
+    grid-template-columns: repeat(auto-fit,minmax(300px,1fr));
     }
-</style>
 
+
+    .mobile-menu {
+        padding: 16px;
+    }
+
+    .menu-tile {
+        text-align: center;
+        padding: 24px 12px;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: transform 0.2s, background-color 0.2s;
+    }
+
+        .menu-tile:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            transform: scale(1.05);
+        }
+
+        .menu-tile .mud-icon {
+            margin-bottom: 8px;
+            color: var(--mud-palette-primary);
+        }
+</style>
 
 @code
 {
+
+    private List<MenuItem> MenuItems = new()
+    {
+        new MenuItem("Dashboard", Icons.Material.Filled.Dashboard, "/"),
+        new MenuItem("Orders", Icons.Material.Filled.ShoppingCart, "/pages/PurchaseInvoices"),
+        new MenuItem("Sales", Icons.Material.Filled.ShoppingCart, "/pages/PurchaseInvoices"),
+        new MenuItem("Offers", Icons.Material.Filled.ShoppingCart, "/pages/PurchaseInvoices"),
+        new MenuItem("Customers", Icons.Material.Filled.Settings, "/pages/Contacts"),
+        new MenuItem("Products", Icons.Material.Filled.AccountCircle, "/pages/products")
+    };
+
+    private void NavigateTo(string url)
+    {
+        Navigation.NavigateTo(url);
+    }
+
+    public record MenuItem(string Title, string Icon, string Link);
+
+    private void NavigateToDashboard() { }
+    private void NavigateToSettings() {}
+    private void NavigateToReports() {}
+
+
+
     private readonly bool IsMobile = false;
 
     public string Title { get; set; } = "Dashboard";

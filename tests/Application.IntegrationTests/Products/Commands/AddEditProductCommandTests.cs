@@ -26,7 +26,7 @@ internal class AddEditProductCommandTests : TestBase
         var addCommand = new AddEditProductCommand
         {
             Name = "Test", Brand = "Brand", Price = 100m, Unit = "EA", Description = "Description",
-            Pictures = new List<ProductImage> { new() { Name = "test.jpg", Url = "test.jpg", Size = 1 } }
+            Pictures = [new() { Name = "test.jpg", Url = "test.jpg", Size = 1 }]
         };
         var result = await SendAsync(addCommand);
         var find = await FindAsync<Product>(result.Data);

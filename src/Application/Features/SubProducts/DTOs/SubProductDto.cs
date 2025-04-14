@@ -20,17 +20,16 @@ public class SubProductDto
     public int SubItemId { get; set; }
 
     [Description("Price")]
-    public decimal? Price { get; set; }
+    public decimal Price { get; set; }
 
     [Description("Stock")]
     public int Stock { get; set; } = 0;
 
     [Description("RetailPrice")]
-    public decimal? RetailPrice { get; set; }
+    public decimal RetailPrice { get; set; }
 
     [Description("Product")]
-    public ProductDto Product {get;set;} 
-
+    public ProductDto? Product { get; set; } = default!;
 
 }
 

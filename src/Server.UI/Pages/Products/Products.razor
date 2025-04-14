@@ -76,32 +76,6 @@
                                 @ConstantString.Delete
                             </MudMenuItem>
                         }
-                        @if (_canExport)
-                        {
-                            <MudMenuItem Disabled="@_exporting"
-                            OnClick="OnExport">
-                                @ConstantString.Export
-                            </MudMenuItem>
-                            <MudMenuItem Disabled="@_pdfExporting"
-                            OnClick="OnExportPDF">
-                                @ConstantString.ExportPDF
-                            </MudMenuItem>
-                        }
-                        @if (_canImport)
-                        {
-                            <MudMenuItem>
-                                <MudFileUpload T="IBrowserFile" FilesChanged="OnImportData" Accept=".xlsx">
-                                    <ActivatorContent>
-                                        <MudButton Class="pa-0 ma-0" Style="font-weight:400;text-transform:none;"
-                                        Variant="Variant.Text"
-                                        Disabled="@_uploading"
-                                        >
-                                            @ConstantString.Import
-                                        </MudButton>
-                                    </ActivatorContent>
-                                </MudFileUpload>
-                            </MudMenuItem>
-                        }
 
                     </MudMenu>
                 </MudToolBar>
@@ -184,7 +158,7 @@
             </CellTemplate>
         </PropertyColumn>
 
-        <PropertyColumn Property="x => x.Price" Title="@L[_currentDto.GetMemberDescription(x => x.Price)]">
+     @*    <PropertyColumn Property="x => x.Price" Title="@L[_currentDto.GetMemberDescription(x => x.Price)]">
             <FooterTemplate>
                 @ConstantString.SelectedTotal: @_selectedItems.Sum(x => x.Price)
             </FooterTemplate>
@@ -194,15 +168,31 @@
             <FooterTemplate>
                 @ConstantString.SelectedTotal: @_selectedItems.Sum(x => x.RetailPrice)
             </FooterTemplate>
+        </PropertyColumn> *@
+
+        <PropertyColumn Property="x => x.SubProducts.Sum(x => x.Stock)" Title="@L[_currentDto.GetMemberDescription(x => x.Stock)]">
+            <CellTemplate>
+                @{
+                    var totalStock = context.Item.SubProducts.Sum(x => x.Stock);
+                }
+                <div class="d-flex flex-column align-items-start">
+                    <MudText Typo="Typo.caption" Class="mud-text-primary">@totalStock</MudText>
+                    @if (totalStock < 10)
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Error" />
+                    }
+                    else if (totalStock < 20)
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Warning" />
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.Cancel" Color="Color.Success" />
+                    }
+                </div>
+            </CellTemplate>
         </PropertyColumn>
 
-        <PropertyColumn Property="x => x.Stock" Title="@L[_currentDto.GetMemberDescription(x => x.Stock)]">
-            <FooterTemplate>
-                @ConstantString.SelectedTotal: @_selectedItems.Sum(x => x.Stock)
-            </FooterTemplate>
-        </PropertyColumn>
-
-        @*         <PropertyColumn Property="x => x.Unit" Title="@L[_currentDto.GetMemberDescription(x => x.Unit)]" /> *@
     </Columns>
     <NoRecordsContent>
         <MudText>@ConstantString.NoRecords</MudText>
@@ -483,92 +473,6 @@
         {
             //Snackbar.Add("Failed: Edit operation was canceled.", Severity.Error);
         });
-    }
-
-    private async Task OnExport()
-    {
-        _exporting = true;
-        var request = new ExportProductsQuery
-            {
-                Brand = Query.Brand,
-                Name = Query.Name,
-                MinPrice = Query.MinPrice,
-                MaxPrice = Query.MaxPrice,
-                Unit = Query.Unit,
-                Keyword = Query.Keyword,
-                ListView = Query.ListView,
-                OrderBy = _table.SortDefinitions.Values.FirstOrDefault()?.SortBy ?? "Id",
-                SortDirection = _table.SortDefinitions.Values.FirstOrDefault()?.Descending ?? false ? SortDirection.Descending.ToString() : SortDirection.Ascending.ToString(),
-                CurrentUser = UserProfile,
-                ExportType = ExportType.Excel
-            };
-        var result = await Mediator.Send(request);
-        if (result.Succeeded)
-        {
-            var downloadResult = await BlazorDownloadFileService.DownloadFile($"{L["Products"]}.xlsx", result.Data, "application/octet-stream");
-            Snackbar.Add($"{ConstantString.ExportSuccess}", Severity.Info);
-        }
-        else
-        {
-            Snackbar.Add($"{result.ErrorMessage}", Severity.Error);
-        }
-
-        _exporting = false;
-    }
-
-    private async Task OnExportPDF()
-    {
-        _pdfExporting = true;
-        var request = new ExportProductsQuery
-            {
-                Brand = Query.Brand,
-                Name = Query.Name,
-                MinPrice = Query.MinPrice,
-                MaxPrice = Query.MaxPrice,
-                Unit = Query.Unit,
-                Keyword = Query.Keyword,
-                ListView = Query.ListView,
-                CurrentUser = UserProfile,
-                OrderBy = _table.SortDefinitions.Values.FirstOrDefault()?.SortBy ?? "Id",
-                SortDirection = _table.SortDefinitions.Values.FirstOrDefault()?.Descending ?? false ? SortDirection.Descending.ToString() : SortDirection.Ascending.ToString(),
-                ExportType = ExportType.PDF
-            };
-        var result = await Mediator.Send(request);
-        if (result.Succeeded)
-        {
-            var downloadResult = await BlazorDownloadFileService.DownloadFile($"{L["Products"]}.pdf", result.Data, "application/octet-stream");
-            Snackbar.Add($"{ConstantString.ExportSuccess}", Severity.Info);
-        }
-        else
-        {
-            Snackbar.Add($"{result.ErrorMessage}", Severity.Error);
-        }
-
-        _pdfExporting = false;
-    }
-
-    private async Task OnImportData(IBrowserFile file)
-    {
-        _uploading = true;
-        var stream = new MemoryStream();
-        await file.OpenReadStream(GlobalVariable.MaxAllowedSize).CopyToAsync(stream);
-        var command = new ImportProductsCommand(file.Name, stream.ToArray());
-
-        var result = await Mediator.Send(command);
-        if (result.Succeeded)
-        {
-            await _table.ReloadServerData();
-            Snackbar.Add($"{ConstantString.ImportSuccess}", Severity.Info);
-        }
-        else
-        {
-            foreach (var msg in result.Errors)
-            {
-                Snackbar.Add($"{msg}", Severity.Error);
-            }
-        }
-
-        _uploading = false;
     }
 
 }

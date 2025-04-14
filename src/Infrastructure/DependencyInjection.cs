@@ -125,10 +125,22 @@ public static class DependencyInjection
                 return builder.UseNpgsql(connectionString,
                         e => e.MigrationsAssembly(POSTGRESQL_MIGRATIONS_ASSEMBLY))
                     .UseSnakeCaseNamingConvention();
-                  
+
             case DbProviderKeys.SqlServer:
-                return builder.UseSqlServer(connectionString,
-                    e => e.MigrationsAssembly(MSSQL_MIGRATIONS_ASSEMBLY));
+
+                builder.UseSqlServer(connectionString, sqlOptions =>
+                {
+                    sqlOptions.MigrationsAssembly(MSSQL_MIGRATIONS_ASSEMBLY);
+                    sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+                    sqlOptions.EnableRetryOnFailure(
+                            maxRetryCount: 5,               
+                            maxRetryDelay: TimeSpan.FromSeconds(10), 
+                            errorNumbersToAdd: null         
+                        );
+                    sqlOptions.MaxBatchSize(100); // default is 42 for SQL Server
+                });
+
+                return builder;
 
             case DbProviderKeys.SqLite:
                 return builder.UseSqlite(connectionString,

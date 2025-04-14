@@ -45,7 +45,6 @@ public class ApplicationDbContext : IdentityDbContext<
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        
         base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         builder.ApplyGlobalFilters<ISoftDelete>(s => s.Deleted == null);
@@ -90,5 +89,10 @@ public class ApplicationDbContext : IdentityDbContext<
             this.Update(entity);
         else
             this.Add(entity);
+    }
+
+    public void Attach<TEntity>(TEntity entity) where TEntity : class
+    {
+        base.Attach(entity);
     }
 }
