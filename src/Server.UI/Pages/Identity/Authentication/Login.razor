@@ -90,19 +90,19 @@
     private AuthenticationScheme[] externalLogins = [];
 
     [SupplyParameterFromForm]
-    private InputModel Input { get; set; } = new()
-    {
-            UserName = string.Empty,
-        Password = string.Empty,
-        RememberMe = true
-    };
-
     // private InputModel Input { get; set; } = new()
-    //     {
-    //         UserName = "administrator",
-    //         Password = "Password123!",
-    //         RememberMe = true
-    //     };
+    // {
+    //         UserName = string.Empty,
+    //     Password = string.Empty,
+    //     RememberMe = true
+    // };
+
+    private InputModel Input { get; set; } = new()
+        {
+            UserName = "administrator",
+            Password = "Password123!",
+            RememberMe = true
+        };
 
 
     protected override async Task OnInitializedAsync()

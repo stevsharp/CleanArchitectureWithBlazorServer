@@ -18,6 +18,7 @@
 @using CleanArchitecture.Blazor.Application.Features.PicklistSets.DTOs;
 @inject IStringLocalizer<Products> L
 @inject IUploadService UploadService
+@inject IPicklistService PicklistService
 
 <MudDialog>
     <DialogContent>
@@ -27,51 +28,51 @@
 
                 <MudItem xs="12" sm="6">
                     <MudTextField Label="@L["Product Code"]" @bind-Value="Model.Code"
-                                  For="@(() => Model.Code)"
-                                  Required="true"
-                                  RequiredError="@L["product code is required!"]">
+                    For="@(() => Model.Code)"
+                    Required="true"
+                    RequiredError="@L["product code is required!"]">
                     </MudTextField>
                 </MudItem>
 
                 <MudItem xs="12" sm="6">
                     <MudTextField Label="@L["Product Name"]" @bind-Value="Model.Name"
-                                  For="@(() => Model.Name)"
-                                  Required="true"
-                                  RequiredError="@L["product name is required!"]">
+                    For="@(() => Model.Name)"
+                    Required="true"
+                    RequiredError="@L["product name is required!"]">
                     </MudTextField>
                 </MudItem>
 
                 <MudItem xs="12">
                     <MudTextField Label="@L["Description"]"
-                                  Lines="3"
-                                  Variant="Variant.Outlined"
-                                  For="@(() => Model.Description)"
-                                  @bind-Value="Model.Description">
+                    Lines="3"
+                    Variant="Variant.Outlined"
+                    For="@(() => Model.Description)"
+                    @bind-Value="Model.Description">
                     </MudTextField>
                 </MudItem>
 
                 <MudItem xs="12" sm="6">
                     <PicklistMultiSelect Name="Picklist.Color" SelectedValues="colorData"
-                                         SelectedValuesChanged="ColorSelectedValuesChanged"
-                                         Label="@L["Select Product Color"]" />
+                    SelectedValuesChanged="ColorSelectedValuesChanged"
+                    Label="@L["Select Product Color"]" />
                 </MudItem>
 
                 <MudItem xs="12" sm="6">
                     <PicklistMultiSelect Name="Picklist.Unit" SelectedValues="unitData" SelectedValuesChanged="UnitSelectedValuesChanged"
-                                         Label="@L["Select Product Unit"]" />
+                    Label="@L["Select Product Unit"]" />
                 </MudItem>
 
                 <MudItem xs="12" sm="6">
                     <MudSelect T="CategoryDto"
-                               Variant="Variant.Outlined"
-                               Required="true" RequiredError="@L["customer id is required!"]"
-                               Label="@L["Category"]" @bind-Value="SelectedCategory">
+                    Variant="Variant.Outlined"
+                    Required="true" RequiredError="@L["customer id is required!"]"
+                    Label="@L["Category"]" @bind-Value="SelectedCategory">
                         @if (Categories is not null)
                         {
                             @foreach (var contact in Categories)
                             {
                                 <MudSelectItem Value="contact"
-                                               Label="@($"{contact.Name}")">
+                                Label="@($"{contact.Name}")">
                                     @($"{contact.Name}")
                                 </MudSelectItem>
                             }
@@ -81,11 +82,11 @@
 
                 <MudItem xs="12" sm="6">
                     <MudTextField ReadOnly="true"
-                                  Lines="3"
-                                  Label="@L["Sub Categories"]"
-                                  Variant="Variant.Outlined"
-                                  Value="@(string.Join(", ", SelectedCategory?.SubCategories?.Select(x => x.Name) ?? Enumerable.Empty<string>()))"
-                                  Required="false">
+                    Lines="3"
+                    Label="@L["Sub Categories"]"
+                    Variant="Variant.Outlined"
+                    Value="@(string.Join(", ", SelectedCategory?.SubCategories?.Select(x => x.Name) ?? Enumerable.Empty<string>()))"
+                    Required="false">
                     </MudTextField>
                 </MudItem>
 
@@ -122,23 +123,23 @@
 
                 <MudItem xs="12">
                     <MudTextField Variant="Variant.Outlined"
-                                  Lines="4" Label="@L["AdditionalInfo"]" @bind-Value="Model.AdditionalInfo"
-                                  For="@(() => Model.AdditionalInfo)"
-                                  Required="false">
+                    Lines="4" Label="@L["AdditionalInfo"]" @bind-Value="Model.AdditionalInfo"
+                    For="@(() => Model.AdditionalInfo)"
+                    Required="false">
                     </MudTextField>
                 </MudItem>
 
                 <MudItem xs="12" sm="6">
                     <MudTextField Variant="Variant.Outlined" Label="@L["ProductUrl"]" @bind-Value="Model.ProductUrl"
-                                  For="@(() => Model.ProductUrl)"
-                                  Required="false">
+                    For="@(() => Model.ProductUrl)"
+                    Required="false">
                     </MudTextField>
                 </MudItem>
                 <MudItem xs="12" sm="6">
                     <MudTextField Label="@L["Image Url"]" @bind-Value="Model.ImageUrl"
-                                  For="@(() => Model.ImageUrl)"
-                                  Variant="Variant.Outlined"
-                                  Required="false">
+                    For="@(() => Model.ImageUrl)"
+                    Variant="Variant.Outlined"
+                    Required="false">
                     </MudTextField>
                 </MudItem>
 
@@ -205,11 +206,12 @@
                             <thead>
                                 <tr>
                                     <th></th> <!-- Color column -->
-                                    @foreach (var unit in Units)
+                                    @foreach (var unit in OptionsUnits.Select(x => x.Value).Distinct())
                                     {
                                         <th style="text-align: left;">@unit</th>
                                     }
                                     <th style="text-align: left;"> Price</th>
+                                    <th style="text-align: left;"> Retai lPrice</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -218,19 +220,19 @@
                                     <tr>
                                         <td>@color</td>
 
-                                        @foreach (var unit in Units)
+                                        @foreach (var unit in OptionsUnits.Select(x => x.Value).Distinct())
                                         {
                                             var variant = Variants.FirstOrDefault(v => v.Color == color && v.Unit == unit);
                                             <td style="text-align: center;">
                                                 @if (variant is not null)
                                                 {
                                                     <MudNumericField T="int" @bind-Value="variant.Stock"
-                                                                     HideSpinButtons="true" Style="width: 60px;" />
+                                                    HideSpinButtons="true" Style="width: 60px;" />
                                                 }
                                                 else
                                                 {
                                                     <MudNumericField T="int" Disabled="true" Value="0"
-                                                                     HideSpinButtons="true" Style="width: 60px;" />
+                                                    HideSpinButtons="true" Style="width: 60px;" />
                                                 }
                                             </td>
                                         }
@@ -239,16 +241,27 @@
                                             // Get any variant of this color to display its RetailPrice (same across units)
                                             var colorVariant = Variants.FirstOrDefault(v => v.Color == color);
                                         }
+
                                         <td style="text-align: center;">
                                             @if (colorVariant is not null)
                                             {
-                                                <MudNumericField T="decimal" @bind-Value="colorVariant.RetailPrice"
-                                                                 HideSpinButtons="true" Style="width: 80px;" />
+                                                <MudNumericField T="decimal" @bind-Value="colorVariant.Price" HideSpinButtons="true" Style="width: 80px;" />
                                             }
                                             else
                                             {
-                                                <MudNumericField T="decimal" Disabled="true" Value="0"
-                                                                 HideSpinButtons="true" Style="width: 80px;" />
+                                                <MudNumericField T="decimal" Disabled="true" Value="0" HideSpinButtons="true" Style="width: 80px;" />
+                                            }
+                                        </td>
+
+
+                                        <td style="text-align: center;">
+                                            @if (colorVariant is not null)
+                                            {
+                                                <MudNumericField T="decimal" @bind-Value="colorVariant.RetailPrice"HideSpinButtons="true" Style="width: 80px;" />
+                                            }
+                                            else
+                                            {
+                                                <MudNumericField T="decimal" Disabled="true" Value="0" HideSpinButtons="true" Style="width: 80px;" />
                                             }
                                         </td>
                                     </tr>
@@ -288,22 +301,22 @@
                     <MudStack Spacing="1" Class="mb-2">
                         <MudText Typo="Typo.body2">@L["The recommended size for uploading images is 640X320"]</MudText>
                         <MudFileUpload T="IReadOnlyList<IBrowserFile>" multiple
-                                       @bind-Files="Model.UploadPictures"
-                                       For="@(() => Model.UploadPictures)"
-                                       OnFilesChanged="UploadFiles" Accept=".pdf,image/*"
-                                       Hidden="@false"
-                                       InputClass="absolute mud-width-full mud-height-full overflow-hidden z-100"
-                                       InputStyle="opacity:0"
-                                       tabindex="-1"
-                                       @ondrop="@ClearDragClass"
-                                       @ondragenter="@SetDragClass"
-                                       @ondragleave="@ClearDragClass"
-                                       @ondragend="@ClearDragClass"
-                                       AppendMultipleFiles>
+                        @bind-Files="Model.UploadPictures"
+                        For="@(() => Model.UploadPictures)"
+                        OnFilesChanged="UploadFiles" Accept=".pdf,image/*"
+                        Hidden="@false"
+                        InputClass="absolute mud-width-full mud-height-full overflow-hidden z-100"
+                        InputStyle="opacity:0"
+                        tabindex="-1"
+                        @ondrop="@ClearDragClass"
+                        @ondragenter="@SetDragClass"
+                        @ondragleave="@ClearDragClass"
+                        @ondragend="@ClearDragClass"
+                        AppendMultipleFiles>
                             <ActivatorContent>
                                 <MudPaper Class="@_dragClass" Style="width:260px;height:70px;">
                                     <MudLoadingButton Loading="@_uploading" Disabled="@_uploading" Variant="Variant.Text" Class="align-self-center" Style="text-transform:none"
-                                                      StartIcon="@Icons.Material.Filled.CloudUpload">
+                                    StartIcon="@Icons.Material.Filled.CloudUpload">
                                         @L["choose image or pdf"]
                                     </MudLoadingButton>
                                 </MudPaper>
@@ -390,13 +403,16 @@
 
     private bool HasChanges = false;
 
-    private List<string> Colors = new() { "Black", "Blue", "Green", "Red", "Yellow" };
-    private List<string> Units = new() { "S", "M", "L", "XL" };
-
+    //private List<string> Units = new() { "S", "M", "L", "XL" };
     private List<SubProductDto> Variants = new();
+
+    protected IEnumerable<PicklistSetDto> OptionsColors = new List<PicklistSetDto>();
+    protected IEnumerable<PicklistSetDto> OptionsUnits = new List<PicklistSetDto>();
 
     protected override async Task OnInitializedAsync()
     {
+        OptionsColors = PicklistService.DataSource.Where(x => x.Name == Picklist.Color).ToList();
+        OptionsUnits = PicklistService.DataSource.Where(x => x.Name == Picklist.Unit).ToList();
 
         SubProductCacheKey.Refresh();
 
@@ -407,8 +423,8 @@
             this.subProducts = subResult.Data ?? new List<SubProductDto>();
         }
 
-        Variants = (from color in Colors
-                    from unit in Units
+        Variants = (from color in OptionsColors.Select(x => x.Value).Distinct()
+                    from unit in OptionsUnits.Select(x => x.Value).Distinct()
                     let existing = subProducts.FirstOrDefault(v => v.Color == color && v.Unit == unit)
                     select existing ?? new SubProductDto
                         {
