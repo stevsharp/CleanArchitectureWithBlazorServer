@@ -3,6 +3,7 @@
 @using CleanArchitecture.Blazor.Application.Features.SubProducts.DTOs
 @using CleanArchitecture.Blazor.Application.Features.SubProducts.Queries.GetById
 @using CleanArchitecture.Blazor.Server.UI.Components.Fusion
+@using CleanArchitecture.Blazor.Server.UI.Components.Products
 @using MudBlazor.Utilities
 @using ResizeMode = SixLabors.ImageSharp.Processing.ResizeMode
 @using Size = SixLabors.ImageSharp.Size
@@ -144,158 +145,11 @@
                 </MudItem>
 
                 <MudItem xs="12">
-                    @*                     <MudTable Items="Variants" T="VariantOption">
-                        <HeaderContent>
-                            <MudTh>Color</MudTh>
-                            <MudTh>Unit</MudTh>
-                            <MudTh>Stock</MudTh>
-                        </HeaderContent>
-                        <RowTemplate>
-                            <MudTd>@context.Color</MudTd>
-                            <MudTd>@context.Unit</MudTd>
-                            <MudTd>
-                                <MudNumericField T="int?" @bind-Value="context.Stock" HideSpinButtons="true" />
-                            </MudTd>
-                        </RowTemplate>
-                    </MudTable> *@
-
-                    @*                     <MudTable Items="Variants" T="VariantOption">
-                        <HeaderContent>
-                            <MudTh></MudTh> <!-- Top-left empty -->
-                            @foreach (var unit in Units)
-                            {
-                                <MudTh>@unit</MudTh>
-                            }
-                        </HeaderContent>
-                        <RowTemplate>
-
-                            @{
-                                var uniqueColors = Variants.Select(v => v.Color).Distinct().ToList();
-                            }
-
-                            @foreach (var color in uniqueColors)
-                            {
-                                <MudTr>
-                                    <MudTd>@color</MudTd>
-
-                                    @foreach (var unit in Units)
-                                    {
-                                        var colorExist = Variants.Any(v => v.Color == color);
-
-                                        if (colorExist)
-                                        {
-
-                                            var variant = Variants.FirstOrDefault(v => v.Color == color && v.Unit == unit);
-                                            <MudTd>
-                                                <MudNumericField T="int?" @bind-Value="variant.Stock" HideSpinButtons="true" Style="width: 60px;" />
-                                            </MudTd>
-                                        }
-                                        else
-                                        {
-                                            continue;
-                                        }
-
-                                    }
-                                </MudTr>
-                            }
-                        </RowTemplate>
-                    </MudTable>
- *@
                     <MudPaper Class="pa-4">
-                        <table class="mud-table mud-table-bordered mud-table-dense" style="width: 100%;">
-                            <thead>
-                                <tr>
-                                    <th></th> <!-- Color column -->
-                                    @foreach (var unit in OptionsUnits.Select(x => x.Value).Distinct())
-                                    {
-                                        <th style="text-align: left;">@unit</th>
-                                    }
-                                    <th style="text-align: left;"> Price</th>
-                                    <th style="text-align: left;"> Retai lPrice</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var color in Variants.Select(v => v.Color).Distinct())
-                                {
-                                    <tr>
-                                        <td>@color</td>
-
-                                        @foreach (var unit in OptionsUnits.Select(x => x.Value).Distinct())
-                                        {
-                                            var variant = Variants.FirstOrDefault(v => v.Color == color && v.Unit == unit);
-                                            <td style="text-align: center;">
-                                                @if (variant is not null)
-                                                {
-                                                    <MudNumericField T="int" @bind-Value="variant.Stock"
-                                                    HideSpinButtons="true" Style="width: 60px;" />
-                                                }
-                                                else
-                                                {
-                                                    <MudNumericField T="int" Disabled="true" Value="0"
-                                                    HideSpinButtons="true" Style="width: 60px;" />
-                                                }
-                                            </td>
-                                        }
-
-                                        @{
-                                            // Get any variant of this color to display its RetailPrice (same across units)
-                                            var colorVariant = Variants.FirstOrDefault(v => v.Color == color);
-                                        }
-
-                                        <td style="text-align: center;">
-                                            @if (colorVariant is not null)
-                                            {
-                                                <MudNumericField T="decimal" @bind-Value="colorVariant.Price" HideSpinButtons="true" Style="width: 80px;" />
-                                            }
-                                            else
-                                            {
-                                                <MudNumericField T="decimal" Disabled="true" Value="0" HideSpinButtons="true" Style="width: 80px;" />
-                                            }
-                                        </td>
-
-
-                                        <td style="text-align: center;">
-                                            @if (colorVariant is not null)
-                                            {
-                                                <MudNumericField T="decimal" @bind-Value="colorVariant.RetailPrice"HideSpinButtons="true" Style="width: 80px;" />
-                                            }
-                                            else
-                                            {
-                                                <MudNumericField T="decimal" Disabled="true" Value="0" HideSpinButtons="true" Style="width: 80px;" />
-                                            }
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+                        <ProductMatrix ProductId="Model.Id" @ref="productMatrix" SubProducts="subProducts"> </ProductMatrix>
                     </MudPaper>
                 </MudItem>
 
-                @*  <MudItem xs="12">
-                    <PicklistAutocomplete Picklist="Picklist.Unit" T="string"
-                    Label="@L["Unit"]"
-                    For="@(() => Model.Unit)"
-                    ResetValueOnEmptyText="true"
-                    ShowProgressIndicator="true"
-                    @bind-Value="Model.Unit">
-                        <ProgressIndicatorTemplate>
-                            <MudProgressLinear Size="MudBlazor.Size.Small" Indeterminate="true" />
-                        </ProgressIndicatorTemplate>
-                    </PicklistAutocomplete>
-                </MudItem>
-
-                <MudItem xs="12">
-                    <PicklistAutocomplete Picklist="Picklist.Color" T="string"
-                    Label="@L["Color"]"
-                    For="@(() => Model.Color)"
-                    ResetValueOnEmptyText="true"
-                    ShowProgressIndicator="true"
-                    @bind-Value="Model.Color">
-                        <ProgressIndicatorTemplate>
-                            <MudProgressLinear Size="MudBlazor.Size.Small" Indeterminate="true" />
-                        </ProgressIndicatorTemplate>
-                    </PicklistAutocomplete>
-                </MudItem> *@
 
                 <MudItem xs="12">
                     <MudStack Spacing="1" Class="mb-2">
@@ -374,6 +228,8 @@
 
     private GetSubProductByProductIdQuery getSubProductByProductByIdQuery = default!;
 
+    private ProductMatrix? productMatrix;
+
     private const long MaxAllowedSize = 3145728;
 
     private async Task DeleteImage(ProductImage picture)
@@ -403,16 +259,8 @@
 
     private bool HasChanges = false;
 
-    //private List<string> Units = new() { "S", "M", "L", "XL" };
-    private List<SubProductDto> Variants = new();
-
-    protected IEnumerable<PicklistSetDto> OptionsColors = new List<PicklistSetDto>();
-    protected IEnumerable<PicklistSetDto> OptionsUnits = new List<PicklistSetDto>();
-
     protected override async Task OnInitializedAsync()
     {
-        OptionsColors = PicklistService.DataSource.Where(x => x.Name == Picklist.Color).ToList();
-        OptionsUnits = PicklistService.DataSource.Where(x => x.Name == Picklist.Unit).ToList();
 
         SubProductCacheKey.Refresh();
 
@@ -423,20 +271,6 @@
             this.subProducts = subResult.Data ?? new List<SubProductDto>();
         }
 
-        Variants = (from color in OptionsColors.Select(x => x.Value).Distinct()
-                    from unit in OptionsUnits.Select(x => x.Value).Distinct()
-                    let existing = subProducts.FirstOrDefault(v => v.Color == color && v.Unit == unit)
-                    select existing ?? new SubProductDto
-                        {
-                            Id = existing?.Id ?? 0,
-                            ProductId = Model.Id,
-                            Color = color,
-                            Unit = unit,
-                            Stock = existing?.Stock ?? 0,
-                            Price = existing?.Price ?? 0,
-                            RetailPrice = existing?.RetailPrice ?? 0
-                        }).ToList();
-
         var result = await Mediator.Send(getAllCategoriesQuery).ConfigureAwait(false);
 
         if (result.Any())
@@ -445,6 +279,8 @@
 
             if (Model.CategoryId > 0)
                 SelectedCategory = Categories.First(x => x.Id == Model.CategoryId);
+            else
+                SelectedCategory = Categories.FirstOrDefault(x => x.IsDefault == 1);  
         }
 
         this.colorData = Model.ColorData;
@@ -523,7 +359,7 @@
 
             _saving = true;
 
-            Model.SubProducts = Variants;
+            Model.SubProducts = this.productMatrix?.GetVariants();
             Model.SetDefaultValues();
 
             await _form!.Validate().ConfigureAwait(false);

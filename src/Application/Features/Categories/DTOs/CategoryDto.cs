@@ -14,6 +14,8 @@ public class CategoryDto
     [Description("Comments")]
     public string? Comments { get; set; }
 
+    public int? IsDefault { get; set; } = 0;
+
     [Description("Sub Categories")]
     public List<SubCategoryDto>? SubCategories { get; set; } = new();
 }

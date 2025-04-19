@@ -1,0 +1,68 @@
+﻿@inject IPicklistService PicklistService
+
+<table class="mud-table mud-table-bordered mud-table-dense" style="width: 100%;">
+    <thead>
+        <tr>
+            <th></th> <!-- Color column -->
+            @foreach (var unit in OptionsUnits.Select(x => x.Value).Distinct())
+            {
+                <th style="text-align: left;">@unit</th>
+            }
+            <th style="text-align: left;"> Price</th>
+            <th style="text-align: left;"> Retai lPrice</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var color in Variants.Select(v => v.Color).Distinct())
+        {
+            <tr>
+                <td>@color</td>
+
+                @foreach (var unit in OptionsUnits.Select(x => x.Value).Distinct())
+                {
+                    var variant = Variants.FirstOrDefault(v => v.Color == color && v.Unit == unit);
+                    <td style="text-align: center;">
+                        @if (variant is not null)
+                        {
+                            <MudNumericField T="int" @bind-Value="variant.Stock"
+                                             HideSpinButtons="true" Style="width: 60px;" />
+                        }
+                        else
+                        {
+                            <MudNumericField T="int" Disabled="true" Value="0"
+                                             HideSpinButtons="true" Style="width: 60px;" />
+                        }
+                    </td>
+                }
+
+                @{
+                    // Get any variant of this color to display its RetailPrice (same across units)
+                    var colorVariant = Variants.FirstOrDefault(v => v.Color == color);
+                }
+
+                <td style="text-align: center;">
+                    @if (colorVariant is not null)
+                    {
+                        <MudNumericField T="decimal" @bind-Value="colorVariant.Price" HideSpinButtons="true" Style="width: 80px;" />
+                    }
+                    else
+                    {
+                        <MudNumericField T="decimal" Disabled="true" Value="0" HideSpinButtons="true" Style="width: 80px;" />
+                    }
+                </td>
+
+
+                <td style="text-align: center;">
+                    @if (colorVariant is not null)
+                    {
+                        <MudNumericField T="decimal" @bind-Value="colorVariant.RetailPrice" HideSpinButtons="true" Style="width: 80px;" />
+                    }
+                    else
+                    {
+                        <MudNumericField T="decimal" Disabled="true" Value="0" HideSpinButtons="true" Style="width: 80px;" />
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
