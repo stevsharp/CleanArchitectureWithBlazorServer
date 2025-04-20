@@ -1,5 +1,6 @@
 ﻿@using CleanArchitecture.Blazor.Application.Features.PurchaseInvoices.Commands.AddEdit
 @using CleanArchitecture.Blazor.Application.Features.Suppliers.DTOs
+@using CleanArchitecture.Blazor.Server.UI.Components.Purchase
 @using CleanArchitecture.Blazor.Server.UI.Pages.PurchaseItems
 @inherits MudComponentBase
 @inject IValidationService Validator
@@ -57,12 +58,16 @@
                     <MudTextField Label="@L[model.GetMemberDescription(x=>x.Notes)]" @bind-Value="model.Notes" For="@(() => model.Notes)" Required="false" RequiredError="@L["notes is required!"]"></MudTextField>
                 </MudItem> *@
 
-                @if (model.Id > 0)
+                 <MudItem xs="12"> 
+                     <PurchaseItemsComponent/>
+                 </MudItem>
+                
+               @*  @if (model.Id > 0)
                 {
                     <MudItem xs="12">
                         <PurchaseItems PurchaseInvoiceId="model.Id" />
                     </MudItem>
-                }
+                } *@
 
             </MudGrid>
         </MudForm>

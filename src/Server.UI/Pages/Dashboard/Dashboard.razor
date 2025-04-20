@@ -340,11 +340,11 @@
     private List<MenuItem> MenuItems = new()
     {
         new MenuItem("Dashboard", Icons.Material.Filled.Dashboard, "/"),
-        new MenuItem("Orders", Icons.Material.Filled.ShoppingCart, "/pages/PurchaseInvoices"),
-        new MenuItem("Sales", Icons.Material.Filled.ShoppingCart, "/pages/PurchaseInvoices"),
-        new MenuItem("Offers", Icons.Material.Filled.ShoppingCart, "/pages/PurchaseInvoices"),
-        new MenuItem("Customers", Icons.Material.Filled.Settings, "/pages/Contacts"),
-        new MenuItem("Products", Icons.Material.Filled.AccountCircle, "/pages/products")
+        new MenuItem("Orders", Icons.Material.Filled.Reorder, "/pages/PurchaseInvoices"),
+        new MenuItem("Offers", Icons.Material.Filled.ShoppingCart, "/pages/Offers"),
+        new MenuItem("Sales", Icons.Material.Filled.PointOfSale, "/pages/Invoices"),
+        new MenuItem("Customers", Icons.Material.Filled.Person, "/pages/Contacts"),
+        new MenuItem("Products", Icons.Material.Filled.ProductionQuantityLimits, "/pages/products")
     };
 
     private void NavigateTo(string url)

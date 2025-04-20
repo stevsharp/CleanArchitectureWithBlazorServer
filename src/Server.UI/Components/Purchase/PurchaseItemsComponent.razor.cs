@@ -1,0 +1,103 @@
+﻿
+
+using System.ComponentModel;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using CleanArchitecture.Blazor.Application.Features.Products.Caching;
+using CleanArchitecture.Blazor.Application.Features.Products.Commands.AddEdit;
+using CleanArchitecture.Blazor.Application.Features.Products.Queries.GetAll;
+
+namespace CleanArchitecture.Blazor.Server.UI.Components.Purchase;
+
+public partial class PurchaseItemsComponent
+{
+
+    private List<PurchaseItem> _purchaseItemsList = new();
+
+    private PurchaseItem? _selectedItem = new PurchaseItem();
+
+    private IDisposable? _itemCodeSubscription;
+
+    private void SubscribeToItemCodeChanges()
+    {
+        _itemCodeSubscription?.Dispose(); // Unsubscribe previous, if any
+        _itemCodeSubscription = _selectedItem?.ItemCodeChanged.Subscribe(async newValue =>
+        {
+            if (string.IsNullOrWhiteSpace(newValue))
+                return;
+
+            ProductCacheKey.Refresh();
+
+            await OnItemCodeChanged(newValue);
+        });
+    }
+
+    protected async Task OnItemCodeChanged(string newValue)
+    {
+        if (string.IsNullOrWhiteSpace(newValue))
+            return;
+
+        var query = new GetProductByCodeQuery { Code = newValue };
+        var result = await Mediator.Send(query);
+
+        if (result is not null && _selectedItem is not null)
+        {
+            _selectedItem.Description = result.Name;
+            _selectedItem.ItemId = result.Id;
+            _selectedItem.UnitPrice = result.RetailPrice.GetValueOrDefault(0);
+
+            StateHasChanged();
+
+        }
+        else
+        {
+            var command = new AddEditProductCommand
+            {
+                Pictures = [], Code = newValue
+            };
+
+            //await ShowEditFormDialog(string.Format(ConstantString.CreateAnItem, L["Product"]), command);
+
+        }
+
+    }
+
+    protected void AddNewRow()
+    {
+        _selectedItem = new PurchaseItem();
+        SubscribeToItemCodeChanges();   
+        _purchaseItemsList.Add(_selectedItem);
+    }
+
+    public void Dispose()
+    {
+        _itemCodeSubscription?.Dispose();
+    }
+}
+
+public sealed class PurchaseItem
+{
+    private readonly Subject<string> _itemCodeSubject = new();
+    public IObservable<string> ItemCodeChanged => _itemCodeSubject.AsObservable();
+
+    private string _itemCode = string.Empty;
+
+    [Description("Item code")]
+    public string ItemCode
+    {
+        get => _itemCode;
+        set
+        {
+            _itemCode = value;
+            _itemCodeSubject.OnNext(value);
+        }
+    }
+
+    public int ItemId { get; set; } = 0;
+    public string Description { get; set; } = string.Empty; 
+    public int Quantity { get; set; } = 1;
+    public string? Unit { get; set; } = "S";
+    public string? Color { get; set; } = "Black";
+    public decimal UnitPrice { get; set; } = 0.0m;
+    public int VatPercentage { get; set; } = 24;
+}

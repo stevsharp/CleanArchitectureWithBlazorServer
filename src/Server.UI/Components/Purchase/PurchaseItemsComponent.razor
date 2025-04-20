@@ -1,0 +1,63 @@
+﻿@inject IStringLocalizer<PurchaseItemsComponent> L
+
+
+<MudTable Items="@_purchaseItemsList"
+   Dense="true" Bordered="true" Striped="true"
+          Editable="true" @bind-SelectedItem="_selectedItem">
+    <ToolBarContent>
+        <div class="justify-center mud-text-align-center">
+            <MudButton DisableElevation Variant="Variant.Filled" Color="Color.Primary" OnClick="(() => AddNewRow())" StartIcon="@Icons.Material.Filled.Add" 
+                IconColor="Color.Surface">@L["Add Items"]</MudButton>
+        </div>
+        <MudSpacer />
+
+    </ToolBarContent>
+
+    <HeaderContent>
+        <MudTh>@L["Code"] </MudTh>
+        <MudTh>@L["Description"]</MudTh>
+        <MudTh>@L["Quantity"]</MudTh>
+        <MudTh>@L["Unit"]</MudTh>
+        <MudTh>@L["Color"]</MudTh>
+        <MudTh>@L["Price"]</MudTh>
+        <MudTh>@L["VAT"]%</MudTh>
+        <MudTh>@L["Total"] </MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd><MudTextField @bind-Value="context.ItemCode" /></MudTd>
+        <MudTd><MudTextField @bind-Value="context.Description" /></MudTd>
+        <MudTd><MudNumericField @bind-Value="context.Quantity" /></MudTd>
+        <MudTd>
+            <PicklistAutocomplete Picklist="Picklist.Unit" T="string"
+                                  Label="@L["Unit"]"
+                                  For="@(() => context.Unit)"
+                                  ResetValueOnEmptyText="true"
+                                  ShowProgressIndicator="true"
+                                  @bind-Value="context.Unit">
+                <ProgressIndicatorTemplate>
+                    <MudProgressLinear Size="MudBlazor.Size.Small" Indeterminate="true" />
+                </ProgressIndicatorTemplate>
+            </PicklistAutocomplete>
+
+        </MudTd>
+        <MudTd>
+            <PicklistAutocomplete Picklist="Picklist.Color" T="string"
+                                  Label="@L["Color"]"
+                                  For="@(() => context.Color)"
+                                  ResetValueOnEmptyText="true"
+                                  ShowProgressIndicator="true"
+                                  @bind-Value="context.Color">
+                <ProgressIndicatorTemplate>
+                    <MudProgressLinear Size="MudBlazor.Size.Small" Indeterminate="true" />
+                </ProgressIndicatorTemplate>
+            </PicklistAutocomplete>
+
+        </MudTd>
+        <MudTd><MudNumericField @bind-Value="context.UnitPrice" /></MudTd>
+        <MudTd><MudNumericField @bind-Value="context.VatPercentage" /></MudTd>
+        <MudTd>@($"{context.Quantity * context.UnitPrice * (1 + context.VatPercentage / 100):C2}")</MudTd>
+    </RowTemplate>
+</MudTable>
+
+
+
