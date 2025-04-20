@@ -22,6 +22,7 @@
         <MudTh>@L["Price"]</MudTh>
         <MudTh>@L["VAT"]%</MudTh>
         <MudTh>@L["Total"] </MudTh>
+        <MudTh Style="text-align:right">@L["Actions"]</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd><MudTextField @bind-Value="context.ItemCode" /></MudTd>
@@ -55,8 +56,21 @@
         </MudTd>
         <MudTd><MudNumericField @bind-Value="context.UnitPrice" /></MudTd>
         <MudTd><MudNumericField @bind-Value="context.VatPercentage" /></MudTd>
-        <MudTd>@($"{context.Quantity * context.UnitPrice * (1 + context.VatPercentage / 100):C2}")</MudTd>
+        <MudTd>@($"{context.Quantity * context.UnitPrice:C2}")</MudTd>
+
+        <MudTd DataLabel="Actions" Style="text-align: right">
+            <MudMenuItem Icon="@Icons.Material.Filled.Delete" @onclick="@(() => Delete(@context.ItemId))">@L["Delete"]</MudMenuItem>
+        </MudTd>
+
     </RowTemplate>
+
+    <FooterContent>
+        <MudTd ColSpan="5"></MudTd>
+        <MudTd><b style="color: gray">Net:</b> <span>@($"{NetTotal:C2}")</span></MudTd>
+        <MudTd><b style="color: gray">VAT:</b> <span>@($"{VatTotal:C2}")</span></MudTd>
+        <MudTd><b style="color: #1976d2">Grand:</b> <strong>@($"{GrandTotal:C2}")</strong></MudTd>
+    </FooterContent>
+
 </MudTable>
 
 

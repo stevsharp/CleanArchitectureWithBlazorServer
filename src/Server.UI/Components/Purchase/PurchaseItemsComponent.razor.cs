@@ -6,6 +6,8 @@ using System.Reactive.Subjects;
 using CleanArchitecture.Blazor.Application.Features.Products.Caching;
 using CleanArchitecture.Blazor.Application.Features.Products.Commands.AddEdit;
 using CleanArchitecture.Blazor.Application.Features.Products.Queries.GetAll;
+using CleanArchitecture.Blazor.Infrastructure.Constants;
+using CleanArchitecture.Blazor.Server.UI.Pages.Products.Components;
 
 namespace CleanArchitecture.Blazor.Server.UI.Components.Purchase;
 
@@ -17,6 +19,14 @@ public partial class PurchaseItemsComponent
     private PurchaseItem? _selectedItem = new PurchaseItem();
 
     private IDisposable? _itemCodeSubscription;
+
+    private decimal NetTotal => _purchaseItemsList.Sum(item =>
+        item.Quantity * item.UnitPrice);
+
+    private decimal VatTotal => _purchaseItemsList.Sum(item =>
+        item.Quantity * item.UnitPrice * item.VatPercentage / 100);
+
+    private decimal GrandTotal => NetTotal + VatTotal;
 
     private void SubscribeToItemCodeChanges()
     {
@@ -42,12 +52,9 @@ public partial class PurchaseItemsComponent
 
         if (result is not null && _selectedItem is not null)
         {
-            _selectedItem.Description = result.Name;
+            _selectedItem.Description = result.Name ?? string.Empty;
             _selectedItem.ItemId = result.Id;
-            _selectedItem.UnitPrice = result.RetailPrice.GetValueOrDefault(0);
-
             StateHasChanged();
-
         }
         else
         {
@@ -56,10 +63,40 @@ public partial class PurchaseItemsComponent
                 Pictures = [], Code = newValue
             };
 
-            //await ShowEditFormDialog(string.Format(ConstantString.CreateAnItem, L["Product"]), command);
-
+            await ShowEditFormDialog(string.Format(ConstantString.CreateAnItem, L["Product"]), command);
         }
+    }
 
+    private async Task ShowEditFormDialog(string title, AddEditProductCommand command)
+    {
+        var parameters = new DialogParameters<ProductFormDialog>
+        {
+            { x => x.Model, command }
+        };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var dialog = await DialogService.ShowAsync<ProductFormDialog>(title, parameters, options);
+        var state = await dialog.Result;
+
+        if (state is not null && !state.Canceled)
+        {
+            var result = state.Data as AddEditProductCommand;
+
+            if (result is not null && _selectedItem is not null)
+            {
+                _selectedItem.Description = result.Name ?? string.Empty;
+                _selectedItem.ItemId = result.Id;
+            }
+        }
+    }
+
+    private async Task Delete(int id)
+    {
+        var item = _purchaseItemsList.FirstOrDefault(x => x.ItemId == id);
+        if (item is not null)
+        {
+            _purchaseItemsList.Remove(item);
+            await Task.CompletedTask; // Simulate async operation
+        }
     }
 
     protected void AddNewRow()

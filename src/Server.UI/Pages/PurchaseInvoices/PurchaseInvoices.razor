@@ -248,7 +248,7 @@
             {
                 { x=>x.model,command },
             };
-        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true };
         var dialog = await DialogService.ShowAsync<PurchaseInvoiceFormDialog>(title, parameters, options);
         var state = await dialog.Result;
 
