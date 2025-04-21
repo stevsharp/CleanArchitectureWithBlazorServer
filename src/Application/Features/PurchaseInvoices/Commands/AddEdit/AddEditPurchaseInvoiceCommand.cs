@@ -37,6 +37,7 @@ public class AddEditPurchaseInvoiceCommand : ICacheInvalidatorRequest<Result<int
     [Description("Notes")]
     public string? Notes { get; set; }
 
+    [MapperIgnore]
     [Description("Supplier")]
     public SupplierDto Supplier { get; set; } = new SupplierDto();
 
@@ -70,7 +71,6 @@ public class AddEditPurchaseInvoiceCommandHandler(
                     return await Result<int>.FailureAsync($"PurchaseInvoice with id: [{request.Id}] not found.");
                 }
 
-                item.Supplier = null;
                 PurchaseInvoiceMapper.ApplyChangesFrom(request, item);
 
                 await _context.SaveChangesAsync(cancellationToken);
@@ -79,10 +79,8 @@ public class AddEditPurchaseInvoiceCommandHandler(
             else
             {
                 var item = PurchaseInvoiceMapper.FromEditCommand(request);
-                item.Supplier = null;
-                //         // raise a create domain event
-                //item.AddDomainEvent(new PurchaseInvoiceCreatedEvent(item));
-                //_context.PurchaseInvoices.Add(item);
+
+                _context.PurchaseInvoices.Add(item);
                 await _context.SaveChangesAsync(cancellationToken);
                 return await Result<int>.SuccessAsync(item.Id);
             }
