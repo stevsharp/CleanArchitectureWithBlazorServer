@@ -51,42 +51,49 @@ public class AddEditPurchaseInvoiceCommand : ICacheInvalidatorRequest<Result<int
 
 }
 
-public class AddEditPurchaseInvoiceCommandHandler : IRequestHandler<AddEditPurchaseInvoiceCommand, Result<int>>
+public class AddEditPurchaseInvoiceCommandHandler(
+    IApplicationDbContext context) : IRequestHandler<AddEditPurchaseInvoiceCommand, Result<int>>
 {
-    private readonly IApplicationDbContext _context;
-    public AddEditPurchaseInvoiceCommandHandler(
-        IApplicationDbContext context)
-    {
-        _context = context;
-    }
+    private readonly IApplicationDbContext _context = context;
+
     public async Task<Result<int>> Handle(AddEditPurchaseInvoiceCommand request, CancellationToken cancellationToken)
     {
-        if (request.Id > 0)
+        try
         {
-            var item = await _context.PurchaseInvoices.FindAsync(request.Id, cancellationToken);
-            if (item is null)
+            if (request.Id > 0)
             {
-                return await Result<int>.FailureAsync($"PurchaseInvoice with id: [{request.Id}] not found.");
+                var item = await _context.PurchaseInvoices
+                        .Include(x => x.Items)
+                        .FirstAsync(x => x.Id == request.Id, cancellationToken);
+                if (item is null)
+                {
+                    return await Result<int>.FailureAsync($"PurchaseInvoice with id: [{request.Id}] not found.");
+                }
+
+                item.Supplier = null;
+                PurchaseInvoiceMapper.ApplyChangesFrom(request, item);
+
+                await _context.SaveChangesAsync(cancellationToken);
+                return await Result<int>.SuccessAsync(item.Id);
             }
-
-            item.Supplier = null;
-
-            PurchaseInvoiceMapper.ApplyChangesFrom(request, item);
-            //// raise a update domain event
-            //item.AddDomainEvent(new PurchaseInvoiceUpdatedEvent(item));
-            await _context.SaveChangesAsync(cancellationToken);
-            return await Result<int>.SuccessAsync(item.Id);
+            else
+            {
+                var item = PurchaseInvoiceMapper.FromEditCommand(request);
+                item.Supplier = null;
+                //         // raise a create domain event
+                //item.AddDomainEvent(new PurchaseInvoiceCreatedEvent(item));
+                //_context.PurchaseInvoices.Add(item);
+                await _context.SaveChangesAsync(cancellationToken);
+                return await Result<int>.SuccessAsync(item.Id);
+            }
         }
-        else
+        catch (Exception ex)
         {
-            var item = PurchaseInvoiceMapper.FromEditCommand(request);
-            item.Supplier = null;
-            //         // raise a create domain event
-            //item.AddDomainEvent(new PurchaseInvoiceCreatedEvent(item));
-            _context.PurchaseInvoices.Add(item);
-            await _context.SaveChangesAsync(cancellationToken);
-            return await Result<int>.SuccessAsync(item.Id);
+            var message = $"PurchaseInvoice with id: [{request.Id}] not found.";
+            throw;
         }
+
+
 
     }
 }

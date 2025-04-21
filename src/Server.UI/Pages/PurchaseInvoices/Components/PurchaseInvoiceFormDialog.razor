@@ -2,6 +2,7 @@
 @using CleanArchitecture.Blazor.Application.Features.Suppliers.DTOs
 @using CleanArchitecture.Blazor.Server.UI.Components.Purchase
 @using CleanArchitecture.Blazor.Server.UI.Pages.PurchaseItems
+@using CleanArchitecture.Blazor.Server.UI.Services
 @inherits MudComponentBase
 @inject IValidationService Validator
 @inject IStringLocalizer<PurchaseInvoices> L
@@ -14,9 +15,9 @@
                 <MudItem xs="12" >
 
                     <MudTextField Label="@($"Supplier: {model.Supplier.Name} (ID: {model.Supplier.Id})")"
-                                  @bind-Value="model.Supplier.Name"
-                                  For="@(() => model.Supplier.Name)"
-                                  ReadOnly="true" />
+                    @bind-Value="model.Supplier.Name"
+                    For="@(() => model.Supplier.Name)"
+                    ReadOnly="true" />
 
                     <MudLoadingButton Color="Color.Info" OnClick="SelectSupplier">Select Supplier..</MudLoadingButton>
 
@@ -30,9 +31,9 @@
                 </MudItem> 
                 <MudItem xs="12" md="6"> 
                     <MudTextField Label="@L[model.GetMemberDescription(x=>x.InvoiceType)]" @bind-Value="model.InvoiceType" 
-                        For="@(() => model.InvoiceType)" Required="false" RequiredError="@L["invoice type is required!"]"></MudTextField>
+                    For="@(() => model.InvoiceType)" Required="false" RequiredError="@L["invoice type is required!"]"></MudTextField>
                 </MudItem> 
-               @*  <MudItem xs="12" md="6"> 
+                @*  <MudItem xs="12" md="6"> 
                     <MudNumericField  Label="@L[model.GetMemberDescription(x=>x.TotalAmount)]" @bind-Value="model.TotalAmount" 
                         For="@(() => model.TotalAmount)" Min="0.00m" Required="false" RequiredError="@L["total amount is required!"]"></MudNumericField >
                 </MudItem> 
@@ -42,13 +43,13 @@
                 </MudItem>  *@
                 <MudItem xs="12" md="6"> 
                     <MudTextField Label="@L[model.GetMemberDescription(x=>x.PaymentStatus)]" @bind-Value="model.PaymentStatus" 
-                        For="@(() => model.PaymentStatus)" Required="false" RequiredError="@L["payment status is required!"]"></MudTextField>
+                    For="@(() => model.PaymentStatus)" Required="false" RequiredError="@L["payment status is required!"]"></MudTextField>
                 </MudItem> 
                 <MudItem xs="12" md="6"> 
                     <MudTextField Label="@L[model.GetMemberDescription(x=>x.PaymentMethod)]" @bind-Value="model.PaymentMethod" 
-                        For="@(() => model.PaymentMethod)" Required="false" RequiredError="@L["payment method is required!"]"></MudTextField>
+                    For="@(() => model.PaymentMethod)" Required="false" RequiredError="@L["payment method is required!"]"></MudTextField>
                 </MudItem> 
-@*                 <MudItem xs="12" md="6"> 
+                @*                 <MudItem xs="12" md="6"> 
                     <MudTextField Label="@L[model.GetMemberDescription(x=>x.IBAN)]" @bind-Value="model.IBAN" For="@(() => model.IBAN)" Required="false" RequiredError="@L["iban is required!"]"></MudTextField>
                 </MudItem> 
                 <MudItem xs="12" md="6"> 
@@ -58,11 +59,11 @@
                     <MudTextField Label="@L[model.GetMemberDescription(x=>x.Notes)]" @bind-Value="model.Notes" For="@(() => model.Notes)" Required="false" RequiredError="@L["notes is required!"]"></MudTextField>
                 </MudItem> *@
 
-                 <MudItem xs="12"> 
-                     <PurchaseItemsComponent/>
-                 </MudItem>
-                
-               @*  @if (model.Id > 0)
+                <MudItem xs="12">
+                    <PurchaseItemsComponent @ref="purchaseItemsComponent" />
+                </MudItem>
+
+                @*  @if (model.Id > 0)
                 {
                     <MudItem xs="12">
                         <PurchaseItems PurchaseInvoiceId="model.Id" />
@@ -74,7 +75,7 @@
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">@ConstantString.Cancel</MudButton>
-        <MudLoadingButton Loading="@_savingnew" OnClick="SaveAndNew">@ConstantString.SaveAndNew</MudLoadingButton>
+@*         <MudLoadingButton Loading="@_savingnew" OnClick="SaveAndNew">@ConstantString.SaveAndNew</MudLoadingButton> *@
         <MudLoadingButton Loading="@_saving"  OnClick="Submit">@ConstantString.Save</MudLoadingButton>
     </DialogActions>
 </MudDialog>
@@ -90,6 +91,23 @@
     [Parameter] 
     public AddEditPurchaseInvoiceCommand model { get; set; } = null!;
 
+    protected PurchaseItemsComponent purchaseItemsComponent = default!;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (model?.Items?.Any() == false || model is null || model.Items is null)
+                return;
+
+            purchaseItemsComponent.SetItems(model.Items);
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
     async Task Submit()
     {
         try
@@ -98,6 +116,90 @@
             await _form!.Validate().ConfigureAwait(false);
             if (!_form!.IsValid)
                 return;
+
+            var items = purchaseItemsComponent.PurchaseItems;
+
+            model.Items ??= [];
+
+            model.Items.SyncWith(items,
+                targetIdSelector: x => x.Id,
+                sourceIdSelector: x => x.Id,
+                updateAction: (existing, incoming) =>
+                {
+                    existing.Color = incoming.Color;
+                    existing.ItemDescription = incoming.Description;
+                    existing.ItemCode = incoming.ItemCode;
+                    existing.Quantity = incoming.Quantity;
+                    existing.Unit = incoming.Unit;
+                    existing.UnitPrice = incoming.UnitPrice;
+                    existing.VATPercentage = incoming.VatPercentage;
+                    existing.InvoiceId = model.Id;
+                    existing.VATAmount = incoming.VATAmount;
+                    existing.ProductId = incoming.ItemId;
+                },
+                createNew: incoming => new Application.Features.PurchaseItems.DTOs.PurchaseItemDto
+                {
+                    Color = incoming.Color,
+                    ItemDescription = incoming.Description,
+                    ItemCode = incoming.ItemCode,
+                    Quantity = incoming.Quantity,
+                    Unit = incoming.Unit,
+                    UnitPrice = incoming.UnitPrice,
+                    VATPercentage = incoming.VatPercentage,
+                    InvoiceId = model.Id,
+                    Id = incoming.Id,
+                    VATAmount = incoming.VATAmount,
+                    ProductId = incoming.ItemId,
+                }
+            );
+
+
+            // if (model.Items is null)
+            //     model.Items = [];
+
+            // var updatedIds = items.Select(x => x.Id).ToHashSet();
+
+            // // Remove items not in the updated list
+            // model.Items.RemoveAll(existing => !updatedIds.Contains(existing.Id));
+
+            // // Sync and add/update items
+            // foreach (var item in items)
+            // {
+            //     var existingItem = model.Items.FirstOrDefault(x => x.Id == item.Id);
+            //     if (existingItem is not null)
+            //     {
+            //         // Update existing item
+            //         existingItem.Color = item.Color;
+            //         existingItem.ItemDescription = item.Description;
+            //         existingItem.ItemCode = item.ItemCode;
+            //         existingItem.Quantity = item.Quantity;
+            //         existingItem.Unit = item.Unit;
+            //         existingItem.UnitPrice = item.UnitPrice;
+            //         existingItem.VATPercentage = item.VatPercentage;
+            //         existingItem.InvoiceId = model.Id;
+            //         existingItem.VATAmount = item.VATAmount;
+            //         existingItem.ProductId = item.ItemId;
+            //     }
+            //     else
+            //     {
+            //         // Add new item
+            //         model.Items.Add(new Application.Features.PurchaseItems.DTOs.PurchaseItemDto
+            //             {
+            //                 Color = item.Color,
+            //                 ItemDescription = item.Description,
+            //                 ItemCode = item.ItemCode,
+            //                 Quantity = item.Quantity,
+            //                 Unit = item.Unit,
+            //                 UnitPrice = item.UnitPrice,
+            //                 VATPercentage = item.VatPercentage,
+            //                 InvoiceId = model.Id,
+            //                 Id = item.Id,
+            //                 VATAmount = item.VATAmount,
+            //                 ProductId = item.ItemId,
+            //             });
+            //     }
+            // }
+
             var result = await Mediator.Send(model);
             result.Match(data =>
             {

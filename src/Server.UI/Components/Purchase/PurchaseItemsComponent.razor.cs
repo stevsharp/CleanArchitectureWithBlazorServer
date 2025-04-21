@@ -6,6 +6,7 @@ using System.Reactive.Subjects;
 using CleanArchitecture.Blazor.Application.Features.Products.Caching;
 using CleanArchitecture.Blazor.Application.Features.Products.Commands.AddEdit;
 using CleanArchitecture.Blazor.Application.Features.Products.Queries.GetAll;
+using CleanArchitecture.Blazor.Application.Features.PurchaseItems.DTOs;
 using CleanArchitecture.Blazor.Infrastructure.Constants;
 using CleanArchitecture.Blazor.Server.UI.Pages.Products.Components;
 
@@ -19,6 +20,29 @@ public partial class PurchaseItemsComponent
     private PurchaseItem? _selectedItem = new PurchaseItem();
 
     private IDisposable? _itemCodeSubscription;
+
+    public IEnumerable<PurchaseItem> PurchaseItems => _purchaseItemsList;
+
+    public void SetItems(IEnumerable<PurchaseItemDto> purchaseItemDtos)
+    {
+        foreach (var purchaseItem in purchaseItemDtos)
+        {
+            _purchaseItemsList.Add(new PurchaseItem
+            {
+                Id = purchaseItem.Id,
+                ItemId = purchaseItem.ProductId,
+                ItemCode = purchaseItem.ItemCode ?? string.Empty,
+                Description = purchaseItem.ItemDescription ?? string.Empty,
+                Quantity = purchaseItem.Quantity,
+                Unit = purchaseItem.Unit,
+                Color = purchaseItem.Color,
+                UnitPrice = purchaseItem.UnitPrice
+            });
+        }
+
+
+        StateHasChanged();
+    }
 
     private decimal NetTotal => _purchaseItemsList.Sum(item =>
         item.Quantity * item.UnitPrice);
@@ -130,11 +154,14 @@ public sealed class PurchaseItem
         }
     }
 
+    public int Id { get; set; } = 0;
+
     public int ItemId { get; set; } = 0;
     public string Description { get; set; } = string.Empty; 
     public int Quantity { get; set; } = 1;
     public string? Unit { get; set; } = "S";
     public string? Color { get; set; } = "Black";
     public decimal UnitPrice { get; set; } = 0.0m;
+    public decimal VATAmount => UnitPrice * Quantity * VatPercentage / 100;
     public int VatPercentage { get; set; } = 24;
 }
