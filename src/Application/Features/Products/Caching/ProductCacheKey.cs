@@ -16,11 +16,16 @@ public static class ProductCacheKey
         return $"GetProductByCode,{code}";
     }
 
+    public static string GetProductByColorCacheKey(string color, string unit, string code)
+    {
+        return $"GetProductByColorAndUnit,{color}{unit}{code}";
+    }
+
     public static string GetPaginationCacheKey(string parameters)
     {
         return $"ProductsWithPaginationQuery,{parameters}";
     }
-    public static IEnumerable<string>? Tags => new string[] { "product" };
+    public static IEnumerable<string>? Tags => ["product"];
     public static void Refresh()
     {
         FusionCacheFactory.RemoveByTags(Tags);

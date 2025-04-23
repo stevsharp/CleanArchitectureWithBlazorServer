@@ -12,6 +12,8 @@ public static partial class ProductMapper
     public static partial Product FromEditCommand(AddEditProductCommand command);
     public static partial void ApplyChangesFrom(AddEditProductCommand command, Product product);
     [MapperIgnoreSource(nameof(ProductDto.Id))]
+
+    [MapperIgnoreSource(nameof(ProductDto.Id))]
     public static partial AddEditProductCommand CloneFromDto(ProductDto dto);
     public static partial AddEditProductCommand ToEditCommand(ProductDto dto);
     public static partial IQueryable<ProductDto> ProjectTo(this IQueryable<Product> q);

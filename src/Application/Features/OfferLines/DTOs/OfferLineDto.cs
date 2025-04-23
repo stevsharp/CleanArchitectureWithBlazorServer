@@ -1,10 +1,4 @@
 ﻿
-// Usage:
-// The `OfferLineDto` class is used to represent offerline data throughout the CleanArchitecture.Blazor
-// application, providing a well-defined contract for passing offerline information between different 
-// layers and services. Each property includes a description for better understandability during 
-// serialization and documentation generation.
-
 using CleanArchitecture.Blazor.Application.Features.Products.DTOs;
 
 namespace CleanArchitecture.Blazor.Application.Features.OfferLines.DTOs;
@@ -17,7 +11,13 @@ public record OfferLineDto
     [Description("Offer id")]
     public int OfferId {get;set;} 
     [Description("Item id")]
-    public int ItemId {get;set;} 
+    public int ItemId {get;set;}
+
+    [Description("Item code")]
+    public string? ItemCode { get; set; }
+    [Description("Item description")]
+    public string? ItemDescription { get; set; }
+
     [Description("Quantity")]
     public int Quantity {get;set;} 
     [Description("Discount")]
@@ -38,6 +38,12 @@ public record OfferLineDto
 
     [Description("Product")]
     public ProductDto? Product { get; set; }
+
+    [Description("VAT Percentage")]
+    public decimal? VATPercentage { get; set; } = 0m;
+
+    [Description("VAT Amount")]
+    public decimal? VATAmount { get; set; } = 0m;
 
 }
 

@@ -2,6 +2,7 @@
 
 
 
+using CleanArchitecture.Blazor.Application.Features.OfferLines.DTOs;
 using CleanArchitecture.Blazor.Application.Features.Offers.Caching;
 using CleanArchitecture.Blazor.Application.Features.Offers.Mappers;
 
@@ -24,7 +25,7 @@ public class AddEditOfferCommand: ICacheInvalidatorRequest<Result<int>>
     [Description("Status")]
     public string? Status { get; set; } = "Pending";
     [Description("Offer lines")]
-    public List<OfferLine>? OfferLines { get; set; }
+    public List<OfferLineDto>? OfferLines { get; set; }
 
     [Description("Packaging")]
     public int? Packaging { get; set; }
@@ -64,7 +65,11 @@ public class AddEditOfferCommandHandler : IRequestHandler<AddEditOfferCommand, R
         {
             if (request.Id > 0)
             {
-                var item = await _context.Offers.FindAsync(request.Id, cancellationToken);
+                var item = await _context
+                                 .Offers
+                                 .Include(x => x.OfferLines)
+                                 .SingleAsync(x=>x.Id ==  request.Id, cancellationToken);
+
                 if (item == null)
                 {
                     return await Result<int>.FailureAsync($"Offer with id: [{request.Id}] not found.");

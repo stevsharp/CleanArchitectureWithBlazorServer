@@ -45,6 +45,7 @@ public class InvoiceLinesWithPaginationQueryHandler(
                                        .SelectMany(x => x.InvoiceLines)
                                        .Include(x => x.Product)
                                        .AsNoTracking()
+                                       .AsSingleQuery()
                                        .ProjectToPaginatedDataAsync(request.PageNumber,
                                                                      request.PageSize,
                                                                      InvoiceLineMapper.ToDto,

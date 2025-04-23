@@ -2,6 +2,7 @@
 @using CleanArchitecture.Blazor.Application.Features.Contacts.Queries.GetAll
 @using CleanArchitecture.Blazor.Application.Features.Contacts.Queries.Pagination
 @using CleanArchitecture.Blazor.Application.Features.Offers.Commands.AddEdit
+@using CleanArchitecture.Blazor.Server.UI.Components.Purchase
 @using CleanArchitecture.Blazor.Server.UI.Pages.OfferLines
 
 @inherits MudComponentBase
@@ -88,12 +89,15 @@
                                      For="@(() => model.ShippingCosts)" Min="0" Required="true" RequiredError="@L["ShippingCosts is required!"]"></MudNumericField>
                 </MudItem>
 
+                <MudItem xs="12">
+                    <PurchaseItemsComponent @ref="purchaseItemsComponent" />
+                </MudItem>
 
-                @if (model.Id > 0) {
+               @*  @if (model.Id > 0) {
                     <MudItem xs="12">
                         <OfferLines OrderId="@model.Id" />
                     </MudItem>
-                }
+                } *@
 
                 @*                 <MudItem xs="12" md="6">
                     <MudNumericField Label="@L[model.GetMemberDescription(x=>x.TotalAmount)]"
@@ -107,7 +111,7 @@
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">@ConstantString.Cancel</MudButton>
-        <MudLoadingButton Loading="@_savingnew" OnClick="SaveAndNew">@ConstantString.SaveAndNew</MudLoadingButton>
+@*         <MudLoadingButton Loading="@_savingnew" OnClick="SaveAndNew">@ConstantString.SaveAndNew</MudLoadingButton> *@
         <MudLoadingButton Loading="@_saving" OnClick="Submit">@ConstantString.Save</MudLoadingButton>
     </DialogActions>
 </MudDialog>
@@ -133,19 +137,40 @@
     [CascadingParameter]
     private UserProfile? UserProfile { get; set; }
 
+    protected PurchaseItemsComponent purchaseItemsComponent = default!;
+
     protected override async Task OnInitializedAsync()
     {
-
-        var result = await Mediator.Send(Query).ConfigureAwait(false);
-
-        if (result.Any())
+        try
         {
-            Contacts = result.ToList();
+            var result = await Mediator.Send(Query).ConfigureAwait(false);
 
-            if (model.CustomerId > 0)
-                SelectedContact = Contacts.First(x => x.Id == model.CustomerId);
+            if (result.Any())
+            {
+                Contacts = result.ToList();
+
+                if (model.CustomerId > 0)
+                    SelectedContact = Contacts.First(x => x.Id == model.CustomerId);
+            }
         }
+        catch (Exception ex)
+        {
+            var message = ex.Message;
+            throw;
+        }
+    }
 
+
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (model?.OfferLines?.Any() == false || model is null || model.OfferLines is null)
+                return;
+
+            purchaseItemsComponent.SetItems(model.OfferLines);
+        }
     }
 
     async Task Submit()
@@ -164,6 +189,43 @@
 
             model.CustomerId = SelectedContact.Id;
 
+            var items = purchaseItemsComponent.PurchaseItems;
+
+            model.OfferLines ??= [];
+
+            model.OfferLines.SyncWith(items,
+                targetIdSelector: x => x.Id,
+                sourceIdSelector: x => x.Id,
+                updateAction: (existing, incoming) =>
+                {
+                    existing.Color = incoming.Color;
+                    existing.ItemDescription = incoming.Description;
+                    existing.ItemCode = incoming.ItemCode;
+                    existing.Quantity = incoming.Quantity;
+                    existing.Unit = incoming.Unit;
+                    existing.LinePrice = incoming.UnitPrice;
+                    existing.VATPercentage = incoming.VatPercentage;
+                    existing.OfferId = model.Id;
+                    existing.VATAmount = incoming.VATAmount;
+                    existing.ItemId = incoming.ItemId;
+                },
+                createNew: incoming => new Application.Features.OfferLines.DTOs.OfferLineDto()
+                    {
+                        Color = incoming.Color,
+                        ItemDescription = incoming.Description,
+                        ItemCode = incoming.ItemCode,
+                        Quantity = incoming.Quantity,
+                        Unit = incoming.Unit,
+                        LinePrice = incoming.UnitPrice,
+                        VATPercentage = incoming.VatPercentage,
+                        OfferId = model.Id,
+                        Id = incoming.Id,
+                        VATAmount = incoming.VATAmount,
+                        ItemId = incoming.ItemId,
+                    }
+            );
+
+
             var result = await Mediator.Send(model);
             result.Match(data =>
             {
@@ -181,31 +243,31 @@
             _saving = false;
         }
     }
-    async Task SaveAndNew()
-    {
-        try
-        {
-            _savingnew = true;
-            await _form!.Validate().ConfigureAwait(false);
-            if (!_form!.IsValid)
-                return;
-            var result = await Mediator.Send(model);
-            await result.MatchAsync(async data =>
-            {
-                Snackbar.Add(ConstantString.SaveSuccess, MudBlazor.Severity.Info);
-                await Task.Delay(300);
-                model = new AddEditOfferCommand() { };
-                return data;
-            }, errors =>
-            {
-                Snackbar.Add(errors, MudBlazor.Severity.Error);
-                return Task.FromResult(-1);
-            });
-        }
-        finally
-        {
-            _savingnew = false;
-        }
-    }
+    // async Task SaveAndNew()
+    // {
+    //     try
+    //     {
+    //         _savingnew = true;
+    //         await _form!.Validate().ConfigureAwait(false);
+    //         if (!_form!.IsValid)
+    //             return;
+    //         var result = await Mediator.Send(model);
+    //         await result.MatchAsync(async data =>
+    //         {
+    //             Snackbar.Add(ConstantString.SaveSuccess, MudBlazor.Severity.Info);
+    //             await Task.Delay(300);
+    //             model = new AddEditOfferCommand() { };
+    //             return data;
+    //         }, errors =>
+    //         {
+    //             Snackbar.Add(errors, MudBlazor.Severity.Error);
+    //             return Task.FromResult(-1);
+    //         });
+    //     }
+    //     finally
+    //     {
+    //         _savingnew = false;
+    //     }
+    // }
     void Cancel() => MudDialog.Cancel();
 }

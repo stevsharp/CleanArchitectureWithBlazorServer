@@ -5,7 +5,7 @@ using CleanArchitecture.Blazor.Application.Features.Products.DTOs;
 namespace CleanArchitecture.Blazor.Application.Features.SubProducts.DTOs;
 
 [Description("SubProducts")]
-public class SubProductDto
+public record SubProductDto
 {
     [Description("Id")]
     public int Id { get; set; }
@@ -28,8 +28,8 @@ public class SubProductDto
     [Description("RetailPrice")]
     public decimal RetailPrice { get; set; }
 
-    [Description("Product")]
-    public ProductDto? Product { get; set; } = default!;
+    //[Description("Product")]
+    //public ProductDto? Product { get; set; } = default!;
 
 }
 

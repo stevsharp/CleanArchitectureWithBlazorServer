@@ -187,12 +187,12 @@
         if (model.Quantity == 0)
             model.Quantity = 1;
 
-        if (SelectedSubProducts is not null && SelectedSubProducts.RetailPrice >0 )
+        if (SelectedSubProducts is not null && SelectedSubProducts.RetailPrice > 0 && SelectedProduct is not null)
         {
             SelectedProduct.RetailPrice = SelectedSubProducts.RetailPrice;
         }
 
-        if (SelectedSubProducts is not null && SelectedSubProducts.Price > 0)
+        if (SelectedSubProducts is not null && SelectedSubProducts.Price > 0 && SelectedProduct is not null)
         {
             SelectedProduct.Price = SelectedSubProducts.Price ?? 0m;
         }

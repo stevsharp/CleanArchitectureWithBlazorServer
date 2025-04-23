@@ -28,16 +28,27 @@ public class OfferLinesWithPaginationQueryHandler(
 
     public async Task<PaginatedData<OfferLineDto>> Handle(OfferLinesWithPaginationQuery request, CancellationToken cancellationToken)
     {
-        var offerLines = await _context.Offers
-                                       .Where(x => x.Id == request.OrderId)
-                                       .SelectMany(x => x.OfferLines)
-                                       .Include(x=>x.Product)
-                                       .AsNoTracking()
-                                       .ProjectToPaginatedDataAsync(request.PageNumber,
-                                                                              request.PageSize,
-                                                                              OfferLineMapper.ToDto,
-                                                                              cancellationToken);
+        try
+        {
+            var offerLines = await _context.Offers
+                                           .Where(x => x.Id == request.OrderId)
+                                           .SelectMany(x => x.OfferLines)
+                                           .Include(x => x.Product)
+                                           .AsNoTracking()
+                                           .AsSingleQuery()
+                                           .ProjectToPaginatedDataAsync(request.PageNumber,
+                                                                                  request.PageSize,
+                                                                                  OfferLineMapper.ToDto,
+                                                                                  cancellationToken);
             return offerLines;
+        }
+        catch (Exception ex)
+        {
+            var message = $"Error in {nameof(OfferLinesWithPaginationQueryHandler)}: {ex.Message}";
+            throw;
+        }
+
+
 
     }
 }
