@@ -1,12 +1,12 @@
 ﻿@page "/"
 @using CleanArchitecture.Blazor.Server.UI.Pages.Dashboard.Components
 @using MudBlazor.Utilities
+@using MudBlazor;
 @inject IStringLocalizer<Dashboard> L
 <PageTitle>@Title</PageTitle>
 
-
-@* <MudContainer MaxWidth="MaxWidth.Large">
-    <div class="@ContentClassNames">
+@*  <MudContainer MaxWidth="MaxWidth.Large">
+     <div class="@ContentClassNames">
         <MudPaper Class="pa-4 mb-3">
             <style>
 
@@ -273,24 +273,68 @@
                 </MudSimpleTable>
             }
         </div>
-    </div>
+    </div> 
 
-    <LandingSection StraightEnd="true" SectionClass="dark-section-text" BackgroundClass="mud-dark">
+@*     <LandingSection StraightEnd="true" SectionClass="dark-section-text" BackgroundClass="mud-dark">
         <MudText Typo="Typo.h3" Align="Align.Center" Class="mt-16 mb-8">“Never had such a good time making a site“</MudText>
          <Carousel />
-    </LandingSection>
-</MudContainer> *@
+    </LandingSection> 
+    
+</MudContainer>     
+    *@
+
+
+
+
+<MudContainer MaxWidth="MaxWidth.Large">
+    <MudGrid GutterSize="3">
+        <!-- Sales Summary -->
+        <MudItem xs="12" sm="6" md="4">
+            <MudPaper Class="pa-4 d-flex flex-column rounded-lg">
+                <MudText Typo="Typo.h6">Sales Summary</MudText>
+                <MudText Typo="Typo.subtitle2">Total Sales This Month</MudText>
+                <MudText Typo="Typo.h4" Class="fw-bold">€298,450</MudText>
+
+                <MudDivider Class="my-3" />
+                <MudText Typo="Typo.subtitle2">Order Breakdown</MudText>
+                <MudProgressLinear Value="70" Color="Color.Primary" Label="Online: 210" />
+                <MudProgressLinear Value="30" Color="Color.Secondary" Label="Retail: 90" />
+            </MudPaper>
+        </MudItem>
+
+        <!-- Customer Overview -->
+        <MudItem xs="12" sm="6" md="4">
+            <MudPaper Class="pa-4 d-flex flex-column rounded-lg">
+                <MudText Typo="Typo.h6">Customer Overview</MudText>
+                <MudText Typo="Typo.subtitle2">Active Customers</MudText>
+                <MudText Typo="Typo.h4" Class="fw-bold">842</MudText>
+
+                <MudDivider Class="my-3" />
+                <MudText Typo="Typo.subtitle2">Top Region</MudText>
+                <MudChip T="string" Color="Color.Success" Variant="Variant.Filled">Greece</MudChip>
+                <MudText Typo="Typo.caption" Class="mt-2">+15% vs last month</MudText>
+            </MudPaper>
+        </MudItem>
+
+        <!-- Product Stock -->
+        <MudItem xs="12" sm="12" md="4">
+            <MudPaper Class="pa-4 d-flex flex-column rounded-lg">
+                <MudText Typo="Typo.h6">Stock Status</MudText>
+                @foreach (var item in StockItems)
+                {
+                    <div class="d-flex align-center justify-between my-1">
+                        <MudText Typo="Typo.body2">@item.Name</MudText>
+                        <MudChip T="string" Color="@GetStockColor(item.Stock)" Variant="Variant.Outlined">@item.Stock</MudChip>
+                    </div>
+                }
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
 
 <MudGrid Class="mobile-menu">
     @foreach (var item in MenuItems)
     {
-@*         <MudItem xs="6" sm="4" md="3">
-            <MudPaper Class="menu-tile" Elevation="3" OnClick="@(() => NavigateTo(item.Link))">
-                <MudIcon Icon="@item.Icon" Size="Size.Large" />
-                <MudText Typo="Typo.subtitle2" OnClick="@(() => NavigateTo(item.Link))" Align="Align.Center">@item.Title</MudText>
-            </MudPaper>
-        </MudItem> *@
-
          <MudItem xs="6" sm="4" md="3">
         <MudPaper Class="menu-tile animated-tile"
                   Elevation="3"
@@ -397,6 +441,27 @@
         {
             return $"{Sign} - {Name}";
         }
+    }
+    public class StockEntry
+    {
+        public string Name { get; set; }
+        public int Stock { get; set; }
+    }
+
+    List<StockEntry> StockItems = new()
+    {
+        new StockEntry { Name = "Hair Serum Pro", Stock = 120 },
+        new StockEntry { Name = "Vitamin D3", Stock = 45 },
+        new StockEntry { Name = "Scalp Shampoo", Stock = 8 },
+        new StockEntry { Name = "Conditioner", Stock = 75 },
+        new StockEntry { Name = "Spray Therapy", Stock = 12 }
+    };
+
+    Color GetStockColor(int stock)
+    {
+        if (stock > 50) return Color.Success;
+        if (stock > 10) return Color.Warning;
+        return Color.Error;
     }
 
     protected override void OnInitialized()
