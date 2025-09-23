@@ -25,4 +25,7 @@
     <ItemGroup>
         <ProjectReference Include="..\Application\Application.csproj" />
     </ItemGroup>
+    <ItemGroup>
+      <Folder Include="PermissionSet\" />
+    </ItemGroup>
 </Project>

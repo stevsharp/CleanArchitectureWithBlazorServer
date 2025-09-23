@@ -30,6 +30,7 @@ public class ApplicationDbContext : IdentityDbContext<
     public DbSet<LoginAudit> LoginAudits { get; set; }
     public DbSet<UserLoginRiskSummary> UserLoginRiskSummaries { get; set; }
     public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
+    public DbSet<Venue> Venues { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
