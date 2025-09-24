@@ -1,0 +1,95 @@
+﻿@page "/pages/purchaseorders/create"
+@using CleanArchitecture.Blazor.Application.Features.PurchaseOrders.Commands.Create
+
+@inherits MudComponentBase
+@inject IValidationService Validator
+@inject IStringLocalizer<PurchaseOrders> L
+@attribute [Authorize(Policy = Permissions.PurchaseOrders.Create)]
+
+<PageTitle>@Title</PageTitle>
+<Breadcrumbs OnSaveButtonClick="OnSubmit" Saving="_saving" BreadcrumbItems="_breadcrumbItems"></Breadcrumbs>
+<MudContainer Class="mt-3" MaxWidth="MaxWidth.Large">
+    <MudCard Class="pa-2">
+        <MudCardHeader>
+            <CardHeaderContent>
+                 <MudText Typo="Typo.h6">@Title</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+        <MudForm Model="@_model" @ref="@_purchaseorderForm" Validation="@(Validator.ValidateValue(_model))">
+            <MudGrid Spacing="2">
+                <MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.VendorId)]" @bind-Value="_model.VendorId" For="@(() => _model.VendorId)" Min="0" Required="false" RequiredError="@L["vendor id is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.ProjectId)]" @bind-Value="_model.ProjectId" For="@(() => _model.ProjectId)" Min="0" Required="false" RequiredError="@L["project id is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.Amount)]" @bind-Value="_model.Amount" For="@(() => _model.Amount)" Min="0.00m" Required="false" RequiredError="@L["amount is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudDatePicker Label="@L[_model.GetMemberDescription(x=>x.Date)]" @bind-Date="_model.Date" For="@(() => _model.Date)" Required="false" RequiredError="@L["date is required!"]"></MudDatePicker>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudEnumSelect TEnum="Nullable<PurchaseOrderStatus>" Label="@L[_model.GetMemberDescription(x=>x.Status)]" @bind-Value="_model.Status" For="@(() => _model.Status)" Required="false" RequiredError="@L["status is required!"]"></MudEnumSelect>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudTextField Label="@L[_model.GetMemberDescription(x=>x.ExternalNumber)]" @bind-Value="_model.ExternalNumber" For="@(() => _model.ExternalNumber)" Required="false" RequiredError="@L["external number is required!"]"></MudTextField>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudTextField Label="@L[_model.GetMemberDescription(x=>x.Notes)]" @bind-Value="_model.Notes" For="@(() => _model.Notes)" Required="false" RequiredError="@L["notes is required!"]"></MudTextField>
+                </MudItem> 
+
+            </MudGrid>
+        </MudForm>
+        </MudCardContent>
+         <MudCardActions Class="d-flex justify-end gap-2">
+                    <MudLoadingButton Color="Color.Primary" DropShadow="false" Loading="@_saving" OnClick="OnSubmit">@ConstantString.Save</MudLoadingButton>
+         </MudCardActions>
+        </MudCard>
+</MudContainer>
+ 
+
+@code {
+    public string? Title { get; private set; }
+    MudForm? _purchaseorderForm;
+    private bool _saving = false;
+    private List<BreadcrumbItem>? _breadcrumbItems;
+    private CreatePurchaseOrderCommand _model = new();
+    protected override Task OnInitializedAsync()
+    {
+        Title = L["New PurchaseOrder"];
+        _breadcrumbItems = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem(L["Home"], href: "/"),
+            new BreadcrumbItem(L["PurchaseOrders"], href: "/pages/purchaseorders"),
+            new BreadcrumbItem(L["Create PurchaseOrder"], href:null, disabled:true)
+        };
+        return Task.CompletedTask;
+    }
+    async Task OnSubmit()
+    {
+        try
+        {
+            _saving = true;
+            await _purchaseorderForm!.Validate().ConfigureAwait(false);
+            if (!_purchaseorderForm!.IsValid)
+                return;
+            var result = await Mediator.Send(_model);
+            result.Match(
+                data=>
+                {
+                    Snackbar.Add(ConstantString.SaveSuccess, MudBlazor.Severity.Info);
+                    Navigation.NavigateTo($"/pages/PurchaseOrders");
+                },
+                errors=>
+                {
+                    Snackbar.Add(errors, MudBlazor.Severity.Error);
+                });
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}

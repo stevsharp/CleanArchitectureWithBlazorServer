@@ -1,0 +1,104 @@
+﻿@page "/pages/quoteversions/edit/{id:int}"
+@using CleanArchitecture.Blazor.Application.Features.QuoteVersions.Commands.Update
+@using CleanArchitecture.Blazor.Application.Features.QuoteVersions.Queries.GetById
+@using CleanArchitecture.Blazor.Server.UI.Components.Fusion
+
+@inherits MudComponentBase
+@inject IValidationService Validator
+@inject IStringLocalizer<QuoteVersions> L
+@attribute [Authorize(Policy = Permissions.QuoteVersions.Edit)]
+
+<PageTitle>@Title</PageTitle>
+<Breadcrumbs OnSaveButtonClick="OnSubmit" Saving="_saving" BreadcrumbItems="_breadcrumbItems"></Breadcrumbs>
+<MudContainer Class="mt-3" MaxWidth="MaxWidth.Large">
+@if (_model != null)
+{
+    <MudCard Class="pa-2">
+        <MudCardHeader>
+            <CardHeaderContent>
+                 <MudText Typo="Typo.h6">@Title</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+        <ActiveUserSession PageComponent="@($"{nameof(EditQuoteVersion)}/{ _model.Id }")" />
+        <MudForm Model="@_model" @ref="@_quoteversionForm" Validation="@(Validator.ValidateValue(_model))">
+            <MudGrid Spacing="2">
+                <MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.QuoteId)]" @bind-Value="_model.QuoteId" For="@(() => _model.QuoteId)" Min="0" Required="false" RequiredError="@L["quote id is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.VersionNumber)]" @bind-Value="_model.VersionNumber" For="@(() => _model.VersionNumber)" Min="0" Required="false" RequiredError="@L["version number is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudDatePicker Label="@L[_model.GetMemberDescription(x=>x.CreatedAtUtc)]" @bind-Date="_model.CreatedAtUtc" For="@(() => _model.CreatedAtUtc)" Required="false" RequiredError="@L["created at utc is required!"]"></MudDatePicker>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.CreatedByEmployeeId)]" @bind-Value="_model.CreatedByEmployeeId" For="@(() => _model.CreatedByEmployeeId)" Min="0" Required="false" RequiredError="@L["created by employee id is required!"]"></MudNumericField >
+                </MudItem> 
+
+            </MudGrid>
+        </MudForm>
+        </MudCardContent>
+        <MudCardActions Class="d-flex justify-end gap-2">
+                    <MudLoadingButton Color="Color.Primary" DropShadow="false" Loading="@_saving" OnClick="OnSubmit">@ConstantString.Save</MudLoadingButton>
+        </MudCardActions>
+        </MudCard>
+    }
+</MudContainer>
+ 
+
+@code {
+    public string? Title { get; private set; }
+    [Parameter]
+    public int Id { get; set; }
+    MudForm? _quoteversionForm;
+    private bool _saving = false;
+    private List<BreadcrumbItem>? _breadcrumbItems;
+    private UpdateQuoteVersionCommand? _model;
+    protected override async Task OnInitializedAsync()
+    {
+        Title = L["Edit QuoteVersion"];
+        _breadcrumbItems = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem(L["Home"], href: "/"),
+            new BreadcrumbItem(L["QuoteVersions"], href: "/pages/quoteversions")
+        };
+        var result = await Mediator.Send(new GetQuoteVersionByIdQuery() { Id = Id });
+        result.Map(data =>
+        {
+            _model = Mapper.Map<UpdateQuoteVersionCommand>(data);
+            return data;
+        }).Match(data =>
+        {
+            _breadcrumbItems.Add(new BreadcrumbItem(data.Name, href: $"/pages/quoteversions/edit/{Id}"));
+        }, errors =>
+        {
+            Snackbar.Add($"{errors}", Severity.Error);
+        });
+
+    }
+    async Task OnSubmit()
+    {
+        try
+        {
+            _saving = true;
+            await _quoteversionForm!.Validate().ConfigureAwait(false);
+            if (!_quoteversionForm!.IsValid)
+                return;
+            var result = await Mediator.Send(_model);
+            result.Match(
+                data=>
+                {
+                    Snackbar.Add(ConstantString.SaveSuccess, MudBlazor.Severity.Info);
+                },
+                errors=>
+                {
+                    Snackbar.Add(errors, MudBlazor.Severity.Error);
+                });
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}

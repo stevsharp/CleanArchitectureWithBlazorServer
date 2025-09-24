@@ -1,0 +1,80 @@
+﻿@page "/pages/servicecategories/view/{id:int}"
+@using CleanArchitecture.Blazor.Application.Features.ServiceCategories.Commands.Delete
+@using CleanArchitecture.Blazor.Application.Features.ServiceCategories.DTOs
+@using CleanArchitecture.Blazor.Application.Features.ServiceCategories.Queries.GetById
+@inherits MudComponentBase
+@inject IStringLocalizer<ServiceCategories> L
+@attribute [Authorize(Policy = Permissions.ServiceCategories.View)]
+<PageTitle>@Title</PageTitle>
+<Breadcrumbs  OnGoEditClick="GoEdit" OnDeleteClick="Delete" BreadcrumbItems="_breadcrumbItems"></Breadcrumbs>
+<MudContainer Class="mt-3" MaxWidth="MaxWidth.Large">
+@if (_model != null)
+{
+    <MudCard Class="pa-2">
+        <MudCardHeader>
+            <CardHeaderContent>
+                 <MudText Typo="Typo.h6">@Title</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudGrid Spacing="3" Class="readonly-grid">
+                <MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[_model.GetMemberDescription(x=>x.Name)]" Value="_model.Name"></ReadOnlyFieldX6>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[_model.GetMemberDescription(x=>x.Description)]" Value="_model.Description"></ReadOnlyFieldX6>
+                </MudItem> 
+
+            </MudGrid>
+        </MudCardContent>
+        <MudCardActions></MudCardActions>
+    </MudCard>
+ }
+</MudContainer>
+ 
+
+@code {
+    public string? Title { get; private set; }
+    [Parameter]
+    public int Id { get; set; }
+    private List<BreadcrumbItem>? _breadcrumbItems; 
+    private ServiceCategoryDto? _model;
+    protected override async Task OnInitializedAsync()
+    {
+        Title = L["ServiceCategory"];
+        _breadcrumbItems = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem(L["Home"], href: "/"),
+            new BreadcrumbItem(L["ServiceCategories"], href: "/pages/servicecategories")
+        };
+        var result = await Mediator.Send(new GetServiceCategoryByIdQuery() { Id = Id });
+        result.Map(data =>
+        {
+            _model = data;
+            return data;
+        }).Match(data =>
+        {
+            _breadcrumbItems.Add(new BreadcrumbItem(data.Name, null, disabled: true));
+        }, errors =>
+        {
+            Snackbar.Add(errors, MudBlazor.Severity.Error);
+        });
+
+    }
+    void GoEdit()
+    {
+        Navigation.NavigateTo($"/pages/ServiceCategories/edit/{Id}");
+    }
+    async Task Delete()
+    {
+        var contentText = string.Format(ConstantString.DeleteConfirmation, _model.Name);
+        var command = new DeleteServiceCategoryCommand(new int[] { _model.Id });
+        await DialogServiceHelper.ShowDeleteConfirmationDialogAsync(command, ConstantString.DeleteConfirmationTitle, contentText, async () =>
+        {
+            await InvokeAsync(() =>
+            {
+                Navigation.NavigateTo($"/pages/ServiceCategories");
+            });
+        });
+    }
+}

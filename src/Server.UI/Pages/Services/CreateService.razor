@@ -1,0 +1,86 @@
+﻿@page "/pages/services/create"
+@using CleanArchitecture.Blazor.Application.Features.Services.Commands.Create
+
+@inherits MudComponentBase
+@inject IValidationService Validator
+@inject IStringLocalizer<Services> L
+@attribute [Authorize(Policy = Permissions.Services.Create)]
+
+<PageTitle>@Title</PageTitle>
+<Breadcrumbs OnSaveButtonClick="OnSubmit" Saving="_saving" BreadcrumbItems="_breadcrumbItems"></Breadcrumbs>
+<MudContainer Class="mt-3" MaxWidth="MaxWidth.Large">
+    <MudCard Class="pa-2">
+        <MudCardHeader>
+            <CardHeaderContent>
+                 <MudText Typo="Typo.h6">@Title</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+        <MudForm Model="@_model" @ref="@_serviceForm" Validation="@(Validator.ValidateValue(_model))">
+            <MudGrid Spacing="2">
+                <MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.ServiceCategoryId)]" @bind-Value="_model.ServiceCategoryId" For="@(() => _model.ServiceCategoryId)" Min="0" Required="false" RequiredError="@L["service category id is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudTextField Label="@L[_model.GetMemberDescription(x=>x.Name)]" @bind-Value="_model.Name" For="@(() => _model.Name)" Required="true" RequiredError="@L["name is required!"]"></MudTextField>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudTextField Label="@L[_model.GetMemberDescription(x=>x.Description)]"  For="@(() => _model.Description)" @bind-Value="_model.Description"></MudTextField>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudEnumSelect TEnum="Nullable<PricingModelType>" Label="@L[_model.GetMemberDescription(x=>x.DefaultPricingModel)]" @bind-Value="_model.DefaultPricingModel" For="@(() => _model.DefaultPricingModel)" Required="false" RequiredError="@L["default pricing model is required!"]"></MudEnumSelect>
+                </MudItem> 
+
+            </MudGrid>
+        </MudForm>
+        </MudCardContent>
+         <MudCardActions Class="d-flex justify-end gap-2">
+                    <MudLoadingButton Color="Color.Primary" DropShadow="false" Loading="@_saving" OnClick="OnSubmit">@ConstantString.Save</MudLoadingButton>
+         </MudCardActions>
+        </MudCard>
+</MudContainer>
+ 
+
+@code {
+    public string? Title { get; private set; }
+    MudForm? _serviceForm;
+    private bool _saving = false;
+    private List<BreadcrumbItem>? _breadcrumbItems;
+    private CreateServiceCommand _model = new();
+    protected override Task OnInitializedAsync()
+    {
+        Title = L["New Service"];
+        _breadcrumbItems = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem(L["Home"], href: "/"),
+            new BreadcrumbItem(L["Services"], href: "/pages/services"),
+            new BreadcrumbItem(L["Create Service"], href:null, disabled:true)
+        };
+        return Task.CompletedTask;
+    }
+    async Task OnSubmit()
+    {
+        try
+        {
+            _saving = true;
+            await _serviceForm!.Validate().ConfigureAwait(false);
+            if (!_serviceForm!.IsValid)
+                return;
+            var result = await Mediator.Send(_model);
+            result.Match(
+                data=>
+                {
+                    Snackbar.Add(ConstantString.SaveSuccess, MudBlazor.Severity.Info);
+                    Navigation.NavigateTo($"/pages/Services");
+                },
+                errors=>
+                {
+                    Snackbar.Add(errors, MudBlazor.Severity.Error);
+                });
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}

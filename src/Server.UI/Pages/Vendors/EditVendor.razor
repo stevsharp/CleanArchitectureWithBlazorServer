@@ -1,0 +1,101 @@
+﻿@page "/pages/vendors/edit/{id:int}"
+@using CleanArchitecture.Blazor.Application.Features.Vendors.Commands.Update
+@using CleanArchitecture.Blazor.Application.Features.Vendors.Queries.GetById
+@using CleanArchitecture.Blazor.Server.UI.Components.Fusion
+
+@inherits MudComponentBase
+@inject IValidationService Validator
+@inject IStringLocalizer<Vendors> L
+@attribute [Authorize(Policy = Permissions.Vendors.Edit)]
+
+<PageTitle>@Title</PageTitle>
+<Breadcrumbs OnSaveButtonClick="OnSubmit" Saving="_saving" BreadcrumbItems="_breadcrumbItems"></Breadcrumbs>
+<MudContainer Class="mt-3" MaxWidth="MaxWidth.Large">
+@if (_model != null)
+{
+    <MudCard Class="pa-2">
+        <MudCardHeader>
+            <CardHeaderContent>
+                 <MudText Typo="Typo.h6">@Title</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+        <ActiveUserSession PageComponent="@($"{nameof(EditVendor)}/{ _model.Id }")" />
+        <MudForm Model="@_model" @ref="@_vendorForm" Validation="@(Validator.ValidateValue(_model))">
+            <MudGrid Spacing="2">
+                <MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.CompanyId)]" @bind-Value="_model.CompanyId" For="@(() => _model.CompanyId)" Min="0" Required="false" RequiredError="@L["company id is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.ServiceCategoryId)]" @bind-Value="_model.ServiceCategoryId" For="@(() => _model.ServiceCategoryId)" Min="0" Required="false" RequiredError="@L["service category id is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudTextField Label="@L[_model.GetMemberDescription(x=>x.Terms)]" @bind-Value="_model.Terms" For="@(() => _model.Terms)" Required="false" RequiredError="@L["terms is required!"]"></MudTextField>
+                </MudItem> 
+
+            </MudGrid>
+        </MudForm>
+        </MudCardContent>
+        <MudCardActions Class="d-flex justify-end gap-2">
+                    <MudLoadingButton Color="Color.Primary" DropShadow="false" Loading="@_saving" OnClick="OnSubmit">@ConstantString.Save</MudLoadingButton>
+        </MudCardActions>
+        </MudCard>
+    }
+</MudContainer>
+ 
+
+@code {
+    public string? Title { get; private set; }
+    [Parameter]
+    public int Id { get; set; }
+    MudForm? _vendorForm;
+    private bool _saving = false;
+    private List<BreadcrumbItem>? _breadcrumbItems;
+    private UpdateVendorCommand? _model;
+    protected override async Task OnInitializedAsync()
+    {
+        Title = L["Edit Vendor"];
+        _breadcrumbItems = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem(L["Home"], href: "/"),
+            new BreadcrumbItem(L["Vendors"], href: "/pages/vendors")
+        };
+        var result = await Mediator.Send(new GetVendorByIdQuery() { Id = Id });
+        result.Map(data =>
+        {
+            _model = Mapper.Map<UpdateVendorCommand>(data);
+            return data;
+        }).Match(data =>
+        {
+            _breadcrumbItems.Add(new BreadcrumbItem(data.Name, href: $"/pages/vendors/edit/{Id}"));
+        }, errors =>
+        {
+            Snackbar.Add($"{errors}", Severity.Error);
+        });
+
+    }
+    async Task OnSubmit()
+    {
+        try
+        {
+            _saving = true;
+            await _vendorForm!.Validate().ConfigureAwait(false);
+            if (!_vendorForm!.IsValid)
+                return;
+            var result = await Mediator.Send(_model);
+            result.Match(
+                data=>
+                {
+                    Snackbar.Add(ConstantString.SaveSuccess, MudBlazor.Severity.Info);
+                },
+                errors=>
+                {
+                    Snackbar.Add(errors, MudBlazor.Severity.Error);
+                });
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}

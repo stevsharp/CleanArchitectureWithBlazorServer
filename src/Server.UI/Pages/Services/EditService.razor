@@ -1,0 +1,104 @@
+﻿@page "/pages/services/edit/{id:int}"
+@using CleanArchitecture.Blazor.Application.Features.Services.Commands.Update
+@using CleanArchitecture.Blazor.Application.Features.Services.Queries.GetById
+@using CleanArchitecture.Blazor.Server.UI.Components.Fusion
+
+@inherits MudComponentBase
+@inject IValidationService Validator
+@inject IStringLocalizer<Services> L
+@attribute [Authorize(Policy = Permissions.Services.Edit)]
+
+<PageTitle>@Title</PageTitle>
+<Breadcrumbs OnSaveButtonClick="OnSubmit" Saving="_saving" BreadcrumbItems="_breadcrumbItems"></Breadcrumbs>
+<MudContainer Class="mt-3" MaxWidth="MaxWidth.Large">
+@if (_model != null)
+{
+    <MudCard Class="pa-2">
+        <MudCardHeader>
+            <CardHeaderContent>
+                 <MudText Typo="Typo.h6">@Title</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+        <ActiveUserSession PageComponent="@($"{nameof(EditService)}/{ _model.Id }")" />
+        <MudForm Model="@_model" @ref="@_serviceForm" Validation="@(Validator.ValidateValue(_model))">
+            <MudGrid Spacing="2">
+                <MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.ServiceCategoryId)]" @bind-Value="_model.ServiceCategoryId" For="@(() => _model.ServiceCategoryId)" Min="0" Required="false" RequiredError="@L["service category id is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudTextField Label="@L[_model.GetMemberDescription(x=>x.Name)]" @bind-Value="_model.Name" For="@(() => _model.Name)" Required="true" RequiredError="@L["name is required!"]"></MudTextField>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudTextField Label="@L[_model.GetMemberDescription(x=>x.Description)]"  For="@(() => _model.Description)" @bind-Value="_model.Description"></MudTextField>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudEnumSelect TEnum="Nullable<PricingModelType>" Label="@L[_model.GetMemberDescription(x=>x.DefaultPricingModel)]" @bind-Value="_model.DefaultPricingModel" For="@(() => _model.DefaultPricingModel)" Required="false" RequiredError="@L["default pricing model is required!"]"></MudEnumSelect>
+                </MudItem> 
+
+            </MudGrid>
+        </MudForm>
+        </MudCardContent>
+        <MudCardActions Class="d-flex justify-end gap-2">
+                    <MudLoadingButton Color="Color.Primary" DropShadow="false" Loading="@_saving" OnClick="OnSubmit">@ConstantString.Save</MudLoadingButton>
+        </MudCardActions>
+        </MudCard>
+    }
+</MudContainer>
+ 
+
+@code {
+    public string? Title { get; private set; }
+    [Parameter]
+    public int Id { get; set; }
+    MudForm? _serviceForm;
+    private bool _saving = false;
+    private List<BreadcrumbItem>? _breadcrumbItems;
+    private UpdateServiceCommand? _model;
+    protected override async Task OnInitializedAsync()
+    {
+        Title = L["Edit Service"];
+        _breadcrumbItems = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem(L["Home"], href: "/"),
+            new BreadcrumbItem(L["Services"], href: "/pages/services")
+        };
+        var result = await Mediator.Send(new GetServiceByIdQuery() { Id = Id });
+        result.Map(data =>
+        {
+            _model = Mapper.Map<UpdateServiceCommand>(data);
+            return data;
+        }).Match(data =>
+        {
+            _breadcrumbItems.Add(new BreadcrumbItem(data.Name, href: $"/pages/services/edit/{Id}"));
+        }, errors =>
+        {
+            Snackbar.Add($"{errors}", Severity.Error);
+        });
+
+    }
+    async Task OnSubmit()
+    {
+        try
+        {
+            _saving = true;
+            await _serviceForm!.Validate().ConfigureAwait(false);
+            if (!_serviceForm!.IsValid)
+                return;
+            var result = await Mediator.Send(_model);
+            result.Match(
+                data=>
+                {
+                    Snackbar.Add(ConstantString.SaveSuccess, MudBlazor.Severity.Info);
+                },
+                errors=>
+                {
+                    Snackbar.Add(errors, MudBlazor.Severity.Error);
+                });
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}

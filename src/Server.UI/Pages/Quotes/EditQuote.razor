@@ -1,0 +1,116 @@
+﻿@page "/pages/quotes/edit/{id:int}"
+@using CleanArchitecture.Blazor.Application.Features.Quotes.Commands.Update
+@using CleanArchitecture.Blazor.Application.Features.Quotes.Queries.GetById
+@using CleanArchitecture.Blazor.Server.UI.Components.Fusion
+
+@inherits MudComponentBase
+@inject IValidationService Validator
+@inject IStringLocalizer<Quotes> L
+@attribute [Authorize(Policy = Permissions.Quotes.Edit)]
+
+<PageTitle>@Title</PageTitle>
+<Breadcrumbs OnSaveButtonClick="OnSubmit" Saving="_saving" BreadcrumbItems="_breadcrumbItems"></Breadcrumbs>
+<MudContainer Class="mt-3" MaxWidth="MaxWidth.Large">
+@if (_model != null)
+{
+    <MudCard Class="pa-2">
+        <MudCardHeader>
+            <CardHeaderContent>
+                 <MudText Typo="Typo.h6">@Title</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+        <ActiveUserSession PageComponent="@($"{nameof(EditQuote)}/{ _model.Id }")" />
+        <MudForm Model="@_model" @ref="@_quoteForm" Validation="@(Validator.ValidateValue(_model))">
+            <MudGrid Spacing="2">
+                <MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.CompanyId)]" @bind-Value="_model.CompanyId" For="@(() => _model.CompanyId)" Min="0" Required="false" RequiredError="@L["company id is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudTextField Label="@L[_model.GetMemberDescription(x=>x.Title)]" @bind-Value="_model.Title" For="@(() => _model.Title)" Required="false" RequiredError="@L["title is required!"]"></MudTextField>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.OwnerId)]" @bind-Value="_model.OwnerId" For="@(() => _model.OwnerId)" Min="0" Required="false" RequiredError="@L["owner id is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudEnumSelect TEnum="Nullable<QuoteStatus>" Label="@L[_model.GetMemberDescription(x=>x.Status)]" @bind-Value="_model.Status" For="@(() => _model.Status)" Required="false" RequiredError="@L["status is required!"]"></MudEnumSelect>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudDatePicker Label="@L[_model.GetMemberDescription(x=>x.ValidUntil)]" @bind-Date="_model.ValidUntil" For="@(() => _model.ValidUntil)" Required="false" RequiredError="@L["valid until is required!"]"></MudDatePicker>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudTextField Label="@L[_model.GetMemberDescription(x=>x.Currency)]" @bind-Value="_model.Currency" For="@(() => _model.Currency)" Required="false" RequiredError="@L["currency is required!"]"></MudTextField>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.TotalAmount)]" @bind-Value="_model.TotalAmount" For="@(() => _model.TotalAmount)" Min="0.00m" Required="false" RequiredError="@L["total amount is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.MarginPct)]" @bind-Value="_model.MarginPct" For="@(() => _model.MarginPct)" Min="0.00m" Required="false" RequiredError="@L["margin pct is required!"]"></MudNumericField >
+                </MudItem> 
+
+            </MudGrid>
+        </MudForm>
+        </MudCardContent>
+        <MudCardActions Class="d-flex justify-end gap-2">
+                    <MudLoadingButton Color="Color.Primary" DropShadow="false" Loading="@_saving" OnClick="OnSubmit">@ConstantString.Save</MudLoadingButton>
+        </MudCardActions>
+        </MudCard>
+    }
+</MudContainer>
+ 
+
+@code {
+    public string? Title { get; private set; }
+    [Parameter]
+    public int Id { get; set; }
+    MudForm? _quoteForm;
+    private bool _saving = false;
+    private List<BreadcrumbItem>? _breadcrumbItems;
+    private UpdateQuoteCommand? _model;
+    protected override async Task OnInitializedAsync()
+    {
+        Title = L["Edit Quote"];
+        _breadcrumbItems = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem(L["Home"], href: "/"),
+            new BreadcrumbItem(L["Quotes"], href: "/pages/quotes")
+        };
+        var result = await Mediator.Send(new GetQuoteByIdQuery() { Id = Id });
+        result.Map(data =>
+        {
+            _model = Mapper.Map<UpdateQuoteCommand>(data);
+            return data;
+        }).Match(data =>
+        {
+            _breadcrumbItems.Add(new BreadcrumbItem(data.Name, href: $"/pages/quotes/edit/{Id}"));
+        }, errors =>
+        {
+            Snackbar.Add($"{errors}", Severity.Error);
+        });
+
+    }
+    async Task OnSubmit()
+    {
+        try
+        {
+            _saving = true;
+            await _quoteForm!.Validate().ConfigureAwait(false);
+            if (!_quoteForm!.IsValid)
+                return;
+            var result = await Mediator.Send(_model);
+            result.Match(
+                data=>
+                {
+                    Snackbar.Add(ConstantString.SaveSuccess, MudBlazor.Severity.Info);
+                },
+                errors=>
+                {
+                    Snackbar.Add(errors, MudBlazor.Severity.Error);
+                });
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}

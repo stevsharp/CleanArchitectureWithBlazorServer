@@ -1,0 +1,346 @@
+﻿@page "/pages/costitems"
+
+@using CleanArchitecture.Blazor.Application.Features.CostItems.Caching
+@using CleanArchitecture.Blazor.Application.Features.CostItems.DTOs
+@using CleanArchitecture.Blazor.Application.Features.CostItems.Specifications
+@using CleanArchitecture.Blazor.Application.Features.CostItems.Commands.Delete
+@using CleanArchitecture.Blazor.Application.Features.CostItems.Commands.Import
+@using CleanArchitecture.Blazor.Application.Features.CostItems.Queries.Export
+@using CleanArchitecture.Blazor.Application.Features.CostItems.Queries.Pagination
+@using CleanArchitecture.Blazor.Application.Features.CostItems.Commands.AddEdit
+@using CleanArchitecture.Blazor.Server.UI.Pages.CostItems.Components
+
+@inject IStringLocalizer<CostItems> L
+@inject BlazorDownloadFileService BlazorDownloadFileService
+
+@attribute [Authorize(Policy = Permissions.CostItems.View)]
+<PageTitle>@Title</PageTitle>
+
+<MudDataGrid ServerData="@(ServerReload)"
+                  FixedHeader="true"
+                  FixedFooter="false"
+                  Virtualize="false"
+                  @bind-RowsPerPage="_defaultPageSize"
+                  Loading="@_loading"
+                  MultiSelection="true"
+                  T="CostItemDto"
+                  SelectOnRowClick="false"
+                  RowClick="@(s=>OnDataGridRowClick(s.Item))"
+                  @bind-SelectedItems="_selectedCostItems"
+                  Hover="true" @ref="_costitemsGrid">
+            <ToolBarContent>
+                 <MudStack Row Spacing="0" Class="flex-grow-1" Justify="Justify.SpaceBetween">
+            <MudStack Row AlignItems="AlignItems.Start">
+                <MudIcon Icon="@Icons.Material.Filled.Window" Size="Size.Large" />
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.subtitle2" Class="mb-2">@Title</MudText>
+                    <MudEnumSelect Style="min-width:120px" TEnum="CostItemListView" ValueChanged="OnListViewChanged" Value="_costitemsQuery.ListView" Dense="true" Label="@L["List View"]">
+                    </MudEnumSelect>
+                </MudStack>
+            </MudStack>
+            <MudStack Spacing="0" AlignItems="AlignItems.End">
+                <MudToolBar Dense WrapContent="true" Class="py-1 px-0">
+                    <MudButton Disabled="@_loading"
+                               OnClick="@(() => OnRefresh())"
+                               StartIcon="@Icons.Material.Outlined.Refresh">
+                        @ConstantString.Refresh
+                    </MudButton>
+                    @if (_accessRights.Create)
+                    {
+                        <MudButton StartIcon="@Icons.Material.Outlined.Add"
+                                   OnClick="OnCreate">
+                            @ConstantString.New
+                        </MudButton>
+                    }
+                    <MudMenu TransformOrigin="Origin.BottomRight" AnchorOrigin="Origin.BottomRight" EndIcon="@Icons.Material.Filled.MoreVert" Label="@ConstantString.More">
+                        @if (_accessRights.Create)
+                        {
+                            <MudMenuItem Disabled="@(_selectedCostItems.Count != 1)" OnClick="OnCloneCostItem">@ConstantString.Clone</MudMenuItem>
+                        }
+                        @if (_accessRights.Delete)
+                        {
+                            <MudMenuItem Disabled="@(!(_selectedCostItems.Count > 0))"
+                                         OnClick="OnDeleteSelectedCostItems">
+                                @ConstantString.Delete
+                            </MudMenuItem>
+                        }
+                        @if (_accessRights.Export)
+                        {
+                            <MudMenuItem Disabled="@_exporting"
+                                         OnClick="OnExport">
+                                @ConstantString.Export
+                            </MudMenuItem>
+                        }
+                        @if (_accessRights.Import)
+                        {
+                            <MudMenuItem>
+                                <MudFileUpload T="IBrowserFile" FilesChanged="OnImportData" Accept=".xlsx">
+                                    <ActivatorContent>
+                                        <MudButton Class="pa-0 ma-0" Style="font-weight:400;text-transform:none;"
+                                                   Variant="Variant.Text"
+                                                   Disabled="@_uploading">
+                                            @ConstantString.Import
+                                        </MudButton>
+                                    </ActivatorContent>
+                                </MudFileUpload>
+                            </MudMenuItem>
+                        }
+                    </MudMenu>
+                </MudToolBar>
+                <MudStack Row Spacing="1">
+                    @if (_accessRights.Search)
+                    {
+                        <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Value="@_costitemsQuery.Keyword" Placeholder="@ConstantString.Search" Adornment="Adornment.End"
+                                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Small">
+                        </MudTextField>
+                    }
+                </MudStack>
+            </MudStack>
+        </MudStack>
+            </ToolBarContent>
+            <Columns>
+                <SelectColumn ShowInFooter="false"></SelectColumn>
+                <TemplateColumn HeaderStyle="width:60px" Title="@ConstantString.Actions" Sortable="false">
+                    <CellTemplate>
+                        @if (_accessRights.Edit || _accessRights.Delete)
+                        {
+                            <MudMenu Icon="@Icons.Material.Filled.Edit" Variant="Variant.Filled" Size="Size.Small"
+                                     Dense="true"
+                                     EndIcon="@Icons.Material.Filled.KeyboardArrowDown" IconColor="Color.Info" AnchorOrigin="Origin.CenterLeft">
+                                @if (_accessRights.Edit)
+                                {
+                                    <MudMenuItem OnClick="@(()=>OnEditCostItem(context.Item))">@ConstantString.Edit</MudMenuItem>
+                                }
+                                @if (_accessRights.Delete)
+                                {
+                                    <MudMenuItem OnClick="@(()=>OnDeleteCostItem(context.Item))">@ConstantString.Delete</MudMenuItem>
+                                }
+                            </MudMenu>
+                        }
+                        else
+                        {
+                            <MudIconButton Variant="Variant.Filled"  
+                                       Disabled="true"
+                                       Icon="@Icons.Material.Filled.DoNotTouch"
+                                       Size="Size.Small"
+                                       Color="Color.Surface">
+                                @ConstantString.NoAllowed
+                            </MudIconButton>
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
+                @*TODO: Define the fields that should be displayed in data table*@
+                <PropertyColumn Property="x => x.Name" Title="@L[_costitemDto.GetMemberDescription(x=>x.Name)]"> 
+   <CellTemplate>
+      <div class="d-flex flex-column">
+        <MudText Typo="Typo.body2" Class="mud-text-secondary">@context.Item.Description</MudText>
+     </div>
+    </CellTemplate>
+</PropertyColumn>
+                <PropertyColumn Property="x => x.ProjectId" Title="@L[_costitemDto.GetMemberDescription(x=>x.ProjectId)]" />
+                <PropertyColumn Property="x => x.VendorId" Title="@L[_costitemDto.GetMemberDescription(x=>x.VendorId)]" />
+                <PropertyColumn Property="x => x.Quantity" Title="@L[_costitemDto.GetMemberDescription(x=>x.Quantity)]" />
+                <PropertyColumn Property="x => x.UnitCost" Title="@L[_costitemDto.GetMemberDescription(x=>x.UnitCost)]" />
+                <PropertyColumn Property="x => x.TotalCost" Title="@L[_costitemDto.GetMemberDescription(x=>x.TotalCost)]" />
+                <PropertyColumn Property="x => x.Category" Title="@L[_costitemDto.GetMemberDescription(x=>x.Category)]" />
+
+            </Columns>
+            <NoRecordsContent>
+                <MudText>@ConstantString.NoRecords</MudText>
+            </NoRecordsContent>
+            <LoadingContent>
+                <MudText>@ConstantString.Loading</MudText>
+            </LoadingContent>
+            <PagerContent>
+                <MudDataGridPager PageSizeOptions="@(new int[]{10,15,30,50,100,500,1000})" />
+            </PagerContent>
+</MudDataGrid>
+
+
+
+@code {
+    public string? Title { get; private set; }
+    private int _defaultPageSize = 15;
+    private HashSet<CostItemDto> _selectedCostItems = new HashSet<CostItemDto>();
+    private MudDataGrid<CostItemDto> _costitemsGrid = default!;
+    private CostItemDto _costitemDto = new();
+    private bool _loading;
+    private bool _uploading;
+    private bool _exporting;
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthState { get; set; } = default!;
+    [CascadingParameter]
+    private UserProfile? UserProfile { get; set; }
+
+
+    private CostItemsWithPaginationQuery _costitemsQuery { get; set; } = new();
+    private CostItemsAccessRights _accessRights = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Title = L[_costitemDto.GetClassDescription()];
+        _accessRights = await PermissionService.GetAccessRightsAsync<CostItemsAccessRights>(); 
+    }
+     
+    private async Task<GridData<CostItemDto>> ServerReload(GridState<CostItemDto> state)
+    {
+        try
+        {
+            _loading = true;
+            _costitemsQuery.CurrentUser = UserProfile;
+            var sortDefinition = state.SortDefinitions.FirstOrDefault();
+            _costitemsQuery.OrderBy = sortDefinition?.SortBy ?? "Id";
+            _costitemsQuery.SortDirection = (sortDefinition != null && sortDefinition.Descending)
+                                      ? SortDirection.Descending.ToString()
+                                      : SortDirection.Ascending.ToString();
+            _costitemsQuery.PageNumber = state.Page + 1;
+            _costitemsQuery.PageSize = state.PageSize;
+            var result = await Mediator.Send(_costitemsQuery).ConfigureAwait(false);
+            return new GridData<CostItemDto>() { TotalItems = result.TotalItems, Items = result.Items };
+        }
+        finally
+        {
+            _loading = false;
+        }
+
+    }
+    private async Task OnSearch(string text)
+    {
+        _selectedCostItems.Clear();
+        _costitemsQuery.Keyword = text;
+        await _costitemsGrid.ReloadServerData();
+    }
+    private async Task OnListViewChanged(CostItemListView listview)
+    {
+        _costitemsQuery.ListView = listview;
+        await _costitemsGrid.ReloadServerData();
+    }
+    private async Task OnRefresh()
+    {
+        CostItemCacheKey.Refresh();
+        _selectedCostItems.Clear();
+        _costitemsQuery.Keyword  = string.Empty;
+        await _costitemsGrid.ReloadServerData();
+    }
+    private async Task ShowEditFormDialog(string title, AddEditCostItemCommand command)
+    {
+        var parameters = new DialogParameters<CostItemFormDialog>
+            {
+                { x=>x._model,command },
+            };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var dialog = await DialogService.ShowAsync<CostItemFormDialog>(title, parameters, options);
+        var state = await dialog.Result;
+
+        if (state != null && !state.Canceled)
+        {
+            await _costitemsGrid.ReloadServerData();
+            _selectedCostItems.Clear();
+        }
+    }
+    private void OnDataGridRowClick(CostItemDto dto)
+    {
+        Navigation.NavigateTo($"/pages/costitems/view/{dto.Id}");
+    }
+    private async Task OnCreate()
+    {
+        var command = new AddEditCostItemCommand();
+        await ShowEditFormDialog(L["New CostItem"], command);
+    }
+    private async Task OnCloneCostItem()
+    {
+        var dto = _selectedCostItems.First();
+        var command = new AddEditCostItemCommand()
+        {
+                    ProjectId = dto.ProjectId, 
+        VendorId = dto.VendorId, 
+        Description = dto.Description, 
+        Quantity = dto.Quantity, 
+        UnitCost = dto.UnitCost, 
+        TotalCost = dto.TotalCost, 
+        Category = dto.Category, 
+
+        };
+        await ShowEditFormDialog(L["Clone CostItem"], command);
+    }
+    private async Task OnEditCostItem(CostItemDto dto)
+    {
+       //var command = Mapper.Map<AddEditCostItemCommand>(dto);
+       //await ShowEditFormDialog(L["Edit CostItem"], command);
+       Navigation.NavigateTo($"/pages/costitems/edit/{dto.Id}");
+    }
+
+    private async Task OnDeleteCostItem(CostItemDto dto)
+    {
+        var contentText = string.Format(ConstantString.DeleteConfirmation, dto.Name);
+        var command = new DeleteCostItemCommand(new int[] { dto.Id });
+        await DialogServiceHelper.ShowDeleteConfirmationDialogAsync(command, ConstantString.DeleteConfirmationTitle, contentText,async () =>
+        {
+            await InvokeAsync(async () =>
+            {
+                await _costitemsGrid.ReloadServerData();
+                _selectedCostItems.Clear();
+            });
+        });
+    }
+
+    private async Task OnDeleteSelectedCostItems()
+    {
+        var contentText = string.Format(ConstantString.DeleteConfirmWithSelected, _selectedCostItems.Count);
+        var command = new DeleteCostItemCommand(_selectedCostItems.Select(x => x.Id).ToArray());
+        await DialogServiceHelper.ShowDeleteConfirmationDialogAsync(command, ConstantString.DeleteConfirmationTitle, contentText,async () =>
+        {
+            await InvokeAsync(async () =>
+            {
+                await _costitemsGrid.ReloadServerData();
+                _selectedCostItems.Clear();
+            });
+        });
+    }
+
+    private async Task OnExport()
+    {
+        _exporting = true;
+        var request = new ExportCostItemsQuery()
+            {
+                Keyword = _costitemsQuery.Keyword,
+                CurrentUser = UserProfile,
+                ListView = _costitemsQuery.ListView,
+                OrderBy = _costitemsGrid.SortDefinitions.Values.FirstOrDefault()?.SortBy ?? "Id",
+                SortDirection = (_costitemsGrid.SortDefinitions.Values.FirstOrDefault()?.Descending ?? true) ? SortDirection.Descending.ToString() : SortDirection.Ascending.ToString()
+            };
+        var result = await Mediator.Send(request);
+        await result.MatchAsync(
+            async data =>
+            {
+                await BlazorDownloadFileService.DownloadFileAsync($"{L["CostItems"]}.xlsx", result.Data, contentType:"application/octet-stream");
+                Snackbar.Add($"{ConstantString.ExportSuccess}", MudBlazor.Severity.Info);
+            },
+            errors =>
+            {
+                Snackbar.Add($"{errors}", MudBlazor.Severity.Error);
+                return Task.CompletedTask;
+            });
+        _exporting = false;
+    }
+    private async Task OnImportData(IBrowserFile file)
+    {
+        _uploading = true;
+        var stream = new MemoryStream();
+        await file.OpenReadStream().CopyToAsync(stream);
+        var command = new ImportCostItemsCommand(file.Name, stream.ToArray());
+        var result = await Mediator.Send(command);
+        await result.MatchAsync(
+            async data =>
+            {
+                await _costitemsGrid.ReloadServerData();
+                Snackbar.Add($"{ConstantString.ImportSuccess}", MudBlazor.Severity.Info);
+            }, errors =>
+            {
+                Snackbar.Add($"{errors}", MudBlazor.Severity.Error);
+                return Task.CompletedTask;
+            });
+        _uploading = false;
+    }
+
+}

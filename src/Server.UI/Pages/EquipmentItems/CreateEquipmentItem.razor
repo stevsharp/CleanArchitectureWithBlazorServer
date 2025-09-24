@@ -1,0 +1,89 @@
+﻿@page "/pages/equipmentitems/create"
+@using CleanArchitecture.Blazor.Application.Features.EquipmentItems.Commands.Create
+
+@inherits MudComponentBase
+@inject IValidationService Validator
+@inject IStringLocalizer<EquipmentItems> L
+@attribute [Authorize(Policy = Permissions.EquipmentItems.Create)]
+
+<PageTitle>@Title</PageTitle>
+<Breadcrumbs OnSaveButtonClick="OnSubmit" Saving="_saving" BreadcrumbItems="_breadcrumbItems"></Breadcrumbs>
+<MudContainer Class="mt-3" MaxWidth="MaxWidth.Large">
+    <MudCard Class="pa-2">
+        <MudCardHeader>
+            <CardHeaderContent>
+                 <MudText Typo="Typo.h6">@Title</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+        <MudForm Model="@_model" @ref="@_equipmentitemForm" Validation="@(Validator.ValidateValue(_model))">
+            <MudGrid Spacing="2">
+                <MudItem xs="12" md="6"> 
+                        <MudTextField Label="@L[_model.GetMemberDescription(x=>x.Name)]" @bind-Value="_model.Name" For="@(() => _model.Name)" Required="true" RequiredError="@L["name is required!"]"></MudTextField>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudTextField Label="@L[_model.GetMemberDescription(x=>x.Category)]" @bind-Value="_model.Category" For="@(() => _model.Category)" Required="false" RequiredError="@L["category is required!"]"></MudTextField>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.DailyRate)]" @bind-Value="_model.DailyRate" For="@(() => _model.DailyRate)" Min="0.00m" Required="false" RequiredError="@L["daily rate is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.PurchaseCost)]" @bind-Value="_model.PurchaseCost" For="@(() => _model.PurchaseCost)" Min="0.00m" Required="false" RequiredError="@L["purchase cost is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.VendorId)]" @bind-Value="_model.VendorId" For="@(() => _model.VendorId)" Min="0" Required="false" RequiredError="@L["vendor id is required!"]"></MudNumericField >
+                </MudItem> 
+
+            </MudGrid>
+        </MudForm>
+        </MudCardContent>
+         <MudCardActions Class="d-flex justify-end gap-2">
+                    <MudLoadingButton Color="Color.Primary" DropShadow="false" Loading="@_saving" OnClick="OnSubmit">@ConstantString.Save</MudLoadingButton>
+         </MudCardActions>
+        </MudCard>
+</MudContainer>
+ 
+
+@code {
+    public string? Title { get; private set; }
+    MudForm? _equipmentitemForm;
+    private bool _saving = false;
+    private List<BreadcrumbItem>? _breadcrumbItems;
+    private CreateEquipmentItemCommand _model = new();
+    protected override Task OnInitializedAsync()
+    {
+        Title = L["New EquipmentItem"];
+        _breadcrumbItems = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem(L["Home"], href: "/"),
+            new BreadcrumbItem(L["EquipmentItems"], href: "/pages/equipmentitems"),
+            new BreadcrumbItem(L["Create EquipmentItem"], href:null, disabled:true)
+        };
+        return Task.CompletedTask;
+    }
+    async Task OnSubmit()
+    {
+        try
+        {
+            _saving = true;
+            await _equipmentitemForm!.Validate().ConfigureAwait(false);
+            if (!_equipmentitemForm!.IsValid)
+                return;
+            var result = await Mediator.Send(_model);
+            result.Match(
+                data=>
+                {
+                    Snackbar.Add(ConstantString.SaveSuccess, MudBlazor.Severity.Info);
+                    Navigation.NavigateTo($"/pages/EquipmentItems");
+                },
+                errors=>
+                {
+                    Snackbar.Add(errors, MudBlazor.Severity.Error);
+                });
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}

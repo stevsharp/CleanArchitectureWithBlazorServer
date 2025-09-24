@@ -1,0 +1,89 @@
+﻿@page "/pages/employees/view/{id:int}"
+@using CleanArchitecture.Blazor.Application.Features.Employees.Commands.Delete
+@using CleanArchitecture.Blazor.Application.Features.Employees.DTOs
+@using CleanArchitecture.Blazor.Application.Features.Employees.Queries.GetById
+@inherits MudComponentBase
+@inject IStringLocalizer<Employees> L
+@attribute [Authorize(Policy = Permissions.Employees.View)]
+<PageTitle>@Title</PageTitle>
+<Breadcrumbs  OnGoEditClick="GoEdit" OnDeleteClick="Delete" BreadcrumbItems="_breadcrumbItems"></Breadcrumbs>
+<MudContainer Class="mt-3" MaxWidth="MaxWidth.Large">
+@if (_model != null)
+{
+    <MudCard Class="pa-2">
+        <MudCardHeader>
+            <CardHeaderContent>
+                 <MudText Typo="Typo.h6">@Title</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudGrid Spacing="3" Class="readonly-grid">
+                <MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[_model.GetMemberDescription(x=>x.FirstName)]" Value="_model.FirstName"></ReadOnlyFieldX6>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[_model.GetMemberDescription(x=>x.LastName)]" Value="_model.LastName"></ReadOnlyFieldX6>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[_model.GetMemberDescription(x=>x.Email)]" Value="_model.Email"></ReadOnlyFieldX6>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[_model.GetMemberDescription(x=>x.Phone)]" Value="_model.Phone"></ReadOnlyFieldX6>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[_model.GetMemberDescription(x=>x.Position)]" Value="_model.Position"></ReadOnlyFieldX6>
+                </MudItem> 
+
+            </MudGrid>
+        </MudCardContent>
+        <MudCardActions></MudCardActions>
+    </MudCard>
+ }
+</MudContainer>
+ 
+
+@code {
+    public string? Title { get; private set; }
+    [Parameter]
+    public int Id { get; set; }
+    private List<BreadcrumbItem>? _breadcrumbItems; 
+    private EmployeeDto? _model;
+    protected override async Task OnInitializedAsync()
+    {
+        Title = L["Employee"];
+        _breadcrumbItems = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem(L["Home"], href: "/"),
+            new BreadcrumbItem(L["Employees"], href: "/pages/employees")
+        };
+        var result = await Mediator.Send(new GetEmployeeByIdQuery() { Id = Id });
+        result.Map(data =>
+        {
+            _model = data;
+            return data;
+        }).Match(data =>
+        {
+            _breadcrumbItems.Add(new BreadcrumbItem(data.Name, null, disabled: true));
+        }, errors =>
+        {
+            Snackbar.Add(errors, MudBlazor.Severity.Error);
+        });
+
+    }
+    void GoEdit()
+    {
+        Navigation.NavigateTo($"/pages/Employees/edit/{Id}");
+    }
+    async Task Delete()
+    {
+        var contentText = string.Format(ConstantString.DeleteConfirmation, _model.Name);
+        var command = new DeleteEmployeeCommand(new int[] { _model.Id });
+        await DialogServiceHelper.ShowDeleteConfirmationDialogAsync(command, ConstantString.DeleteConfirmationTitle, contentText, async () =>
+        {
+            await InvokeAsync(() =>
+            {
+                Navigation.NavigateTo($"/pages/Employees");
+            });
+        });
+    }
+}

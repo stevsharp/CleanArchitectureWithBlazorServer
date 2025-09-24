@@ -1,0 +1,94 @@
+﻿@using CleanArchitecture.Blazor.Application.Features.QuoteApprovals.Commands.AddEdit
+
+@inherits MudComponentBase
+@inject IValidationService Validator
+@inject IStringLocalizer<QuoteApprovals> L
+
+<MudDialog>
+    <DialogContent>
+        <MudForm Model="@_model" @ref="@_quoteapprovalForm" Validation="@(Validator.ValidateValue(_model))">
+            <MudGrid>
+                @*TODO: define mudform that should be edit fields, for example:*@
+                <MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.QuoteId)]" @bind-Value="_model.QuoteId" For="@(() => _model.QuoteId)" Min="0" Required="false" RequiredError="@L["quote id is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.ApproverId)]" @bind-Value="_model.ApproverId" For="@(() => _model.ApproverId)" Min="0" Required="false" RequiredError="@L["approver id is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudEnumSelect TEnum="Nullable<ApprovalStatus>" Label="@L[_model.GetMemberDescription(x=>x.Status)]" @bind-Value="_model.Status" For="@(() => _model.Status)" Required="false" RequiredError="@L["status is required!"]"></MudEnumSelect>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudDatePicker Label="@L[_model.GetMemberDescription(x=>x.ApprovedAtUtc)]" @bind-Date="_model.ApprovedAtUtc" For="@(() => _model.ApprovedAtUtc)" Required="false" RequiredError="@L["approved at utc is required!"]"></MudDatePicker>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudTextField Label="@L[_model.GetMemberDescription(x=>x.Comment)]" @bind-Value="_model.Comment" For="@(() => _model.Comment)" Required="false" RequiredError="@L["comment is required!"]"></MudTextField>
+                </MudItem> 
+
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">@ConstantString.Cancel</MudButton>
+        <MudLoadingButton Loading="@_savingnew" OnClick="OnSaveAndNew">@ConstantString.SaveAndNew</MudLoadingButton>
+        <MudLoadingButton Loading="@_saving"  OnClick="OnSubmit">@ConstantString.Save</MudLoadingButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    MudForm? _quoteapprovalForm;
+    private bool _saving = false;
+    private bool _savingnew = false;
+    [CascadingParameter]
+    IMudDialogInstance MudDialog { get; set; } = default!;
+    [EditorRequired] [Parameter] public AddEditQuoteApprovalCommand _model { get; set; } = null!;
+    async Task OnSubmit()
+    {
+        try
+        {
+            _saving = true;
+            await _quoteapprovalForm!.Validate().ConfigureAwait(false);
+            if (!_quoteapprovalForm!.IsValid)
+                return;
+            var result = await Mediator.Send(_model);
+            result.Match(data =>
+            {
+                MudDialog.Close(DialogResult.Ok(true));
+                Snackbar.Add(ConstantString.SaveSuccess, MudBlazor.Severity.Info);
+            }, errors =>
+            {
+                Snackbar.Add(errors, MudBlazor.Severity.Error);
+            });
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+    async Task OnSaveAndNew()
+    {
+        try
+        {
+            _savingnew = true;
+            await _quoteapprovalForm!.Validate().ConfigureAwait(false);
+            if (!_quoteapprovalForm!.IsValid)
+               return;
+            var result = await Mediator.Send(_model);
+            await result.MatchAsync(async data =>
+            {
+                Snackbar.Add(ConstantString.SaveSuccess, MudBlazor.Severity.Info);
+                await Task.Delay(300);
+                _model = new AddEditQuoteApprovalCommand() { };
+            }, errors =>
+            {
+                Snackbar.Add(errors, MudBlazor.Severity.Error);
+                return Task.CompletedTask;
+            });
+        }
+        finally
+        {
+            _savingnew = false;
+        }
+    }
+    void Cancel() => MudDialog.Cancel();
+}

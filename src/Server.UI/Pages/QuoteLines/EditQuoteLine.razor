@@ -1,0 +1,125 @@
+﻿@page "/pages/quotelines/edit/{id:int}"
+@using CleanArchitecture.Blazor.Application.Features.QuoteLines.Commands.Update
+@using CleanArchitecture.Blazor.Application.Features.QuoteLines.Queries.GetById
+@using CleanArchitecture.Blazor.Server.UI.Components.Fusion
+
+@inherits MudComponentBase
+@inject IValidationService Validator
+@inject IStringLocalizer<QuoteLines> L
+@attribute [Authorize(Policy = Permissions.QuoteLines.Edit)]
+
+<PageTitle>@Title</PageTitle>
+<Breadcrumbs OnSaveButtonClick="OnSubmit" Saving="_saving" BreadcrumbItems="_breadcrumbItems"></Breadcrumbs>
+<MudContainer Class="mt-3" MaxWidth="MaxWidth.Large">
+@if (_model != null)
+{
+    <MudCard Class="pa-2">
+        <MudCardHeader>
+            <CardHeaderContent>
+                 <MudText Typo="Typo.h6">@Title</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+        <ActiveUserSession PageComponent="@($"{nameof(EditQuoteLine)}/{ _model.Id }")" />
+        <MudForm Model="@_model" @ref="@_quotelineForm" Validation="@(Validator.ValidateValue(_model))">
+            <MudGrid Spacing="2">
+                <MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.QuoteVersionId)]" @bind-Value="_model.QuoteVersionId" For="@(() => _model.QuoteVersionId)" Min="0" Required="false" RequiredError="@L["quote version id is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.ServiceId)]" @bind-Value="_model.ServiceId" For="@(() => _model.ServiceId)" Min="0" Required="false" RequiredError="@L["service id is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.VariantId)]" @bind-Value="_model.VariantId" For="@(() => _model.VariantId)" Min="0" Required="false" RequiredError="@L["variant id is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudEnumSelect TEnum="Nullable<PricingModelType>" Label="@L[_model.GetMemberDescription(x=>x.PricingModel)]" @bind-Value="_model.PricingModel" For="@(() => _model.PricingModel)" Required="false" RequiredError="@L["pricing model is required!"]"></MudEnumSelect>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.Qty)]" @bind-Value="_model.Qty" For="@(() => _model.Qty)" Min="0.00m" Required="false" RequiredError="@L["qty is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.UnitPrice)]" @bind-Value="_model.UnitPrice" For="@(() => _model.UnitPrice)" Min="0.00m" Required="false" RequiredError="@L["unit price is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.LineTotal)]" @bind-Value="_model.LineTotal" For="@(() => _model.LineTotal)" Min="0.00m" Required="false" RequiredError="@L["line total is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.VenueId)]" @bind-Value="_model.VenueId" For="@(() => _model.VenueId)" Min="0" Required="false" RequiredError="@L["venue id is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.Pax)]" @bind-Value="_model.Pax" For="@(() => _model.Pax)" Min="0" Required="false" RequiredError="@L["pax is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.MediaBudget)]" @bind-Value="_model.MediaBudget" For="@(() => _model.MediaBudget)" Min="0.00m" Required="false" RequiredError="@L["media budget is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.AgencyFeePct)]" @bind-Value="_model.AgencyFeePct" For="@(() => _model.AgencyFeePct)" Min="0.00m" Required="false" RequiredError="@L["agency fee pct is required!"]"></MudNumericField >
+                </MudItem> 
+
+            </MudGrid>
+        </MudForm>
+        </MudCardContent>
+        <MudCardActions Class="d-flex justify-end gap-2">
+                    <MudLoadingButton Color="Color.Primary" DropShadow="false" Loading="@_saving" OnClick="OnSubmit">@ConstantString.Save</MudLoadingButton>
+        </MudCardActions>
+        </MudCard>
+    }
+</MudContainer>
+ 
+
+@code {
+    public string? Title { get; private set; }
+    [Parameter]
+    public int Id { get; set; }
+    MudForm? _quotelineForm;
+    private bool _saving = false;
+    private List<BreadcrumbItem>? _breadcrumbItems;
+    private UpdateQuoteLineCommand? _model;
+    protected override async Task OnInitializedAsync()
+    {
+        Title = L["Edit QuoteLine"];
+        _breadcrumbItems = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem(L["Home"], href: "/"),
+            new BreadcrumbItem(L["QuoteLines"], href: "/pages/quotelines")
+        };
+        var result = await Mediator.Send(new GetQuoteLineByIdQuery() { Id = Id });
+        result.Map(data =>
+        {
+            _model = Mapper.Map<UpdateQuoteLineCommand>(data);
+            return data;
+        }).Match(data =>
+        {
+            _breadcrumbItems.Add(new BreadcrumbItem(data.Name, href: $"/pages/quotelines/edit/{Id}"));
+        }, errors =>
+        {
+            Snackbar.Add($"{errors}", Severity.Error);
+        });
+
+    }
+    async Task OnSubmit()
+    {
+        try
+        {
+            _saving = true;
+            await _quotelineForm!.Validate().ConfigureAwait(false);
+            if (!_quotelineForm!.IsValid)
+                return;
+            var result = await Mediator.Send(_model);
+            result.Match(
+                data=>
+                {
+                    Snackbar.Add(ConstantString.SaveSuccess, MudBlazor.Severity.Info);
+                },
+                errors=>
+                {
+                    Snackbar.Add(errors, MudBlazor.Severity.Error);
+                });
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}

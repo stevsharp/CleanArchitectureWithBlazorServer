@@ -1,0 +1,95 @@
+﻿@page "/pages/purchaseorders/view/{id:int}"
+@using CleanArchitecture.Blazor.Application.Features.PurchaseOrders.Commands.Delete
+@using CleanArchitecture.Blazor.Application.Features.PurchaseOrders.DTOs
+@using CleanArchitecture.Blazor.Application.Features.PurchaseOrders.Queries.GetById
+@inherits MudComponentBase
+@inject IStringLocalizer<PurchaseOrders> L
+@attribute [Authorize(Policy = Permissions.PurchaseOrders.View)]
+<PageTitle>@Title</PageTitle>
+<Breadcrumbs  OnGoEditClick="GoEdit" OnDeleteClick="Delete" BreadcrumbItems="_breadcrumbItems"></Breadcrumbs>
+<MudContainer Class="mt-3" MaxWidth="MaxWidth.Large">
+@if (_model != null)
+{
+    <MudCard Class="pa-2">
+        <MudCardHeader>
+            <CardHeaderContent>
+                 <MudText Typo="Typo.h6">@Title</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudGrid Spacing="3" Class="readonly-grid">
+                <MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[_model.GetMemberDescription(x=>x.VendorId)]" Value="_model.VendorId"></ReadOnlyFieldX6>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[_model.GetMemberDescription(x=>x.ProjectId)]" Value="_model.ProjectId"></ReadOnlyFieldX6>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[_model.GetMemberDescription(x=>x.Amount)]" Value="_model.Amount"></ReadOnlyFieldX6>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[_model.GetMemberDescription(x=>x.Date)]" Value="@_model.Date?.ToString("d")"></ReadOnlyFieldX6>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[_model.GetMemberDescription(x=>x.Status)]" Value="_model.Status?.GetDescription()"></ReadOnlyFieldX6>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[_model.GetMemberDescription(x=>x.ExternalNumber)]" Value="_model.ExternalNumber"></ReadOnlyFieldX6>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[_model.GetMemberDescription(x=>x.Notes)]" Value="_model.Notes"></ReadOnlyFieldX6>
+                </MudItem> 
+
+            </MudGrid>
+        </MudCardContent>
+        <MudCardActions></MudCardActions>
+    </MudCard>
+ }
+</MudContainer>
+ 
+
+@code {
+    public string? Title { get; private set; }
+    [Parameter]
+    public int Id { get; set; }
+    private List<BreadcrumbItem>? _breadcrumbItems; 
+    private PurchaseOrderDto? _model;
+    protected override async Task OnInitializedAsync()
+    {
+        Title = L["PurchaseOrder"];
+        _breadcrumbItems = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem(L["Home"], href: "/"),
+            new BreadcrumbItem(L["PurchaseOrders"], href: "/pages/purchaseorders")
+        };
+        var result = await Mediator.Send(new GetPurchaseOrderByIdQuery() { Id = Id });
+        result.Map(data =>
+        {
+            _model = data;
+            return data;
+        }).Match(data =>
+        {
+            _breadcrumbItems.Add(new BreadcrumbItem(data.Name, null, disabled: true));
+        }, errors =>
+        {
+            Snackbar.Add(errors, MudBlazor.Severity.Error);
+        });
+
+    }
+    void GoEdit()
+    {
+        Navigation.NavigateTo($"/pages/PurchaseOrders/edit/{Id}");
+    }
+    async Task Delete()
+    {
+        var contentText = string.Format(ConstantString.DeleteConfirmation, _model.Name);
+        var command = new DeletePurchaseOrderCommand(new int[] { _model.Id });
+        await DialogServiceHelper.ShowDeleteConfirmationDialogAsync(command, ConstantString.DeleteConfirmationTitle, contentText, async () =>
+        {
+            await InvokeAsync(() =>
+            {
+                Navigation.NavigateTo($"/pages/PurchaseOrders");
+            });
+        });
+    }
+}

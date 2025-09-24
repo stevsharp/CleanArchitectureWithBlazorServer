@@ -1,0 +1,112 @@
+﻿@using CleanArchitecture.Blazor.Application.Features.QuoteLines.Commands.AddEdit
+
+@inherits MudComponentBase
+@inject IValidationService Validator
+@inject IStringLocalizer<QuoteLines> L
+
+<MudDialog>
+    <DialogContent>
+        <MudForm Model="@_model" @ref="@_quotelineForm" Validation="@(Validator.ValidateValue(_model))">
+            <MudGrid>
+                @*TODO: define mudform that should be edit fields, for example:*@
+                <MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.QuoteVersionId)]" @bind-Value="_model.QuoteVersionId" For="@(() => _model.QuoteVersionId)" Min="0" Required="false" RequiredError="@L["quote version id is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.ServiceId)]" @bind-Value="_model.ServiceId" For="@(() => _model.ServiceId)" Min="0" Required="false" RequiredError="@L["service id is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.VariantId)]" @bind-Value="_model.VariantId" For="@(() => _model.VariantId)" Min="0" Required="false" RequiredError="@L["variant id is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudEnumSelect TEnum="Nullable<PricingModelType>" Label="@L[_model.GetMemberDescription(x=>x.PricingModel)]" @bind-Value="_model.PricingModel" For="@(() => _model.PricingModel)" Required="false" RequiredError="@L["pricing model is required!"]"></MudEnumSelect>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.Qty)]" @bind-Value="_model.Qty" For="@(() => _model.Qty)" Min="0.00m" Required="false" RequiredError="@L["qty is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.UnitPrice)]" @bind-Value="_model.UnitPrice" For="@(() => _model.UnitPrice)" Min="0.00m" Required="false" RequiredError="@L["unit price is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.LineTotal)]" @bind-Value="_model.LineTotal" For="@(() => _model.LineTotal)" Min="0.00m" Required="false" RequiredError="@L["line total is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.VenueId)]" @bind-Value="_model.VenueId" For="@(() => _model.VenueId)" Min="0" Required="false" RequiredError="@L["venue id is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.Pax)]" @bind-Value="_model.Pax" For="@(() => _model.Pax)" Min="0" Required="false" RequiredError="@L["pax is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.MediaBudget)]" @bind-Value="_model.MediaBudget" For="@(() => _model.MediaBudget)" Min="0.00m" Required="false" RequiredError="@L["media budget is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.AgencyFeePct)]" @bind-Value="_model.AgencyFeePct" For="@(() => _model.AgencyFeePct)" Min="0.00m" Required="false" RequiredError="@L["agency fee pct is required!"]"></MudNumericField >
+                </MudItem> 
+
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">@ConstantString.Cancel</MudButton>
+        <MudLoadingButton Loading="@_savingnew" OnClick="OnSaveAndNew">@ConstantString.SaveAndNew</MudLoadingButton>
+        <MudLoadingButton Loading="@_saving"  OnClick="OnSubmit">@ConstantString.Save</MudLoadingButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    MudForm? _quotelineForm;
+    private bool _saving = false;
+    private bool _savingnew = false;
+    [CascadingParameter]
+    IMudDialogInstance MudDialog { get; set; } = default!;
+    [EditorRequired] [Parameter] public AddEditQuoteLineCommand _model { get; set; } = null!;
+    async Task OnSubmit()
+    {
+        try
+        {
+            _saving = true;
+            await _quotelineForm!.Validate().ConfigureAwait(false);
+            if (!_quotelineForm!.IsValid)
+                return;
+            var result = await Mediator.Send(_model);
+            result.Match(data =>
+            {
+                MudDialog.Close(DialogResult.Ok(true));
+                Snackbar.Add(ConstantString.SaveSuccess, MudBlazor.Severity.Info);
+            }, errors =>
+            {
+                Snackbar.Add(errors, MudBlazor.Severity.Error);
+            });
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+    async Task OnSaveAndNew()
+    {
+        try
+        {
+            _savingnew = true;
+            await _quotelineForm!.Validate().ConfigureAwait(false);
+            if (!_quotelineForm!.IsValid)
+               return;
+            var result = await Mediator.Send(_model);
+            await result.MatchAsync(async data =>
+            {
+                Snackbar.Add(ConstantString.SaveSuccess, MudBlazor.Severity.Info);
+                await Task.Delay(300);
+                _model = new AddEditQuoteLineCommand() { };
+            }, errors =>
+            {
+                Snackbar.Add(errors, MudBlazor.Severity.Error);
+                return Task.CompletedTask;
+            });
+        }
+        finally
+        {
+            _savingnew = false;
+        }
+    }
+    void Cancel() => MudDialog.Cancel();
+}

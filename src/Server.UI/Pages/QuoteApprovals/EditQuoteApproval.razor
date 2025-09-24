@@ -1,0 +1,107 @@
+﻿@page "/pages/quoteapprovals/edit/{id:int}"
+@using CleanArchitecture.Blazor.Application.Features.QuoteApprovals.Commands.Update
+@using CleanArchitecture.Blazor.Application.Features.QuoteApprovals.Queries.GetById
+@using CleanArchitecture.Blazor.Server.UI.Components.Fusion
+
+@inherits MudComponentBase
+@inject IValidationService Validator
+@inject IStringLocalizer<QuoteApprovals> L
+@attribute [Authorize(Policy = Permissions.QuoteApprovals.Edit)]
+
+<PageTitle>@Title</PageTitle>
+<Breadcrumbs OnSaveButtonClick="OnSubmit" Saving="_saving" BreadcrumbItems="_breadcrumbItems"></Breadcrumbs>
+<MudContainer Class="mt-3" MaxWidth="MaxWidth.Large">
+@if (_model != null)
+{
+    <MudCard Class="pa-2">
+        <MudCardHeader>
+            <CardHeaderContent>
+                 <MudText Typo="Typo.h6">@Title</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+        <ActiveUserSession PageComponent="@($"{nameof(EditQuoteApproval)}/{ _model.Id }")" />
+        <MudForm Model="@_model" @ref="@_quoteapprovalForm" Validation="@(Validator.ValidateValue(_model))">
+            <MudGrid Spacing="2">
+                <MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.QuoteId)]" @bind-Value="_model.QuoteId" For="@(() => _model.QuoteId)" Min="0" Required="false" RequiredError="@L["quote id is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudNumericField  Label="@L[_model.GetMemberDescription(x=>x.ApproverId)]" @bind-Value="_model.ApproverId" For="@(() => _model.ApproverId)" Min="0" Required="false" RequiredError="@L["approver id is required!"]"></MudNumericField >
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudEnumSelect TEnum="Nullable<ApprovalStatus>" Label="@L[_model.GetMemberDescription(x=>x.Status)]" @bind-Value="_model.Status" For="@(() => _model.Status)" Required="false" RequiredError="@L["status is required!"]"></MudEnumSelect>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudDatePicker Label="@L[_model.GetMemberDescription(x=>x.ApprovedAtUtc)]" @bind-Date="_model.ApprovedAtUtc" For="@(() => _model.ApprovedAtUtc)" Required="false" RequiredError="@L["approved at utc is required!"]"></MudDatePicker>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <MudTextField Label="@L[_model.GetMemberDescription(x=>x.Comment)]" @bind-Value="_model.Comment" For="@(() => _model.Comment)" Required="false" RequiredError="@L["comment is required!"]"></MudTextField>
+                </MudItem> 
+
+            </MudGrid>
+        </MudForm>
+        </MudCardContent>
+        <MudCardActions Class="d-flex justify-end gap-2">
+                    <MudLoadingButton Color="Color.Primary" DropShadow="false" Loading="@_saving" OnClick="OnSubmit">@ConstantString.Save</MudLoadingButton>
+        </MudCardActions>
+        </MudCard>
+    }
+</MudContainer>
+ 
+
+@code {
+    public string? Title { get; private set; }
+    [Parameter]
+    public int Id { get; set; }
+    MudForm? _quoteapprovalForm;
+    private bool _saving = false;
+    private List<BreadcrumbItem>? _breadcrumbItems;
+    private UpdateQuoteApprovalCommand? _model;
+    protected override async Task OnInitializedAsync()
+    {
+        Title = L["Edit QuoteApproval"];
+        _breadcrumbItems = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem(L["Home"], href: "/"),
+            new BreadcrumbItem(L["QuoteApprovals"], href: "/pages/quoteapprovals")
+        };
+        var result = await Mediator.Send(new GetQuoteApprovalByIdQuery() { Id = Id });
+        result.Map(data =>
+        {
+            _model = Mapper.Map<UpdateQuoteApprovalCommand>(data);
+            return data;
+        }).Match(data =>
+        {
+            _breadcrumbItems.Add(new BreadcrumbItem(data.Name, href: $"/pages/quoteapprovals/edit/{Id}"));
+        }, errors =>
+        {
+            Snackbar.Add($"{errors}", Severity.Error);
+        });
+
+    }
+    async Task OnSubmit()
+    {
+        try
+        {
+            _saving = true;
+            await _quoteapprovalForm!.Validate().ConfigureAwait(false);
+            if (!_quoteapprovalForm!.IsValid)
+                return;
+            var result = await Mediator.Send(_model);
+            result.Match(
+                data=>
+                {
+                    Snackbar.Add(ConstantString.SaveSuccess, MudBlazor.Severity.Info);
+                },
+                errors=>
+                {
+                    Snackbar.Add(errors, MudBlazor.Severity.Error);
+                });
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+}

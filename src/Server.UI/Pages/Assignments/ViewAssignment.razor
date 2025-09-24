@@ -1,0 +1,89 @@
+﻿@page "/pages/assignments/view/{id:int}"
+@using CleanArchitecture.Blazor.Application.Features.Assignments.Commands.Delete
+@using CleanArchitecture.Blazor.Application.Features.Assignments.DTOs
+@using CleanArchitecture.Blazor.Application.Features.Assignments.Queries.GetById
+@inherits MudComponentBase
+@inject IStringLocalizer<Assignments> L
+@attribute [Authorize(Policy = Permissions.Assignments.View)]
+<PageTitle>@Title</PageTitle>
+<Breadcrumbs  OnGoEditClick="GoEdit" OnDeleteClick="Delete" BreadcrumbItems="_breadcrumbItems"></Breadcrumbs>
+<MudContainer Class="mt-3" MaxWidth="MaxWidth.Large">
+@if (_model != null)
+{
+    <MudCard Class="pa-2">
+        <MudCardHeader>
+            <CardHeaderContent>
+                 <MudText Typo="Typo.h6">@Title</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudGrid Spacing="3" Class="readonly-grid">
+                <MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[_model.GetMemberDescription(x=>x.ProjectId)]" Value="_model.ProjectId"></ReadOnlyFieldX6>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[_model.GetMemberDescription(x=>x.EmployeeId)]" Value="_model.EmployeeId"></ReadOnlyFieldX6>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[_model.GetMemberDescription(x=>x.Role)]" Value="_model.Role"></ReadOnlyFieldX6>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[_model.GetMemberDescription(x=>x.StartDate)]" Value="@_model.StartDate?.ToString("d")"></ReadOnlyFieldX6>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[_model.GetMemberDescription(x=>x.EndDate)]" Value="@_model.EndDate?.ToString("d")"></ReadOnlyFieldX6>
+                </MudItem> 
+
+            </MudGrid>
+        </MudCardContent>
+        <MudCardActions></MudCardActions>
+    </MudCard>
+ }
+</MudContainer>
+ 
+
+@code {
+    public string? Title { get; private set; }
+    [Parameter]
+    public int Id { get; set; }
+    private List<BreadcrumbItem>? _breadcrumbItems; 
+    private AssignmentDto? _model;
+    protected override async Task OnInitializedAsync()
+    {
+        Title = L["Assignment"];
+        _breadcrumbItems = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem(L["Home"], href: "/"),
+            new BreadcrumbItem(L["Assignments"], href: "/pages/assignments")
+        };
+        var result = await Mediator.Send(new GetAssignmentByIdQuery() { Id = Id });
+        result.Map(data =>
+        {
+            _model = data;
+            return data;
+        }).Match(data =>
+        {
+            _breadcrumbItems.Add(new BreadcrumbItem(data.Name, null, disabled: true));
+        }, errors =>
+        {
+            Snackbar.Add(errors, MudBlazor.Severity.Error);
+        });
+
+    }
+    void GoEdit()
+    {
+        Navigation.NavigateTo($"/pages/Assignments/edit/{Id}");
+    }
+    async Task Delete()
+    {
+        var contentText = string.Format(ConstantString.DeleteConfirmation, _model.Name);
+        var command = new DeleteAssignmentCommand(new int[] { _model.Id });
+        await DialogServiceHelper.ShowDeleteConfirmationDialogAsync(command, ConstantString.DeleteConfirmationTitle, contentText, async () =>
+        {
+            await InvokeAsync(() =>
+            {
+                Navigation.NavigateTo($"/pages/Assignments");
+            });
+        });
+    }
+}

@@ -1,0 +1,340 @@
+﻿@page "/pages/quoteapprovals"
+
+@using CleanArchitecture.Blazor.Application.Features.QuoteApprovals.Caching
+@using CleanArchitecture.Blazor.Application.Features.QuoteApprovals.DTOs
+@using CleanArchitecture.Blazor.Application.Features.QuoteApprovals.Specifications
+@using CleanArchitecture.Blazor.Application.Features.QuoteApprovals.Commands.Delete
+@using CleanArchitecture.Blazor.Application.Features.QuoteApprovals.Commands.Import
+@using CleanArchitecture.Blazor.Application.Features.QuoteApprovals.Queries.Export
+@using CleanArchitecture.Blazor.Application.Features.QuoteApprovals.Queries.Pagination
+@using CleanArchitecture.Blazor.Application.Features.QuoteApprovals.Commands.AddEdit
+@using CleanArchitecture.Blazor.Server.UI.Pages.QuoteApprovals.Components
+
+@inject IStringLocalizer<QuoteApprovals> L
+@inject BlazorDownloadFileService BlazorDownloadFileService
+
+@attribute [Authorize(Policy = Permissions.QuoteApprovals.View)]
+<PageTitle>@Title</PageTitle>
+
+<MudDataGrid ServerData="@(ServerReload)"
+                  FixedHeader="true"
+                  FixedFooter="false"
+                  Virtualize="false"
+                  @bind-RowsPerPage="_defaultPageSize"
+                  Loading="@_loading"
+                  MultiSelection="true"
+                  T="QuoteApprovalDto"
+                  SelectOnRowClick="false"
+                  RowClick="@(s=>OnDataGridRowClick(s.Item))"
+                  @bind-SelectedItems="_selectedQuoteApprovals"
+                  Hover="true" @ref="_quoteapprovalsGrid">
+            <ToolBarContent>
+                 <MudStack Row Spacing="0" Class="flex-grow-1" Justify="Justify.SpaceBetween">
+            <MudStack Row AlignItems="AlignItems.Start">
+                <MudIcon Icon="@Icons.Material.Filled.Window" Size="Size.Large" />
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.subtitle2" Class="mb-2">@Title</MudText>
+                    <MudEnumSelect Style="min-width:120px" TEnum="QuoteApprovalListView" ValueChanged="OnListViewChanged" Value="_quoteapprovalsQuery.ListView" Dense="true" Label="@L["List View"]">
+                    </MudEnumSelect>
+                </MudStack>
+            </MudStack>
+            <MudStack Spacing="0" AlignItems="AlignItems.End">
+                <MudToolBar Dense WrapContent="true" Class="py-1 px-0">
+                    <MudButton Disabled="@_loading"
+                               OnClick="@(() => OnRefresh())"
+                               StartIcon="@Icons.Material.Outlined.Refresh">
+                        @ConstantString.Refresh
+                    </MudButton>
+                    @if (_accessRights.Create)
+                    {
+                        <MudButton StartIcon="@Icons.Material.Outlined.Add"
+                                   OnClick="OnCreate">
+                            @ConstantString.New
+                        </MudButton>
+                    }
+                    <MudMenu TransformOrigin="Origin.BottomRight" AnchorOrigin="Origin.BottomRight" EndIcon="@Icons.Material.Filled.MoreVert" Label="@ConstantString.More">
+                        @if (_accessRights.Create)
+                        {
+                            <MudMenuItem Disabled="@(_selectedQuoteApprovals.Count != 1)" OnClick="OnCloneQuoteApproval">@ConstantString.Clone</MudMenuItem>
+                        }
+                        @if (_accessRights.Delete)
+                        {
+                            <MudMenuItem Disabled="@(!(_selectedQuoteApprovals.Count > 0))"
+                                         OnClick="OnDeleteSelectedQuoteApprovals">
+                                @ConstantString.Delete
+                            </MudMenuItem>
+                        }
+                        @if (_accessRights.Export)
+                        {
+                            <MudMenuItem Disabled="@_exporting"
+                                         OnClick="OnExport">
+                                @ConstantString.Export
+                            </MudMenuItem>
+                        }
+                        @if (_accessRights.Import)
+                        {
+                            <MudMenuItem>
+                                <MudFileUpload T="IBrowserFile" FilesChanged="OnImportData" Accept=".xlsx">
+                                    <ActivatorContent>
+                                        <MudButton Class="pa-0 ma-0" Style="font-weight:400;text-transform:none;"
+                                                   Variant="Variant.Text"
+                                                   Disabled="@_uploading">
+                                            @ConstantString.Import
+                                        </MudButton>
+                                    </ActivatorContent>
+                                </MudFileUpload>
+                            </MudMenuItem>
+                        }
+                    </MudMenu>
+                </MudToolBar>
+                <MudStack Row Spacing="1">
+                    @if (_accessRights.Search)
+                    {
+                        <MudTextField T="string" ValueChanged="@(s => OnSearch(s))" Value="@_quoteapprovalsQuery.Keyword" Placeholder="@ConstantString.Search" Adornment="Adornment.End"
+                                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Small">
+                        </MudTextField>
+                    }
+                </MudStack>
+            </MudStack>
+        </MudStack>
+            </ToolBarContent>
+            <Columns>
+                <SelectColumn ShowInFooter="false"></SelectColumn>
+                <TemplateColumn HeaderStyle="width:60px" Title="@ConstantString.Actions" Sortable="false">
+                    <CellTemplate>
+                        @if (_accessRights.Edit || _accessRights.Delete)
+                        {
+                            <MudMenu Icon="@Icons.Material.Filled.Edit" Variant="Variant.Filled" Size="Size.Small"
+                                     Dense="true"
+                                     EndIcon="@Icons.Material.Filled.KeyboardArrowDown" IconColor="Color.Info" AnchorOrigin="Origin.CenterLeft">
+                                @if (_accessRights.Edit)
+                                {
+                                    <MudMenuItem OnClick="@(()=>OnEditQuoteApproval(context.Item))">@ConstantString.Edit</MudMenuItem>
+                                }
+                                @if (_accessRights.Delete)
+                                {
+                                    <MudMenuItem OnClick="@(()=>OnDeleteQuoteApproval(context.Item))">@ConstantString.Delete</MudMenuItem>
+                                }
+                            </MudMenu>
+                        }
+                        else
+                        {
+                            <MudIconButton Variant="Variant.Filled"  
+                                       Disabled="true"
+                                       Icon="@Icons.Material.Filled.DoNotTouch"
+                                       Size="Size.Small"
+                                       Color="Color.Surface">
+                                @ConstantString.NoAllowed
+                            </MudIconButton>
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
+                @*TODO: Define the fields that should be displayed in data table*@
+                                <PropertyColumn Property="x => x.QuoteId" Title="@L[_quoteapprovalDto.GetMemberDescription(x=>x.QuoteId)]" />
+                <PropertyColumn Property="x => x.ApproverId" Title="@L[_quoteapprovalDto.GetMemberDescription(x=>x.ApproverId)]" />
+                <PropertyColumn Property="x => x.Status" Title="@L[_quoteapprovalDto.GetMemberDescription(x=>x.Status)]">
+                <CellTemplate>
+						<MudChip T="string"  Value="@context.Item.Status?.GetDescription()" />
+                </CellTemplate>
+</PropertyColumn>
+                <PropertyColumn Property="x => x.ApprovedAtUtc" Title="@L[_quoteapprovalDto.GetMemberDescription(x=>x.ApprovedAtUtc)]" />
+                <PropertyColumn Property="x => x.Comment" Title="@L[_quoteapprovalDto.GetMemberDescription(x=>x.Comment)]" />
+
+            </Columns>
+            <NoRecordsContent>
+                <MudText>@ConstantString.NoRecords</MudText>
+            </NoRecordsContent>
+            <LoadingContent>
+                <MudText>@ConstantString.Loading</MudText>
+            </LoadingContent>
+            <PagerContent>
+                <MudDataGridPager PageSizeOptions="@(new int[]{10,15,30,50,100,500,1000})" />
+            </PagerContent>
+</MudDataGrid>
+
+
+
+@code {
+    public string? Title { get; private set; }
+    private int _defaultPageSize = 15;
+    private HashSet<QuoteApprovalDto> _selectedQuoteApprovals = new HashSet<QuoteApprovalDto>();
+    private MudDataGrid<QuoteApprovalDto> _quoteapprovalsGrid = default!;
+    private QuoteApprovalDto _quoteapprovalDto = new();
+    private bool _loading;
+    private bool _uploading;
+    private bool _exporting;
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthState { get; set; } = default!;
+    [CascadingParameter]
+    private UserProfile? UserProfile { get; set; }
+
+
+    private QuoteApprovalsWithPaginationQuery _quoteapprovalsQuery { get; set; } = new();
+    private QuoteApprovalsAccessRights _accessRights = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Title = L[_quoteapprovalDto.GetClassDescription()];
+        _accessRights = await PermissionService.GetAccessRightsAsync<QuoteApprovalsAccessRights>(); 
+    }
+     
+    private async Task<GridData<QuoteApprovalDto>> ServerReload(GridState<QuoteApprovalDto> state)
+    {
+        try
+        {
+            _loading = true;
+            _quoteapprovalsQuery.CurrentUser = UserProfile;
+            var sortDefinition = state.SortDefinitions.FirstOrDefault();
+            _quoteapprovalsQuery.OrderBy = sortDefinition?.SortBy ?? "Id";
+            _quoteapprovalsQuery.SortDirection = (sortDefinition != null && sortDefinition.Descending)
+                                      ? SortDirection.Descending.ToString()
+                                      : SortDirection.Ascending.ToString();
+            _quoteapprovalsQuery.PageNumber = state.Page + 1;
+            _quoteapprovalsQuery.PageSize = state.PageSize;
+            var result = await Mediator.Send(_quoteapprovalsQuery).ConfigureAwait(false);
+            return new GridData<QuoteApprovalDto>() { TotalItems = result.TotalItems, Items = result.Items };
+        }
+        finally
+        {
+            _loading = false;
+        }
+
+    }
+    private async Task OnSearch(string text)
+    {
+        _selectedQuoteApprovals.Clear();
+        _quoteapprovalsQuery.Keyword = text;
+        await _quoteapprovalsGrid.ReloadServerData();
+    }
+    private async Task OnListViewChanged(QuoteApprovalListView listview)
+    {
+        _quoteapprovalsQuery.ListView = listview;
+        await _quoteapprovalsGrid.ReloadServerData();
+    }
+    private async Task OnRefresh()
+    {
+        QuoteApprovalCacheKey.Refresh();
+        _selectedQuoteApprovals.Clear();
+        _quoteapprovalsQuery.Keyword  = string.Empty;
+        await _quoteapprovalsGrid.ReloadServerData();
+    }
+    private async Task ShowEditFormDialog(string title, AddEditQuoteApprovalCommand command)
+    {
+        var parameters = new DialogParameters<QuoteApprovalFormDialog>
+            {
+                { x=>x._model,command },
+            };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        var dialog = await DialogService.ShowAsync<QuoteApprovalFormDialog>(title, parameters, options);
+        var state = await dialog.Result;
+
+        if (state != null && !state.Canceled)
+        {
+            await _quoteapprovalsGrid.ReloadServerData();
+            _selectedQuoteApprovals.Clear();
+        }
+    }
+    private void OnDataGridRowClick(QuoteApprovalDto dto)
+    {
+        Navigation.NavigateTo($"/pages/quoteapprovals/view/{dto.Id}");
+    }
+    private async Task OnCreate()
+    {
+        var command = new AddEditQuoteApprovalCommand();
+        await ShowEditFormDialog(L["New QuoteApproval"], command);
+    }
+    private async Task OnCloneQuoteApproval()
+    {
+        var dto = _selectedQuoteApprovals.First();
+        var command = new AddEditQuoteApprovalCommand()
+        {
+                    QuoteId = dto.QuoteId, 
+        ApproverId = dto.ApproverId, 
+        ApprovedAtUtc = dto.ApprovedAtUtc, 
+        Comment = dto.Comment, 
+        Status = dto.Status, 
+
+        };
+        await ShowEditFormDialog(L["Clone QuoteApproval"], command);
+    }
+    private async Task OnEditQuoteApproval(QuoteApprovalDto dto)
+    {
+       //var command = Mapper.Map<AddEditQuoteApprovalCommand>(dto);
+       //await ShowEditFormDialog(L["Edit QuoteApproval"], command);
+       Navigation.NavigateTo($"/pages/quoteapprovals/edit/{dto.Id}");
+    }
+
+    private async Task OnDeleteQuoteApproval(QuoteApprovalDto dto)
+    {
+        var contentText = string.Format(ConstantString.DeleteConfirmation, dto.Name);
+        var command = new DeleteQuoteApprovalCommand(new int[] { dto.Id });
+        await DialogServiceHelper.ShowDeleteConfirmationDialogAsync(command, ConstantString.DeleteConfirmationTitle, contentText,async () =>
+        {
+            await InvokeAsync(async () =>
+            {
+                await _quoteapprovalsGrid.ReloadServerData();
+                _selectedQuoteApprovals.Clear();
+            });
+        });
+    }
+
+    private async Task OnDeleteSelectedQuoteApprovals()
+    {
+        var contentText = string.Format(ConstantString.DeleteConfirmWithSelected, _selectedQuoteApprovals.Count);
+        var command = new DeleteQuoteApprovalCommand(_selectedQuoteApprovals.Select(x => x.Id).ToArray());
+        await DialogServiceHelper.ShowDeleteConfirmationDialogAsync(command, ConstantString.DeleteConfirmationTitle, contentText,async () =>
+        {
+            await InvokeAsync(async () =>
+            {
+                await _quoteapprovalsGrid.ReloadServerData();
+                _selectedQuoteApprovals.Clear();
+            });
+        });
+    }
+
+    private async Task OnExport()
+    {
+        _exporting = true;
+        var request = new ExportQuoteApprovalsQuery()
+            {
+                Keyword = _quoteapprovalsQuery.Keyword,
+                CurrentUser = UserProfile,
+                ListView = _quoteapprovalsQuery.ListView,
+                OrderBy = _quoteapprovalsGrid.SortDefinitions.Values.FirstOrDefault()?.SortBy ?? "Id",
+                SortDirection = (_quoteapprovalsGrid.SortDefinitions.Values.FirstOrDefault()?.Descending ?? true) ? SortDirection.Descending.ToString() : SortDirection.Ascending.ToString()
+            };
+        var result = await Mediator.Send(request);
+        await result.MatchAsync(
+            async data =>
+            {
+                await BlazorDownloadFileService.DownloadFileAsync($"{L["QuoteApprovals"]}.xlsx", result.Data, contentType:"application/octet-stream");
+                Snackbar.Add($"{ConstantString.ExportSuccess}", MudBlazor.Severity.Info);
+            },
+            errors =>
+            {
+                Snackbar.Add($"{errors}", MudBlazor.Severity.Error);
+                return Task.CompletedTask;
+            });
+        _exporting = false;
+    }
+    private async Task OnImportData(IBrowserFile file)
+    {
+        _uploading = true;
+        var stream = new MemoryStream();
+        await file.OpenReadStream().CopyToAsync(stream);
+        var command = new ImportQuoteApprovalsCommand(file.Name, stream.ToArray());
+        var result = await Mediator.Send(command);
+        await result.MatchAsync(
+            async data =>
+            {
+                await _quoteapprovalsGrid.ReloadServerData();
+                Snackbar.Add($"{ConstantString.ImportSuccess}", MudBlazor.Severity.Info);
+            }, errors =>
+            {
+                Snackbar.Add($"{errors}", MudBlazor.Severity.Error);
+                return Task.CompletedTask;
+            });
+        _uploading = false;
+    }
+
+}

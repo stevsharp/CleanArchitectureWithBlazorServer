@@ -1,0 +1,86 @@
+﻿@page "/pages/quoteversions/view/{id:int}"
+@using CleanArchitecture.Blazor.Application.Features.QuoteVersions.Commands.Delete
+@using CleanArchitecture.Blazor.Application.Features.QuoteVersions.DTOs
+@using CleanArchitecture.Blazor.Application.Features.QuoteVersions.Queries.GetById
+@inherits MudComponentBase
+@inject IStringLocalizer<QuoteVersions> L
+@attribute [Authorize(Policy = Permissions.QuoteVersions.View)]
+<PageTitle>@Title</PageTitle>
+<Breadcrumbs  OnGoEditClick="GoEdit" OnDeleteClick="Delete" BreadcrumbItems="_breadcrumbItems"></Breadcrumbs>
+<MudContainer Class="mt-3" MaxWidth="MaxWidth.Large">
+@if (_model != null)
+{
+    <MudCard Class="pa-2">
+        <MudCardHeader>
+            <CardHeaderContent>
+                 <MudText Typo="Typo.h6">@Title</MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+            <MudGrid Spacing="3" Class="readonly-grid">
+                <MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[_model.GetMemberDescription(x=>x.QuoteId)]" Value="_model.QuoteId"></ReadOnlyFieldX6>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[_model.GetMemberDescription(x=>x.VersionNumber)]" Value="_model.VersionNumber"></ReadOnlyFieldX6>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[_model.GetMemberDescription(x=>x.CreatedAtUtc)]" Value="@_model.CreatedAtUtc?.ToString("d")"></ReadOnlyFieldX6>
+                </MudItem> 
+<MudItem xs="12" md="6"> 
+                        <ReadOnlyFieldX6 Label="@L[_model.GetMemberDescription(x=>x.CreatedByEmployeeId)]" Value="_model.CreatedByEmployeeId"></ReadOnlyFieldX6>
+                </MudItem> 
+
+            </MudGrid>
+        </MudCardContent>
+        <MudCardActions></MudCardActions>
+    </MudCard>
+ }
+</MudContainer>
+ 
+
+@code {
+    public string? Title { get; private set; }
+    [Parameter]
+    public int Id { get; set; }
+    private List<BreadcrumbItem>? _breadcrumbItems; 
+    private QuoteVersionDto? _model;
+    protected override async Task OnInitializedAsync()
+    {
+        Title = L["QuoteVersion"];
+        _breadcrumbItems = new List<BreadcrumbItem>
+        {
+            new BreadcrumbItem(L["Home"], href: "/"),
+            new BreadcrumbItem(L["QuoteVersions"], href: "/pages/quoteversions")
+        };
+        var result = await Mediator.Send(new GetQuoteVersionByIdQuery() { Id = Id });
+        result.Map(data =>
+        {
+            _model = data;
+            return data;
+        }).Match(data =>
+        {
+            _breadcrumbItems.Add(new BreadcrumbItem(data.Name, null, disabled: true));
+        }, errors =>
+        {
+            Snackbar.Add(errors, MudBlazor.Severity.Error);
+        });
+
+    }
+    void GoEdit()
+    {
+        Navigation.NavigateTo($"/pages/QuoteVersions/edit/{Id}");
+    }
+    async Task Delete()
+    {
+        var contentText = string.Format(ConstantString.DeleteConfirmation, _model.Name);
+        var command = new DeleteQuoteVersionCommand(new int[] { _model.Id });
+        await DialogServiceHelper.ShowDeleteConfirmationDialogAsync(command, ConstantString.DeleteConfirmationTitle, contentText, async () =>
+        {
+            await InvokeAsync(() =>
+            {
+                Navigation.NavigateTo($"/pages/QuoteVersions");
+            });
+        });
+    }
+}
