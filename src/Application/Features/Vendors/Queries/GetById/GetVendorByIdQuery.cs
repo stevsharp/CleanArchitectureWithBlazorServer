@@ -31,18 +31,19 @@ public class GetVendorByIdQuery : ICacheableRequest<Result<VendorDto>>
 public class GetVendorByIdQueryHandler :
      IRequestHandler<GetVendorByIdQuery, Result<VendorDto>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     private readonly IMapper _mapper;
     public GetVendorByIdQueryHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
 
     public async Task<Result<VendorDto>> Handle(GetVendorByIdQuery request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var data = await _context.Vendors.ApplySpecification(new VendorByIdSpecification(request.Id))
                                                 .ProjectTo<VendorDto>(_mapper.ConfigurationProvider)
                                                 .FirstAsync(cancellationToken) ?? throw new NotFoundException($"Vendor with id: [{request.Id}] not found.");

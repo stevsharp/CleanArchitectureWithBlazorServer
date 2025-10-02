@@ -30,14 +30,11 @@ public class DeleteVendorCommandHandler :
              IRequestHandler<DeleteVendorCommand, Result>
 
 {
-    private readonly IApplicationDbContext _context;
-    public DeleteVendorCommandHandler(
-        IApplicationDbContext context)
-    {
-        _context = context;
-    }
+    private readonly IApplicationDbContextFactory _dbContextFactory;
+    public DeleteVendorCommandHandler(IApplicationDbContextFactory dbContextFactory) => _dbContextFactory = dbContextFactory;
     public async Task<Result> Handle(DeleteVendorCommand request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var items = await _context.Vendors.Where(x=>request.Id.Contains(x.Id)).ToListAsync(cancellationToken);
         foreach (var item in items)
         {

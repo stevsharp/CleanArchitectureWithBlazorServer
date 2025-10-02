@@ -46,19 +46,19 @@ public class UpdateVendorCommand: ICacheInvalidatorRequest<Result<int>>
 
 public class UpdateVendorCommandHandler : IRequestHandler<UpdateVendorCommand, Result<int>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     private readonly IMapper _mapper;
     public UpdateVendorCommandHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
-        _context = context;
+        _dbContextFactory = dbContextFactory;
         _mapper = mapper;
     }
     public async Task<Result<int>> Handle(UpdateVendorCommand request, CancellationToken cancellationToken)
     {
-
-       var item = await _context.Vendors.FindAsync(request.Id, cancellationToken);
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var item = await _context.Vendors.FindAsync(request.Id, cancellationToken);
        if (item == null)
        {
            return await Result<int>.FailureAsync($"Vendor with id: [{request.Id}] not found.");

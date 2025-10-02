@@ -14,7 +14,7 @@
 namespace CleanArchitecture.Blazor.Application.Features.Vendors.DTOs;
 
 [Description("Vendors")]
-public class VendorDto
+public record VendorDto
 {
     [Description("Id")]
     public int Id { get; set; }
