@@ -31,18 +31,19 @@ public class GetProjectTaskByIdQuery : ICacheableRequest<Result<ProjectTaskDto>>
 public class GetProjectTaskByIdQueryHandler :
      IRequestHandler<GetProjectTaskByIdQuery, Result<ProjectTaskDto>>
 {
-    private readonly IApplicationDbContextFactory _dbContextFactory;;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     private readonly IMapper _mapper;
     public GetProjectTaskByIdQueryHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
 
     public async Task<Result<ProjectTaskDto>> Handle(GetProjectTaskByIdQuery request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var data = await _context.ProjectTasks.ApplySpecification(new ProjectTaskByIdSpecification(request.Id))
                                                 .ProjectTo<ProjectTaskDto>(_mapper.ConfigurationProvider)
                                                 .FirstAsync(cancellationToken) ?? throw new NotFoundException($"ProjectTask with id: [{request.Id}] not found.");

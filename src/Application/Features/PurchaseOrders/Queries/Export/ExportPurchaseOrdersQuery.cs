@@ -37,26 +37,27 @@ public class ExportPurchaseOrdersQueryHandler :
          IRequestHandler<ExportPurchaseOrdersQuery, Result<byte[]>>
 {
         private readonly IMapper _mapper;
-        private readonly IApplicationDbContextFactory _dbContextFactory;;
+        private readonly IApplicationDbContextFactory _dbContextFactory;
         private readonly IExcelService _excelService;
         private readonly IStringLocalizer<ExportPurchaseOrdersQueryHandler> _localizer;
         private readonly PurchaseOrderDto _dto = new();
         public ExportPurchaseOrdersQueryHandler(
             IMapper mapper,
-            IApplicationDbContext context,
+            IApplicationDbContextFactory dbContextFactory,
             IExcelService excelService,
             IStringLocalizer<ExportPurchaseOrdersQueryHandler> localizer
             )
         {
             _mapper = mapper;
-            _context = context;
+            _dbContextFactory = dbContextFactory;
             _excelService = excelService;
             _localizer = localizer;
         }
         #nullable disable warnings
         public async Task<Result<byte[]>> Handle(ExportPurchaseOrdersQuery request, CancellationToken cancellationToken)
         {
-            var data = await _context.PurchaseOrders.ApplySpecification(request.Specification)
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var data = await _context.PurchaseOrders.ApplySpecification(request.Specification)
                        .OrderBy($"{request.OrderBy} {request.SortDirection}")
                        .ProjectTo<PurchaseOrderDto>(_mapper.ConfigurationProvider)
                        .AsNoTracking()

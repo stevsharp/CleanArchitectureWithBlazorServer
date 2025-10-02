@@ -47,18 +47,19 @@ public class AddEditQuoteAttachmentCommand: ICacheInvalidatorRequest<Result<int>
 public class AddEditQuoteAttachmentCommandHandler : IRequestHandler<AddEditQuoteAttachmentCommand, Result<int>>
 {
     private readonly IMapper _mapper;
-    private readonly IApplicationDbContextFactory _dbContextFactory;;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     public AddEditQuoteAttachmentCommandHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
     public async Task<Result<int>> Handle(AddEditQuoteAttachmentCommand request, CancellationToken cancellationToken)
     {
         if (request.Id > 0)
         {
+            await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
             var item = await _context.QuoteAttachments.FindAsync(request.Id, cancellationToken);
             if (item == null)
             {
@@ -72,6 +73,7 @@ public class AddEditQuoteAttachmentCommandHandler : IRequestHandler<AddEditQuote
         }
         else
         {
+            await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
             var item = _mapper.Map<QuoteAttachment>(request);
             // raise a create domain event
 			item.AddDomainEvent(new QuoteAttachmentCreatedEvent(item));

@@ -35,19 +35,20 @@ public class QuoteApprovalsWithPaginationQuery : QuoteApprovalAdvancedFilter, IC
 public class QuoteApprovalsWithPaginationQueryHandler :
          IRequestHandler<QuoteApprovalsWithPaginationQuery, PaginatedData<QuoteApprovalDto>>
 {
-        private readonly IApplicationDbContextFactory _dbContextFactory;;
+        private readonly IApplicationDbContextFactory _dbContextFactory;
         private readonly IMapper _mapper;
         public QuoteApprovalsWithPaginationQueryHandler(
             IMapper mapper,
-            IApplicationDbContext context)
+            IApplicationDbContextFactory dbContextFactory)
         {
             _mapper = mapper;
-            _context = context;
-        }
+            _dbContextFactory = dbContextFactory;
+    }
 
         public async Task<PaginatedData<QuoteApprovalDto>> Handle(QuoteApprovalsWithPaginationQuery request, CancellationToken cancellationToken)
         {
-           var data = await _context.QuoteApprovals.OrderBy($"{request.OrderBy} {request.SortDirection}")
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var data = await _context.QuoteApprovals.OrderBy($"{request.OrderBy} {request.SortDirection}")
                                                    .ProjectToPaginatedDataAsync<QuoteApproval, QuoteApprovalDto>(request.Specification,
                                                     request.PageNumber,
                                                     request.PageSize,

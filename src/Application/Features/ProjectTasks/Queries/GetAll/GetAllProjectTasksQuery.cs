@@ -30,18 +30,19 @@ public class GetAllProjectTasksQuery : ICacheableRequest<IEnumerable<ProjectTask
 public class GetAllProjectTasksQueryHandler :
      IRequestHandler<GetAllProjectTasksQuery, IEnumerable<ProjectTaskDto>>
 {
-    private readonly IApplicationDbContextFactory _dbContextFactory;;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     private readonly IMapper _mapper;
     public GetAllProjectTasksQueryHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
 
     public async Task<IEnumerable<ProjectTaskDto>> Handle(GetAllProjectTasksQuery request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var data = await _context.ProjectTasks.ProjectTo<ProjectTaskDto>(_mapper.ConfigurationProvider)
                                                 .AsNoTracking()
                                                 .ToListAsync(cancellationToken);

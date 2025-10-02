@@ -31,18 +31,19 @@ public class GetPurchaseOrderByIdQuery : ICacheableRequest<Result<PurchaseOrderD
 public class GetPurchaseOrderByIdQueryHandler :
      IRequestHandler<GetPurchaseOrderByIdQuery, Result<PurchaseOrderDto>>
 {
-    private readonly IApplicationDbContextFactory _dbContextFactory;;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     private readonly IMapper _mapper;
     public GetPurchaseOrderByIdQueryHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
 
     public async Task<Result<PurchaseOrderDto>> Handle(GetPurchaseOrderByIdQuery request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var data = await _context.PurchaseOrders.ApplySpecification(new PurchaseOrderByIdSpecification(request.Id))
                                                 .ProjectTo<PurchaseOrderDto>(_mapper.ConfigurationProvider)
                                                 .FirstAsync(cancellationToken) ?? throw new NotFoundException($"PurchaseOrder with id: [{request.Id}] not found.");

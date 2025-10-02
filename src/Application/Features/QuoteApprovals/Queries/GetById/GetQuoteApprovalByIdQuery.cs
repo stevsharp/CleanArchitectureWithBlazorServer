@@ -31,18 +31,19 @@ public class GetQuoteApprovalByIdQuery : ICacheableRequest<Result<QuoteApprovalD
 public class GetQuoteApprovalByIdQueryHandler :
      IRequestHandler<GetQuoteApprovalByIdQuery, Result<QuoteApprovalDto>>
 {
-    private readonly IApplicationDbContextFactory _dbContextFactory;;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     private readonly IMapper _mapper;
     public GetQuoteApprovalByIdQueryHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
 
     public async Task<Result<QuoteApprovalDto>> Handle(GetQuoteApprovalByIdQuery request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var data = await _context.QuoteApprovals.ApplySpecification(new QuoteApprovalByIdSpecification(request.Id))
                                                 .ProjectTo<QuoteApprovalDto>(_mapper.ConfigurationProvider)
                                                 .FirstAsync(cancellationToken) ?? throw new NotFoundException($"QuoteApproval with id: [{request.Id}] not found.");

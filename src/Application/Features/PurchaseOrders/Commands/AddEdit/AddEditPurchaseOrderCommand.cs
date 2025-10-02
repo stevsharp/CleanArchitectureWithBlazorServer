@@ -55,18 +55,19 @@ public class AddEditPurchaseOrderCommand: ICacheInvalidatorRequest<Result<int>>
 public class AddEditPurchaseOrderCommandHandler : IRequestHandler<AddEditPurchaseOrderCommand, Result<int>>
 {
     private readonly IMapper _mapper;
-    private readonly IApplicationDbContextFactory _dbContextFactory;;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     public AddEditPurchaseOrderCommandHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
     public async Task<Result<int>> Handle(AddEditPurchaseOrderCommand request, CancellationToken cancellationToken)
     {
         if (request.Id > 0)
         {
+            await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
             var item = await _context.PurchaseOrders.FindAsync(request.Id, cancellationToken);
             if (item == null)
             {
@@ -80,6 +81,7 @@ public class AddEditPurchaseOrderCommandHandler : IRequestHandler<AddEditPurchas
         }
         else
         {
+            await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
             var item = _mapper.Map<PurchaseOrder>(request);
             // raise a create domain event
 			item.AddDomainEvent(new PurchaseOrderCreatedEvent(item));

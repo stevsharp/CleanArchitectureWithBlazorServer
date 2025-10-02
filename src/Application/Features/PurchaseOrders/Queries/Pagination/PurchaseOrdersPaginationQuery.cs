@@ -35,19 +35,20 @@ public class PurchaseOrdersWithPaginationQuery : PurchaseOrderAdvancedFilter, IC
 public class PurchaseOrdersWithPaginationQueryHandler :
          IRequestHandler<PurchaseOrdersWithPaginationQuery, PaginatedData<PurchaseOrderDto>>
 {
-        private readonly IApplicationDbContextFactory _dbContextFactory;;
+        private readonly IApplicationDbContextFactory _dbContextFactory;
         private readonly IMapper _mapper;
         public PurchaseOrdersWithPaginationQueryHandler(
             IMapper mapper,
-            IApplicationDbContext context)
+            IApplicationDbContextFactory dbContextFactory)
         {
             _mapper = mapper;
-            _context = context;
-        }
+            _dbContextFactory = dbContextFactory;
+    }
 
         public async Task<PaginatedData<PurchaseOrderDto>> Handle(PurchaseOrdersWithPaginationQuery request, CancellationToken cancellationToken)
         {
-           var data = await _context.PurchaseOrders.OrderBy($"{request.OrderBy} {request.SortDirection}")
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var data = await _context.PurchaseOrders.OrderBy($"{request.OrderBy} {request.SortDirection}")
                                                    .ProjectToPaginatedDataAsync<PurchaseOrder, PurchaseOrderDto>(request.Specification,
                                                     request.PageNumber,
                                                     request.PageSize,

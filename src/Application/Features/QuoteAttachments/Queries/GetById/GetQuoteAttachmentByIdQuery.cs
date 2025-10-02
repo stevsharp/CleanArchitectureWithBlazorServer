@@ -31,18 +31,19 @@ public class GetQuoteAttachmentByIdQuery : ICacheableRequest<Result<QuoteAttachm
 public class GetQuoteAttachmentByIdQueryHandler :
      IRequestHandler<GetQuoteAttachmentByIdQuery, Result<QuoteAttachmentDto>>
 {
-    private readonly IApplicationDbContextFactory _dbContextFactory;;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     private readonly IMapper _mapper;
     public GetQuoteAttachmentByIdQueryHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
 
     public async Task<Result<QuoteAttachmentDto>> Handle(GetQuoteAttachmentByIdQuery request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var data = await _context.QuoteAttachments.ApplySpecification(new QuoteAttachmentByIdSpecification(request.Id))
                                                 .ProjectTo<QuoteAttachmentDto>(_mapper.ConfigurationProvider)
                                                 .FirstAsync(cancellationToken) ?? throw new NotFoundException($"QuoteAttachment with id: [{request.Id}] not found.");

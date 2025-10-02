@@ -30,18 +30,19 @@ public class GetAllQuoteApprovalsQuery : ICacheableRequest<IEnumerable<QuoteAppr
 public class GetAllQuoteApprovalsQueryHandler :
      IRequestHandler<GetAllQuoteApprovalsQuery, IEnumerable<QuoteApprovalDto>>
 {
-    private readonly IApplicationDbContextFactory _dbContextFactory;;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     private readonly IMapper _mapper;
     public GetAllQuoteApprovalsQueryHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
 
     public async Task<IEnumerable<QuoteApprovalDto>> Handle(GetAllQuoteApprovalsQuery request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var data = await _context.QuoteApprovals.ProjectTo<QuoteApprovalDto>(_mapper.ConfigurationProvider)
                                                 .AsNoTracking()
                                                 .ToListAsync(cancellationToken);

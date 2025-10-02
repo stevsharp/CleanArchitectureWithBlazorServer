@@ -35,19 +35,20 @@ public class QuoteLinesWithPaginationQuery : QuoteLineAdvancedFilter, ICacheable
 public class QuoteLinesWithPaginationQueryHandler :
          IRequestHandler<QuoteLinesWithPaginationQuery, PaginatedData<QuoteLineDto>>
 {
-        private readonly IApplicationDbContextFactory _dbContextFactory;;
+        private readonly IApplicationDbContextFactory _dbContextFactory;
         private readonly IMapper _mapper;
         public QuoteLinesWithPaginationQueryHandler(
             IMapper mapper,
-            IApplicationDbContext context)
+            IApplicationDbContextFactory dbContextFactory)
         {
             _mapper = mapper;
-            _context = context;
-        }
+            _dbContextFactory = dbContextFactory;
+    }
 
         public async Task<PaginatedData<QuoteLineDto>> Handle(QuoteLinesWithPaginationQuery request, CancellationToken cancellationToken)
         {
-           var data = await _context.QuoteLines.OrderBy($"{request.OrderBy} {request.SortDirection}")
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var data = await _context.QuoteLines.OrderBy($"{request.OrderBy} {request.SortDirection}")
                                                    .ProjectToPaginatedDataAsync<QuoteLine, QuoteLineDto>(request.Specification,
                                                     request.PageNumber,
                                                     request.PageSize,

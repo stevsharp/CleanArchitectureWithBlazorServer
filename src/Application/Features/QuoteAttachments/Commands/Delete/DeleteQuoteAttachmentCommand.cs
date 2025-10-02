@@ -30,14 +30,15 @@ public class DeleteQuoteAttachmentCommandHandler :
              IRequestHandler<DeleteQuoteAttachmentCommand, Result>
 
 {
-    private readonly IApplicationDbContextFactory _dbContextFactory;;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     public DeleteQuoteAttachmentCommandHandler(
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
     public async Task<Result> Handle(DeleteQuoteAttachmentCommand request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var items = await _context.QuoteAttachments.Where(x=>request.Id.Contains(x.Id)).ToListAsync(cancellationToken);
         foreach (var item in items)
         {

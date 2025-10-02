@@ -37,26 +37,27 @@ public class ExportQuoteLinesQueryHandler :
          IRequestHandler<ExportQuoteLinesQuery, Result<byte[]>>
 {
         private readonly IMapper _mapper;
-        private readonly IApplicationDbContextFactory _dbContextFactory;;
+        private readonly IApplicationDbContextFactory _dbContextFactory;
         private readonly IExcelService _excelService;
         private readonly IStringLocalizer<ExportQuoteLinesQueryHandler> _localizer;
         private readonly QuoteLineDto _dto = new();
         public ExportQuoteLinesQueryHandler(
             IMapper mapper,
-            IApplicationDbContext context,
+            IApplicationDbContextFactory dbContextFactory,
             IExcelService excelService,
             IStringLocalizer<ExportQuoteLinesQueryHandler> localizer
             )
         {
             _mapper = mapper;
-            _context = context;
+            _dbContextFactory = dbContextFactory;
             _excelService = excelService;
             _localizer = localizer;
         }
         #nullable disable warnings
         public async Task<Result<byte[]>> Handle(ExportQuoteLinesQuery request, CancellationToken cancellationToken)
-        {
-            var data = await _context.QuoteLines.ApplySpecification(request.Specification)
+    {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var data = await _context.QuoteLines.ApplySpecification(request.Specification)
                        .OrderBy($"{request.OrderBy} {request.SortDirection}")
                        .ProjectTo<QuoteLineDto>(_mapper.ConfigurationProvider)
                        .AsNoTracking()

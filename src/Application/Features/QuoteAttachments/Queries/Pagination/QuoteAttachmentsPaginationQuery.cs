@@ -35,19 +35,20 @@ public class QuoteAttachmentsWithPaginationQuery : QuoteAttachmentAdvancedFilter
 public class QuoteAttachmentsWithPaginationQueryHandler :
          IRequestHandler<QuoteAttachmentsWithPaginationQuery, PaginatedData<QuoteAttachmentDto>>
 {
-        private readonly IApplicationDbContextFactory _dbContextFactory;;
+        private readonly IApplicationDbContextFactory _dbContextFactory;
         private readonly IMapper _mapper;
         public QuoteAttachmentsWithPaginationQueryHandler(
             IMapper mapper,
-            IApplicationDbContext context)
+            IApplicationDbContextFactory dbContextFactory)
         {
             _mapper = mapper;
-            _context = context;
-        }
+            _dbContextFactory = dbContextFactory;
+    }
 
         public async Task<PaginatedData<QuoteAttachmentDto>> Handle(QuoteAttachmentsWithPaginationQuery request, CancellationToken cancellationToken)
         {
-           var data = await _context.QuoteAttachments.OrderBy($"{request.OrderBy} {request.SortDirection}")
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var data = await _context.QuoteAttachments.OrderBy($"{request.OrderBy} {request.SortDirection}")
                                                    .ProjectToPaginatedDataAsync<QuoteAttachment, QuoteAttachmentDto>(request.Specification,
                                                     request.PageNumber,
                                                     request.PageSize,

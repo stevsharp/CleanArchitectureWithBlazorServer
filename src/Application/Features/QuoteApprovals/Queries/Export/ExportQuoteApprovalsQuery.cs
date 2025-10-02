@@ -37,26 +37,27 @@ public class ExportQuoteApprovalsQueryHandler :
          IRequestHandler<ExportQuoteApprovalsQuery, Result<byte[]>>
 {
         private readonly IMapper _mapper;
-        private readonly IApplicationDbContextFactory _dbContextFactory;;
+        private readonly IApplicationDbContextFactory _dbContextFactory;
         private readonly IExcelService _excelService;
         private readonly IStringLocalizer<ExportQuoteApprovalsQueryHandler> _localizer;
         private readonly QuoteApprovalDto _dto = new();
         public ExportQuoteApprovalsQueryHandler(
             IMapper mapper,
-            IApplicationDbContext context,
+            IApplicationDbContextFactory dbContextFactory,
             IExcelService excelService,
             IStringLocalizer<ExportQuoteApprovalsQueryHandler> localizer
             )
         {
             _mapper = mapper;
-            _context = context;
+            _dbContextFactory = dbContextFactory;
             _excelService = excelService;
             _localizer = localizer;
         }
         #nullable disable warnings
         public async Task<Result<byte[]>> Handle(ExportQuoteApprovalsQuery request, CancellationToken cancellationToken)
         {
-            var data = await _context.QuoteApprovals.ApplySpecification(request.Specification)
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var data = await _context.QuoteApprovals.ApplySpecification(request.Specification)
                        .OrderBy($"{request.OrderBy} {request.SortDirection}")
                        .ProjectTo<QuoteApprovalDto>(_mapper.ConfigurationProvider)
                        .AsNoTracking()

@@ -68,18 +68,19 @@ public class AddEditQuoteLineCommand: ICacheInvalidatorRequest<Result<int>>
 public class AddEditQuoteLineCommandHandler : IRequestHandler<AddEditQuoteLineCommand, Result<int>>
 {
     private readonly IMapper _mapper;
-    private readonly IApplicationDbContextFactory _dbContextFactory;;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     public AddEditQuoteLineCommandHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
     public async Task<Result<int>> Handle(AddEditQuoteLineCommand request, CancellationToken cancellationToken)
     {
         if (request.Id > 0)
         {
+            await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
             var item = await _context.QuoteLines.FindAsync(request.Id, cancellationToken);
             if (item == null)
             {
@@ -93,6 +94,7 @@ public class AddEditQuoteLineCommandHandler : IRequestHandler<AddEditQuoteLineCo
         }
         else
         {
+            await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
             var item = _mapper.Map<QuoteLine>(request);
             // raise a create domain event
 			item.AddDomainEvent(new QuoteLineCreatedEvent(item));

@@ -50,19 +50,19 @@ public class UpdateQuoteApprovalCommand: ICacheInvalidatorRequest<Result<int>>
 
 public class UpdateQuoteApprovalCommandHandler : IRequestHandler<UpdateQuoteApprovalCommand, Result<int>>
 {
-    private readonly IApplicationDbContextFactory _dbContextFactory;;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     private readonly IMapper _mapper;
     public UpdateQuoteApprovalCommandHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
-        _context = context;
+        _dbContextFactory = dbContextFactory;
         _mapper = mapper;
     }
     public async Task<Result<int>> Handle(UpdateQuoteApprovalCommand request, CancellationToken cancellationToken)
     {
-
-       var item = await _context.QuoteApprovals.FindAsync(request.Id, cancellationToken);
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var item = await _context.QuoteApprovals.FindAsync(request.Id, cancellationToken);
        if (item == null)
        {
            return await Result<int>.FailureAsync($"QuoteApproval with id: [{request.Id}] not found.");
