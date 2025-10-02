@@ -37,18 +37,18 @@ namespace CleanArchitecture.Blazor.Application.Features.Companies.Commands.Impor
                  IRequestHandler<CreateCompaniesTemplateCommand, Result<byte[]>>,
                  IRequestHandler<ImportCompaniesCommand, Result<int>>
     {
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;
         private readonly IStringLocalizer<ImportCompaniesCommandHandler> _localizer;
         private readonly IExcelService _excelService;
         private readonly CompanyDto _dto = new();
         private readonly IMapper _mapper;
         public ImportCompaniesCommandHandler(
-            IApplicationDbContext context,
+            IApplicationDbContextFactory dbContextFactory,
             IMapper mapper,
             IExcelService excelService,
             IStringLocalizer<ImportCompaniesCommandHandler> localizer)
         {
-            _context = context;
+            _dbContextFactory = dbContextFactory;
             _localizer = localizer;
             _excelService = excelService;
             _mapper = mapper;
@@ -56,8 +56,8 @@ namespace CleanArchitecture.Blazor.Application.Features.Companies.Commands.Impor
         #nullable disable warnings
         public async Task<Result<int>> Handle(ImportCompaniesCommand request, CancellationToken cancellationToken)
         {
-
-           var result = await _excelService.ImportAsync(request.Data, mappers: new Dictionary<string, Func<DataRow, CompanyDto, object?>>
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var result = await _excelService.ImportAsync(request.Data, mappers: new Dictionary<string, Func<DataRow, CompanyDto, object?>>
             {
                                 { _localizer[_dto.GetMemberDescription(x=>x.Name)], (row, item) => item.Name = row[_localizer[_dto.GetMemberDescription(x=>x.Name)]].ToString() }, 
                 { _localizer[_dto.GetMemberDescription(x=>x.VatNumber)], (row, item) => item.VatNumber = row[_localizer[_dto.GetMemberDescription(x=>x.VatNumber)]].ToString() }, 

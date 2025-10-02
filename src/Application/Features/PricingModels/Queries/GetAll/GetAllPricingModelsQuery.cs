@@ -30,18 +30,19 @@ public class GetAllPricingModelsQuery : ICacheableRequest<IEnumerable<PricingMod
 public class GetAllPricingModelsQueryHandler :
      IRequestHandler<GetAllPricingModelsQuery, IEnumerable<PricingModelDto>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     private readonly IMapper _mapper;
     public GetAllPricingModelsQueryHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;   
     }
 
     public async Task<IEnumerable<PricingModelDto>> Handle(GetAllPricingModelsQuery request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var data = await _context.PricingModels.ProjectTo<PricingModelDto>(_mapper.ConfigurationProvider)
                                                 .AsNoTracking()
                                                 .ToListAsync(cancellationToken);

@@ -37,7 +37,7 @@
 //                 IRequestHandler<CreateServiceVariantsTemplateCommand, Result<byte[]>>,
 //                 IRequestHandler<ImportServiceVariantsCommand, Result<int>>
 //    {
-//        private readonly IApplicationDbContext _context;
+//        private readonly IApplicationDbContextFactory _dbContextFactory;;
 //        private readonly IStringLocalizer<ImportServiceVariantsCommandHandler> _localizer;
 //        private readonly IExcelService _excelService;
 //        private readonly ServiceVariantDto _dto = new();

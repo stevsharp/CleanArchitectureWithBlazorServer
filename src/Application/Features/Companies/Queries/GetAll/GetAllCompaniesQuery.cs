@@ -30,18 +30,19 @@ public class GetAllCompaniesQuery : ICacheableRequest<IEnumerable<CompanyDto>>
 public class GetAllCompaniesQueryHandler :
      IRequestHandler<GetAllCompaniesQuery, IEnumerable<CompanyDto>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     private readonly IMapper _mapper;
     public GetAllCompaniesQueryHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
 
     public async Task<IEnumerable<CompanyDto>> Handle(GetAllCompaniesQuery request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var data = await _context.Companies.ProjectTo<CompanyDto>(_mapper.ConfigurationProvider)
                                                 .AsNoTracking()
                                                 .ToListAsync(cancellationToken);

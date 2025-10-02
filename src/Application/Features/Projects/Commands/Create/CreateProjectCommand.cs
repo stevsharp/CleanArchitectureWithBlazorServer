@@ -52,17 +52,18 @@ public class CreateProjectCommand: ICacheInvalidatorRequest<Result<int>>
     public class CreateProjectCommandHandler : IRequestHandler<CreateProjectCommand, Result<int>>
     {
         private readonly IMapper _mapper;
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;
         public CreateProjectCommandHandler(
             IMapper mapper,
-            IApplicationDbContext context)
+            IApplicationDbContextFactory dbContextFactory)
         {
             _mapper = mapper;
-            _context = context;
+            _dbContextFactory = dbContextFactory;
         }
         public async Task<Result<int>> Handle(CreateProjectCommand request, CancellationToken cancellationToken)
         {
-           var item = _mapper.Map<Project>(request);
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var item = _mapper.Map<Project>(request);
            // raise a create domain event
 	       item.AddDomainEvent(new ProjectCreatedEvent(item));
            _context.Projects.Add(item);

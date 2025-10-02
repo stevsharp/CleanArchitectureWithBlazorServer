@@ -35,19 +35,20 @@ public class AssignmentsWithPaginationQuery : AssignmentAdvancedFilter, ICacheab
 public class AssignmentsWithPaginationQueryHandler :
          IRequestHandler<AssignmentsWithPaginationQuery, PaginatedData<AssignmentDto>>
 {
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;
         private readonly IMapper _mapper;
         public AssignmentsWithPaginationQueryHandler(
             IMapper mapper,
-            IApplicationDbContext context)
+            IApplicationDbContextFactory dbContextFactory)
         {
             _mapper = mapper;
-            _context = context;
-        }
+            _dbContextFactory = dbContextFactory;
+    }
 
         public async Task<PaginatedData<AssignmentDto>> Handle(AssignmentsWithPaginationQuery request, CancellationToken cancellationToken)
         {
-           var data = await _context.Assignments.OrderBy($"{request.OrderBy} {request.SortDirection}")
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var data = await _context.Assignments.OrderBy($"{request.OrderBy} {request.SortDirection}")
                                                    .ProjectToPaginatedDataAsync<Assignment, AssignmentDto>(request.Specification,
                                                     request.PageNumber,
                                                     request.PageSize,

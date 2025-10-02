@@ -30,7 +30,7 @@ public class DeleteQuoteApprovalCommandHandler :
              IRequestHandler<DeleteQuoteApprovalCommand, Result>
 
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     public DeleteQuoteApprovalCommandHandler(
         IApplicationDbContext context)
     {

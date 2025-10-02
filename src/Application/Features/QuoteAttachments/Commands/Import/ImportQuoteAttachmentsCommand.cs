@@ -37,7 +37,7 @@
 //                 IRequestHandler<CreateQuoteAttachmentsTemplateCommand, Result<byte[]>>,
 //                 IRequestHandler<ImportQuoteAttachmentsCommand, Result<int>>
 //    {
-//        private readonly IApplicationDbContext _context;
+//        private readonly IApplicationDbContextFactory _dbContextFactory;;
 //        private readonly IStringLocalizer<ImportQuoteAttachmentsCommandHandler> _localizer;
 //        private readonly IExcelService _excelService;
 //        private readonly QuoteAttachmentDto _dto = new();

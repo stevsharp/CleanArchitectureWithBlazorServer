@@ -37,26 +37,27 @@ public class ExportEquipmentItemsQueryHandler :
          IRequestHandler<ExportEquipmentItemsQuery, Result<byte[]>>
 {
         private readonly IMapper _mapper;
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;
         private readonly IExcelService _excelService;
         private readonly IStringLocalizer<ExportEquipmentItemsQueryHandler> _localizer;
         private readonly EquipmentItemDto _dto = new();
         public ExportEquipmentItemsQueryHandler(
             IMapper mapper,
-            IApplicationDbContext context,
+            IApplicationDbContextFactory dbContextFactory,
             IExcelService excelService,
             IStringLocalizer<ExportEquipmentItemsQueryHandler> localizer
             )
         {
             _mapper = mapper;
-            _context = context;
+            _dbContextFactory = dbContextFactory;
             _excelService = excelService;
             _localizer = localizer;
         }
         #nullable disable warnings
         public async Task<Result<byte[]>> Handle(ExportEquipmentItemsQuery request, CancellationToken cancellationToken)
         {
-            var data = await _context.EquipmentItems.ApplySpecification(request.Specification)
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var data = await _context.EquipmentItems.ApplySpecification(request.Specification)
                        .OrderBy($"{request.OrderBy} {request.SortDirection}")
                        .ProjectTo<EquipmentItemDto>(_mapper.ConfigurationProvider)
                        .AsNoTracking()

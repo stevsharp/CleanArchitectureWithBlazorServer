@@ -55,18 +55,19 @@ public class AddEditCostItemCommand: ICacheInvalidatorRequest<Result<int>>
 public class AddEditCostItemCommandHandler : IRequestHandler<AddEditCostItemCommand, Result<int>>
 {
     private readonly IMapper _mapper;
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     public AddEditCostItemCommandHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
     public async Task<Result<int>> Handle(AddEditCostItemCommand request, CancellationToken cancellationToken)
     {
         if (request.Id > 0)
         {
+            await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
             var item = await _context.CostItems.FindAsync(request.Id, cancellationToken);
             if (item == null)
             {
@@ -80,6 +81,7 @@ public class AddEditCostItemCommandHandler : IRequestHandler<AddEditCostItemComm
         }
         else
         {
+            await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
             var item = _mapper.Map<CostItem>(request);
             // raise a create domain event
 			item.AddDomainEvent(new CostItemCreatedEvent(item));

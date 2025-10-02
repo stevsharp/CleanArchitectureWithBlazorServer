@@ -47,18 +47,19 @@ public class AddEditPricingModelCommand: ICacheInvalidatorRequest<Result<int>>
 public class AddEditPricingModelCommandHandler : IRequestHandler<AddEditPricingModelCommand, Result<int>>
 {
     private readonly IMapper _mapper;
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     public AddEditPricingModelCommandHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory  dbContextFactory )
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
     public async Task<Result<int>> Handle(AddEditPricingModelCommand request, CancellationToken cancellationToken)
     {
         if (request.Id > 0)
         {
+            await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
             var item = await _context.PricingModels.FindAsync(request.Id, cancellationToken);
             if (item == null)
             {
@@ -72,6 +73,7 @@ public class AddEditPricingModelCommandHandler : IRequestHandler<AddEditPricingM
         }
         else
         {
+            await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
             var item = _mapper.Map<PricingModel>(request);
             // raise a create domain event
 			item.AddDomainEvent(new PricingModelCreatedEvent(item));

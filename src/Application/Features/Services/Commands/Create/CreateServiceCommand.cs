@@ -44,7 +44,7 @@ public class CreateServiceCommand: ICacheInvalidatorRequest<Result<int>>
     public class CreateServiceCommandHandler : IRequestHandler<CreateServiceCommand, Result<int>>
     {
         private readonly IMapper _mapper;
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;;
         public CreateServiceCommandHandler(
             IMapper mapper,
             IApplicationDbContext context)

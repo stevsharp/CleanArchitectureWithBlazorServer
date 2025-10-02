@@ -30,14 +30,15 @@ public class DeleteCostItemCommandHandler :
              IRequestHandler<DeleteCostItemCommand, Result>
 
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     public DeleteCostItemCommandHandler(
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
     public async Task<Result> Handle(DeleteCostItemCommand request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var items = await _context.CostItems.Where(x=>request.Id.Contains(x.Id)).ToListAsync(cancellationToken);
         foreach (var item in items)
         {

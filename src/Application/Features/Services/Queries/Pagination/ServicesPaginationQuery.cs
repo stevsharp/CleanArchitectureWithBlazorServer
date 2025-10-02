@@ -35,7 +35,7 @@ public class ServicesWithPaginationQuery : ServiceAdvancedFilter, ICacheableRequ
 public class ServicesWithPaginationQueryHandler :
          IRequestHandler<ServicesWithPaginationQuery, PaginatedData<ServiceDto>>
 {
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;;
         private readonly IMapper _mapper;
         public ServicesWithPaginationQueryHandler(
             IMapper mapper,

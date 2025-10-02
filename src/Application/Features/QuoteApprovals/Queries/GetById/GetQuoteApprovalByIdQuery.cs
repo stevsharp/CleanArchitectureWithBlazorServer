@@ -31,7 +31,7 @@ public class GetQuoteApprovalByIdQuery : ICacheableRequest<Result<QuoteApprovalD
 public class GetQuoteApprovalByIdQueryHandler :
      IRequestHandler<GetQuoteApprovalByIdQuery, Result<QuoteApprovalDto>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     private readonly IMapper _mapper;
     public GetQuoteApprovalByIdQueryHandler(
         IMapper mapper,

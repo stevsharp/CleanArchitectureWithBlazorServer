@@ -35,19 +35,20 @@ public class ProjectsWithPaginationQuery : ProjectAdvancedFilter, ICacheableRequ
 public class ProjectsWithPaginationQueryHandler :
          IRequestHandler<ProjectsWithPaginationQuery, PaginatedData<ProjectDto>>
 {
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;
         private readonly IMapper _mapper;
         public ProjectsWithPaginationQueryHandler(
             IMapper mapper,
-            IApplicationDbContext context)
+            IApplicationDbContextFactory dbContextFactory)
         {
             _mapper = mapper;
-            _context = context;
-        }
+            _dbContextFactory = dbContextFactory;
+    }
 
         public async Task<PaginatedData<ProjectDto>> Handle(ProjectsWithPaginationQuery request, CancellationToken cancellationToken)
         {
-           var data = await _context.Projects.OrderBy($"{request.OrderBy} {request.SortDirection}")
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var data = await _context.Projects.OrderBy($"{request.OrderBy} {request.SortDirection}")
                                                    .ProjectToPaginatedDataAsync<Project, ProjectDto>(request.Specification,
                                                     request.PageNumber,
                                                     request.PageSize,

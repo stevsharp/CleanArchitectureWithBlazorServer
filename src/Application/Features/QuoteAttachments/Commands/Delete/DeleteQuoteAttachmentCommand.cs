@@ -30,7 +30,7 @@ public class DeleteQuoteAttachmentCommandHandler :
              IRequestHandler<DeleteQuoteAttachmentCommand, Result>
 
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     public DeleteQuoteAttachmentCommandHandler(
         IApplicationDbContext context)
     {

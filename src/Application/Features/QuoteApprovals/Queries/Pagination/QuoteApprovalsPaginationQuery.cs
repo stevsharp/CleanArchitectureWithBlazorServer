@@ -35,7 +35,7 @@ public class QuoteApprovalsWithPaginationQuery : QuoteApprovalAdvancedFilter, IC
 public class QuoteApprovalsWithPaginationQueryHandler :
          IRequestHandler<QuoteApprovalsWithPaginationQuery, PaginatedData<QuoteApprovalDto>>
 {
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;;
         private readonly IMapper _mapper;
         public QuoteApprovalsWithPaginationQueryHandler(
             IMapper mapper,

@@ -55,7 +55,7 @@ public class AddEditPurchaseOrderCommand: ICacheInvalidatorRequest<Result<int>>
 public class AddEditPurchaseOrderCommandHandler : IRequestHandler<AddEditPurchaseOrderCommand, Result<int>>
 {
     private readonly IMapper _mapper;
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     public AddEditPurchaseOrderCommandHandler(
         IMapper mapper,
         IApplicationDbContext context)

@@ -37,26 +37,27 @@ public class ExportPricingModelsQueryHandler :
          IRequestHandler<ExportPricingModelsQuery, Result<byte[]>>
 {
         private readonly IMapper _mapper;
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;
         private readonly IExcelService _excelService;
         private readonly IStringLocalizer<ExportPricingModelsQueryHandler> _localizer;
         private readonly PricingModelDto _dto = new();
         public ExportPricingModelsQueryHandler(
             IMapper mapper,
-            IApplicationDbContext context,
+            IApplicationDbContextFactory dbContextFactory,
             IExcelService excelService,
             IStringLocalizer<ExportPricingModelsQueryHandler> localizer
             )
         {
             _mapper = mapper;
-            _context = context;
+            _dbContextFactory = dbContextFactory;
             _excelService = excelService;
             _localizer = localizer;
         }
         #nullable disable warnings
         public async Task<Result<byte[]>> Handle(ExportPricingModelsQuery request, CancellationToken cancellationToken)
         {
-            var data = await _context.PricingModels.ApplySpecification(request.Specification)
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var data = await _context.PricingModels.ApplySpecification(request.Specification)
                        .OrderBy($"{request.OrderBy} {request.SortDirection}")
                        .ProjectTo<PricingModelDto>(_mapper.ConfigurationProvider)
                        .AsNoTracking()

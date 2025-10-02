@@ -31,7 +31,7 @@ public class GetServiceVariantByIdQuery : ICacheableRequest<Result<ServiceVarian
 public class GetServiceVariantByIdQueryHandler :
      IRequestHandler<GetServiceVariantByIdQuery, Result<ServiceVariantDto>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     private readonly IMapper _mapper;
     public GetServiceVariantByIdQueryHandler(
         IMapper mapper,

@@ -37,7 +37,7 @@ public class ExportServiceVariantsQueryHandler :
          IRequestHandler<ExportServiceVariantsQuery, Result<byte[]>>
 {
         private readonly IMapper _mapper;
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;;
         private readonly IExcelService _excelService;
         private readonly IStringLocalizer<ExportServiceVariantsQueryHandler> _localizer;
         private readonly ServiceVariantDto _dto = new();

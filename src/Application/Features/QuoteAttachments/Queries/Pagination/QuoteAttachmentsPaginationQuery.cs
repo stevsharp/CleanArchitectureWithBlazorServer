@@ -35,7 +35,7 @@ public class QuoteAttachmentsWithPaginationQuery : QuoteAttachmentAdvancedFilter
 public class QuoteAttachmentsWithPaginationQueryHandler :
          IRequestHandler<QuoteAttachmentsWithPaginationQuery, PaginatedData<QuoteAttachmentDto>>
 {
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;;
         private readonly IMapper _mapper;
         public QuoteAttachmentsWithPaginationQueryHandler(
             IMapper mapper,

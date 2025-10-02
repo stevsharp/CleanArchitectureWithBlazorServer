@@ -30,7 +30,7 @@ public class DeleteProjectTaskCommandHandler :
              IRequestHandler<DeleteProjectTaskCommand, Result>
 
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     public DeleteProjectTaskCommandHandler(
         IApplicationDbContext context)
     {

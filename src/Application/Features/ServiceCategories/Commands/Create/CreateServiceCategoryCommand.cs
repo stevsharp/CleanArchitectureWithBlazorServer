@@ -38,7 +38,7 @@ public class CreateServiceCategoryCommand: ICacheInvalidatorRequest<Result<int>>
     public class CreateServiceCategoryCommandHandler : IRequestHandler<CreateServiceCategoryCommand, Result<int>>
     {
         private readonly IMapper _mapper;
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;;
         public CreateServiceCategoryCommandHandler(
             IMapper mapper,
             IApplicationDbContext context)

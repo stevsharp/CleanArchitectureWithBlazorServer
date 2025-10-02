@@ -35,7 +35,7 @@ public class QuoteVersionsWithPaginationQuery : QuoteVersionAdvancedFilter, ICac
 public class QuoteVersionsWithPaginationQueryHandler :
          IRequestHandler<QuoteVersionsWithPaginationQuery, PaginatedData<QuoteVersionDto>>
 {
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;;
         private readonly IMapper _mapper;
         public QuoteVersionsWithPaginationQueryHandler(
             IMapper mapper,

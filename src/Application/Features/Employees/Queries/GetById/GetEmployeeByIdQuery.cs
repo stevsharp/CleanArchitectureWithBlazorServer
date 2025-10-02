@@ -31,18 +31,19 @@ public class GetEmployeeByIdQuery : ICacheableRequest<Result<EmployeeDto>>
 public class GetEmployeeByIdQueryHandler :
      IRequestHandler<GetEmployeeByIdQuery, Result<EmployeeDto>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     private readonly IMapper _mapper;
     public GetEmployeeByIdQueryHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
 
     public async Task<Result<EmployeeDto>> Handle(GetEmployeeByIdQuery request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var data = await _context.Employees.ApplySpecification(new EmployeeByIdSpecification(request.Id))
                                                 .ProjectTo<EmployeeDto>(_mapper.ConfigurationProvider)
                                                 .FirstAsync(cancellationToken) ?? throw new NotFoundException($"Employee with id: [{request.Id}] not found.");

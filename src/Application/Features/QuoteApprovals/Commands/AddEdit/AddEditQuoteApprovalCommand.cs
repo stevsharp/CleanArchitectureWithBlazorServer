@@ -51,7 +51,7 @@ public class AddEditQuoteApprovalCommand: ICacheInvalidatorRequest<Result<int>>
 public class AddEditQuoteApprovalCommandHandler : IRequestHandler<AddEditQuoteApprovalCommand, Result<int>>
 {
     private readonly IMapper _mapper;
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     public AddEditQuoteApprovalCommandHandler(
         IMapper mapper,
         IApplicationDbContext context)

@@ -37,18 +37,18 @@ namespace CleanArchitecture.Blazor.Application.Features.EquipmentItems.Commands.
                  IRequestHandler<CreateEquipmentItemsTemplateCommand, Result<byte[]>>,
                  IRequestHandler<ImportEquipmentItemsCommand, Result<int>>
     {
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;
         private readonly IStringLocalizer<ImportEquipmentItemsCommandHandler> _localizer;
         private readonly IExcelService _excelService;
         private readonly EquipmentItemDto _dto = new();
         private readonly IMapper _mapper;
         public ImportEquipmentItemsCommandHandler(
-            IApplicationDbContext context,
+            IApplicationDbContextFactory dbContextFactory,
             IMapper mapper,
             IExcelService excelService,
             IStringLocalizer<ImportEquipmentItemsCommandHandler> localizer)
         {
-            _context = context;
+            _dbContextFactory = dbContextFactory;
             _localizer = localizer;
             _excelService = excelService;
             _mapper = mapper;
@@ -56,8 +56,8 @@ namespace CleanArchitecture.Blazor.Application.Features.EquipmentItems.Commands.
         #nullable disable warnings
         public async Task<Result<int>> Handle(ImportEquipmentItemsCommand request, CancellationToken cancellationToken)
         {
-
-           var result = await _excelService.ImportAsync(request.Data, mappers: new Dictionary<string, Func<DataRow, EquipmentItemDto, object?>>
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var result = await _excelService.ImportAsync(request.Data, mappers: new Dictionary<string, Func<DataRow, EquipmentItemDto, object?>>
             {
                                 { _localizer[_dto.GetMemberDescription(x=>x.Name)], (row, item) => item.Name = row[_localizer[_dto.GetMemberDescription(x=>x.Name)]].ToString() }, 
                 { _localizer[_dto.GetMemberDescription(x=>x.Category)], (row, item) => item.Category = row[_localizer[_dto.GetMemberDescription(x=>x.Category)]].ToString() }, 

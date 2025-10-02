@@ -37,7 +37,7 @@
 //                 IRequestHandler<CreateQuoteLinesTemplateCommand, Result<byte[]>>,
 //                 IRequestHandler<ImportQuoteLinesCommand, Result<int>>
 //    {
-//        private readonly IApplicationDbContext _context;
+//        private readonly IApplicationDbContextFactory _dbContextFactory;;
 //        private readonly IStringLocalizer<ImportQuoteLinesCommandHandler> _localizer;
 //        private readonly IExcelService _excelService;
 //        private readonly QuoteLineDto _dto = new();

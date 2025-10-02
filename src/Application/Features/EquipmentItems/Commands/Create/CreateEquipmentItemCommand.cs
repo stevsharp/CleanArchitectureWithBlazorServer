@@ -46,17 +46,18 @@ public class CreateEquipmentItemCommand: ICacheInvalidatorRequest<Result<int>>
     public class CreateEquipmentItemCommandHandler : IRequestHandler<CreateEquipmentItemCommand, Result<int>>
     {
         private readonly IMapper _mapper;
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;
         public CreateEquipmentItemCommandHandler(
             IMapper mapper,
-            IApplicationDbContext context)
+            IApplicationDbContextFactory dbContextFactory)
         {
             _mapper = mapper;
-            _context = context;
-        }
+            _dbContextFactory = dbContextFactory;
+    }
         public async Task<Result<int>> Handle(CreateEquipmentItemCommand request, CancellationToken cancellationToken)
         {
-           var item = _mapper.Map<EquipmentItem>(request);
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var item = _mapper.Map<EquipmentItem>(request);
            // raise a create domain event
 	       item.AddDomainEvent(new EquipmentItemCreatedEvent(item));
            _context.EquipmentItems.Add(item);

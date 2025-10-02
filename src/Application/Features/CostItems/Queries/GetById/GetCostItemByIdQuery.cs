@@ -31,18 +31,19 @@ public class GetCostItemByIdQuery : ICacheableRequest<Result<CostItemDto>>
 public class GetCostItemByIdQueryHandler :
      IRequestHandler<GetCostItemByIdQuery, Result<CostItemDto>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     private readonly IMapper _mapper;
     public GetCostItemByIdQueryHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
 
     public async Task<Result<CostItemDto>> Handle(GetCostItemByIdQuery request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var data = await _context.CostItems.ApplySpecification(new CostItemByIdSpecification(request.Id))
                                                 .ProjectTo<CostItemDto>(_mapper.ConfigurationProvider)
                                                 .FirstAsync(cancellationToken) ?? throw new NotFoundException($"CostItem with id: [{request.Id}] not found.");

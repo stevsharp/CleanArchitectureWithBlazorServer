@@ -54,7 +54,7 @@ public class CreateQuoteCommand: ICacheInvalidatorRequest<Result<int>>
     public class CreateQuoteCommandHandler : IRequestHandler<CreateQuoteCommand, Result<int>>
     {
         private readonly IMapper _mapper;
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;;
         public CreateQuoteCommandHandler(
             IMapper mapper,
             IApplicationDbContext context)

@@ -30,7 +30,7 @@ public class DeleteServiceCategoryCommandHandler :
              IRequestHandler<DeleteServiceCategoryCommand, Result>
 
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     public DeleteServiceCategoryCommandHandler(
         IApplicationDbContext context)
     {

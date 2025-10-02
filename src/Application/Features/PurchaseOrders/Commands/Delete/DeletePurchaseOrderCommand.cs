@@ -30,7 +30,7 @@ public class DeletePurchaseOrderCommandHandler :
              IRequestHandler<DeletePurchaseOrderCommand, Result>
 
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     public DeletePurchaseOrderCommandHandler(
         IApplicationDbContext context)
     {

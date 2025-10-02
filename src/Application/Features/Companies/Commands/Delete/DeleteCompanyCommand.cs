@@ -30,14 +30,15 @@ public class DeleteCompanyCommandHandler :
              IRequestHandler<DeleteCompanyCommand, Result>
 
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     public DeleteCompanyCommandHandler(
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
     public async Task<Result> Handle(DeleteCompanyCommand request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var items = await _context.Companies.Where(x=>request.Id.Contains(x.Id)).ToListAsync(cancellationToken);
         foreach (var item in items)
         {

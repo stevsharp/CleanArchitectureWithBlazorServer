@@ -47,7 +47,7 @@ public class AddEditQuoteAttachmentCommand: ICacheInvalidatorRequest<Result<int>
 public class AddEditQuoteAttachmentCommandHandler : IRequestHandler<AddEditQuoteAttachmentCommand, Result<int>>
 {
     private readonly IMapper _mapper;
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     public AddEditQuoteAttachmentCommandHandler(
         IMapper mapper,
         IApplicationDbContext context)

@@ -46,17 +46,18 @@ public class CreateCompanyCommand: ICacheInvalidatorRequest<Result<int>>
     public class CreateCompanyCommandHandler : IRequestHandler<CreateCompanyCommand, Result<int>>
     {
         private readonly IMapper _mapper;
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;
         public CreateCompanyCommandHandler(
             IMapper mapper,
-            IApplicationDbContext context)
+            IApplicationDbContextFactory dbContextFactory)
         {
             _mapper = mapper;
-            _context = context;
-        }
+            _dbContextFactory = dbContextFactory;
+    }
         public async Task<Result<int>> Handle(CreateCompanyCommand request, CancellationToken cancellationToken)
         {
-           var item = _mapper.Map<Company>(request);
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var item = _mapper.Map<Company>(request);
            // raise a create domain event
 	       item.AddDomainEvent(new CompanyCreatedEvent(item));
            _context.Companies.Add(item);

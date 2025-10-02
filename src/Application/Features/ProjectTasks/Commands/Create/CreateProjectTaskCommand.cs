@@ -52,7 +52,7 @@ public class CreateProjectTaskCommand: ICacheInvalidatorRequest<Result<int>>
     public class CreateProjectTaskCommandHandler : IRequestHandler<CreateProjectTaskCommand, Result<int>>
     {
         private readonly IMapper _mapper;
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;;
         public CreateProjectTaskCommandHandler(
             IMapper mapper,
             IApplicationDbContext context)

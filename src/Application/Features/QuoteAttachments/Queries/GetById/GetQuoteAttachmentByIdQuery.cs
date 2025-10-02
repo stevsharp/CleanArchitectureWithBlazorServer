@@ -31,7 +31,7 @@ public class GetQuoteAttachmentByIdQuery : ICacheableRequest<Result<QuoteAttachm
 public class GetQuoteAttachmentByIdQueryHandler :
      IRequestHandler<GetQuoteAttachmentByIdQuery, Result<QuoteAttachmentDto>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     private readonly IMapper _mapper;
     public GetQuoteAttachmentByIdQueryHandler(
         IMapper mapper,

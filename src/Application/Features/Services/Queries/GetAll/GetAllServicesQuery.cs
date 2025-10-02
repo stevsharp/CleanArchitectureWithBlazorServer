@@ -30,7 +30,7 @@ public class GetAllServicesQuery : ICacheableRequest<IEnumerable<ServiceDto>>
 public class GetAllServicesQueryHandler :
      IRequestHandler<GetAllServicesQuery, IEnumerable<ServiceDto>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     private readonly IMapper _mapper;
     public GetAllServicesQueryHandler(
         IMapper mapper,

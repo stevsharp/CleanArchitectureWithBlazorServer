@@ -56,7 +56,7 @@ public class UpdateQuoteCommand: ICacheInvalidatorRequest<Result<int>>
 
 public class UpdateQuoteCommandHandler : IRequestHandler<UpdateQuoteCommand, Result<int>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     private readonly IMapper _mapper;
     public UpdateQuoteCommandHandler(
         IMapper mapper,

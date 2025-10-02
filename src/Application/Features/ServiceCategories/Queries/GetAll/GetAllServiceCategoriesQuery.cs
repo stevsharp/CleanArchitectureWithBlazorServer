@@ -30,7 +30,7 @@ public class GetAllServiceCategoriesQuery : ICacheableRequest<IEnumerable<Servic
 public class GetAllServiceCategoriesQueryHandler :
      IRequestHandler<GetAllServiceCategoriesQuery, IEnumerable<ServiceCategoryDto>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     private readonly IMapper _mapper;
     public GetAllServiceCategoriesQueryHandler(
         IMapper mapper,

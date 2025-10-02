@@ -37,26 +37,27 @@ public class ExportProjectsQueryHandler :
          IRequestHandler<ExportProjectsQuery, Result<byte[]>>
 {
         private readonly IMapper _mapper;
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;
         private readonly IExcelService _excelService;
         private readonly IStringLocalizer<ExportProjectsQueryHandler> _localizer;
         private readonly ProjectDto _dto = new();
         public ExportProjectsQueryHandler(
             IMapper mapper,
-            IApplicationDbContext context,
+            IApplicationDbContextFactory dbContextFactory,
             IExcelService excelService,
             IStringLocalizer<ExportProjectsQueryHandler> localizer
             )
         {
             _mapper = mapper;
-            _context = context;
+            _dbContextFactory = dbContextFactory;
             _excelService = excelService;
             _localizer = localizer;
         }
         #nullable disable warnings
         public async Task<Result<byte[]>> Handle(ExportProjectsQuery request, CancellationToken cancellationToken)
-        {
-            var data = await _context.Projects.ApplySpecification(request.Specification)
+    {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var data = await _context.Projects.ApplySpecification(request.Specification)
                        .OrderBy($"{request.OrderBy} {request.SortDirection}")
                        .ProjectTo<ProjectDto>(_mapper.ConfigurationProvider)
                        .AsNoTracking()

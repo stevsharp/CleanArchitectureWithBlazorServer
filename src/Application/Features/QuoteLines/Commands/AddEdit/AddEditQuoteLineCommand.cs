@@ -68,7 +68,7 @@ public class AddEditQuoteLineCommand: ICacheInvalidatorRequest<Result<int>>
 public class AddEditQuoteLineCommandHandler : IRequestHandler<AddEditQuoteLineCommand, Result<int>>
 {
     private readonly IMapper _mapper;
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     public AddEditQuoteLineCommandHandler(
         IMapper mapper,
         IApplicationDbContext context)

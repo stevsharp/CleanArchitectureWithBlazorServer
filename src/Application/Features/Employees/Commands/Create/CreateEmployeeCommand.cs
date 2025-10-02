@@ -44,17 +44,18 @@ public class CreateEmployeeCommand: ICacheInvalidatorRequest<Result<int>>
     public class CreateEmployeeCommandHandler : IRequestHandler<CreateEmployeeCommand, Result<int>>
     {
         private readonly IMapper _mapper;
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;
         public CreateEmployeeCommandHandler(
             IMapper mapper,
-            IApplicationDbContext context)
+            IApplicationDbContextFactory dbContextFactory)
         {
             _mapper = mapper;
-            _context = context;
-        }
+            _dbContextFactory = dbContextFactory;
+    }
         public async Task<Result<int>> Handle(CreateEmployeeCommand request, CancellationToken cancellationToken)
         {
-           var item = _mapper.Map<Employee>(request);
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var item = _mapper.Map<Employee>(request);
            // raise a create domain event
 	       item.AddDomainEvent(new EmployeeCreatedEvent(item));
            _context.Employees.Add(item);

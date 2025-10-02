@@ -40,7 +40,7 @@ public class UpdateServiceCategoryCommand: ICacheInvalidatorRequest<Result<int>>
 
 public class UpdateServiceCategoryCommandHandler : IRequestHandler<UpdateServiceCategoryCommand, Result<int>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     private readonly IMapper _mapper;
     public UpdateServiceCategoryCommandHandler(
         IMapper mapper,

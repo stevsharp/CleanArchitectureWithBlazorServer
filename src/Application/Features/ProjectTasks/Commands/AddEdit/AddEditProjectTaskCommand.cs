@@ -55,7 +55,7 @@ public class AddEditProjectTaskCommand: ICacheInvalidatorRequest<Result<int>>
 public class AddEditProjectTaskCommandHandler : IRequestHandler<AddEditProjectTaskCommand, Result<int>>
 {
     private readonly IMapper _mapper;
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     public AddEditProjectTaskCommandHandler(
         IMapper mapper,
         IApplicationDbContext context)

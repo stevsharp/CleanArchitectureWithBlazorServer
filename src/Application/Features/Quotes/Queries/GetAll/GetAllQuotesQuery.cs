@@ -30,7 +30,7 @@ public class GetAllQuotesQuery : ICacheableRequest<IEnumerable<QuoteDto>>
 public class GetAllQuotesQueryHandler :
      IRequestHandler<GetAllQuotesQuery, IEnumerable<QuoteDto>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     private readonly IMapper _mapper;
     public GetAllQuotesQueryHandler(
         IMapper mapper,

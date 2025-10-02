@@ -37,7 +37,7 @@
 //                 IRequestHandler<CreateAssignmentsTemplateCommand, Result<byte[]>>,
 //                 IRequestHandler<ImportAssignmentsCommand, Result<int>>
 //    {
-//        private readonly IApplicationDbContext _context;
+//        private readonly IApplicationDbContextFactory _dbContextFactory;;
 //        private readonly IStringLocalizer<ImportAssignmentsCommandHandler> _localizer;
 //        private readonly IExcelService _excelService;
 //        private readonly AssignmentDto _dto = new();

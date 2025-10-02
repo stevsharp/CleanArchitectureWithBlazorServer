@@ -37,7 +37,7 @@ public class ExportProjectTasksQueryHandler :
          IRequestHandler<ExportProjectTasksQuery, Result<byte[]>>
 {
         private readonly IMapper _mapper;
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;;
         private readonly IExcelService _excelService;
         private readonly IStringLocalizer<ExportProjectTasksQueryHandler> _localizer;
         private readonly ProjectTaskDto _dto = new();

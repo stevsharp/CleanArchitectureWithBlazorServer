@@ -35,7 +35,7 @@ public class ServiceVariantsWithPaginationQuery : ServiceVariantAdvancedFilter, 
 public class ServiceVariantsWithPaginationQueryHandler :
          IRequestHandler<ServiceVariantsWithPaginationQuery, PaginatedData<ServiceVariantDto>>
 {
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;;
         private readonly IMapper _mapper;
         public ServiceVariantsWithPaginationQueryHandler(
             IMapper mapper,

@@ -37,7 +37,7 @@
 //                 IRequestHandler<CreateQuoteVersionsTemplateCommand, Result<byte[]>>,
 //                 IRequestHandler<ImportQuoteVersionsCommand, Result<int>>
 //    {
-//        private readonly IApplicationDbContext _context;
+//        private readonly IApplicationDbContextFactory _dbContextFactory;;
 //        private readonly IStringLocalizer<ImportQuoteVersionsCommandHandler> _localizer;
 //        private readonly IExcelService _excelService;
 //        private readonly QuoteVersionDto _dto = new();

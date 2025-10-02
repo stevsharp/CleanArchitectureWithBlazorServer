@@ -54,7 +54,7 @@ public class UpdateProjectTaskCommand: ICacheInvalidatorRequest<Result<int>>
 
 public class UpdateProjectTaskCommandHandler : IRequestHandler<UpdateProjectTaskCommand, Result<int>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     private readonly IMapper _mapper;
     public UpdateProjectTaskCommandHandler(
         IMapper mapper,

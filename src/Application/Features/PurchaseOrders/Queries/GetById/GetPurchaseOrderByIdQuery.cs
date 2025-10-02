@@ -31,7 +31,7 @@ public class GetPurchaseOrderByIdQuery : ICacheableRequest<Result<PurchaseOrderD
 public class GetPurchaseOrderByIdQueryHandler :
      IRequestHandler<GetPurchaseOrderByIdQuery, Result<PurchaseOrderDto>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     private readonly IMapper _mapper;
     public GetPurchaseOrderByIdQueryHandler(
         IMapper mapper,

@@ -35,19 +35,20 @@ public class EquipmentItemsWithPaginationQuery : EquipmentItemAdvancedFilter, IC
 public class EquipmentItemsWithPaginationQueryHandler :
          IRequestHandler<EquipmentItemsWithPaginationQuery, PaginatedData<EquipmentItemDto>>
 {
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;
         private readonly IMapper _mapper;
         public EquipmentItemsWithPaginationQueryHandler(
             IMapper mapper,
-            IApplicationDbContext context)
+            IApplicationDbContextFactory dbContextFactory)
         {
             _mapper = mapper;
-            _context = context;
-        }
+            _dbContextFactory = dbContextFactory;
+    }
 
         public async Task<PaginatedData<EquipmentItemDto>> Handle(EquipmentItemsWithPaginationQuery request, CancellationToken cancellationToken)
         {
-           var data = await _context.EquipmentItems.OrderBy($"{request.OrderBy} {request.SortDirection}")
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var data = await _context.EquipmentItems.OrderBy($"{request.OrderBy} {request.SortDirection}")
                                                    .ProjectToPaginatedDataAsync<EquipmentItem, EquipmentItemDto>(request.Specification,
                                                     request.PageNumber,
                                                     request.PageSize,

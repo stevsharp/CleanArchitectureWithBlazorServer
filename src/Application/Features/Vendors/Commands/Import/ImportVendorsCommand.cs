@@ -37,7 +37,7 @@
 //                 IRequestHandler<CreateVendorsTemplateCommand, Result<byte[]>>,
 //                 IRequestHandler<ImportVendorsCommand, Result<int>>
 //    {
-//        private readonly IApplicationDbContext _context;
+//        private readonly IApplicationDbContextFactory _dbContextFactory;;
 //        private readonly IStringLocalizer<ImportVendorsCommandHandler> _localizer;
 //        private readonly IExcelService _excelService;
 //        private readonly VendorDto _dto = new();

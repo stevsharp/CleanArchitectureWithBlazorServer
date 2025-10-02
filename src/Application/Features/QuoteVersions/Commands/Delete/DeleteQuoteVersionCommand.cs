@@ -30,7 +30,7 @@ public class DeleteQuoteVersionCommandHandler :
              IRequestHandler<DeleteQuoteVersionCommand, Result>
 
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     public DeleteQuoteVersionCommandHandler(
         IApplicationDbContext context)
     {

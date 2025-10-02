@@ -35,7 +35,7 @@ public class ServiceCategoriesWithPaginationQuery : ServiceCategoryAdvancedFilte
 public class ServiceCategoriesWithPaginationQueryHandler :
          IRequestHandler<ServiceCategoriesWithPaginationQuery, PaginatedData<ServiceCategoryDto>>
 {
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;;
         private readonly IMapper _mapper;
         public ServiceCategoriesWithPaginationQueryHandler(
             IMapper mapper,

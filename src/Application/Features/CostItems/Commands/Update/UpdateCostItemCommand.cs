@@ -54,19 +54,19 @@ public class UpdateCostItemCommand: ICacheInvalidatorRequest<Result<int>>
 
 public class UpdateCostItemCommandHandler : IRequestHandler<UpdateCostItemCommand, Result<int>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     private readonly IMapper _mapper;
     public UpdateCostItemCommandHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
-        _context = context;
+        _dbContextFactory = dbContextFactory;
         _mapper = mapper;
     }
     public async Task<Result<int>> Handle(UpdateCostItemCommand request, CancellationToken cancellationToken)
     {
-
-       var item = await _context.CostItems.FindAsync(request.Id, cancellationToken);
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var item = await _context.CostItems.FindAsync(request.Id, cancellationToken);
        if (item == null)
        {
            return await Result<int>.FailureAsync($"CostItem with id: [{request.Id}] not found.");

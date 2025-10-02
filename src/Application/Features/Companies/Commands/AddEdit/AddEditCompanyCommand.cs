@@ -49,18 +49,19 @@ public class AddEditCompanyCommand: ICacheInvalidatorRequest<Result<int>>
 public class AddEditCompanyCommandHandler : IRequestHandler<AddEditCompanyCommand, Result<int>>
 {
     private readonly IMapper _mapper;
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     public AddEditCompanyCommandHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
     public async Task<Result<int>> Handle(AddEditCompanyCommand request, CancellationToken cancellationToken)
     {
         if (request.Id > 0)
         {
+            await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
             var item = await _context.Companies.FindAsync(request.Id, cancellationToken);
             if (item == null)
             {
@@ -74,6 +75,7 @@ public class AddEditCompanyCommandHandler : IRequestHandler<AddEditCompanyComman
         }
         else
         {
+            await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
             var item = _mapper.Map<Company>(request);
             // raise a create domain event
 			item.AddDomainEvent(new CompanyCreatedEvent(item));

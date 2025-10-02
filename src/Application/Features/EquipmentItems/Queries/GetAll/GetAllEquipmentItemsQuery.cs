@@ -30,18 +30,19 @@ public class GetAllEquipmentItemsQuery : ICacheableRequest<IEnumerable<Equipment
 public class GetAllEquipmentItemsQueryHandler :
      IRequestHandler<GetAllEquipmentItemsQuery, IEnumerable<EquipmentItemDto>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     private readonly IMapper _mapper;
     public GetAllEquipmentItemsQueryHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
 
     public async Task<IEnumerable<EquipmentItemDto>> Handle(GetAllEquipmentItemsQuery request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var data = await _context.EquipmentItems.ProjectTo<EquipmentItemDto>(_mapper.ConfigurationProvider)
                                                 .AsNoTracking()
                                                 .ToListAsync(cancellationToken);

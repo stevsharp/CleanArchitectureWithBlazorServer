@@ -30,7 +30,7 @@ public class GetAllProjectTasksQuery : ICacheableRequest<IEnumerable<ProjectTask
 public class GetAllProjectTasksQueryHandler :
      IRequestHandler<GetAllProjectTasksQuery, IEnumerable<ProjectTaskDto>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     private readonly IMapper _mapper;
     public GetAllProjectTasksQueryHandler(
         IMapper mapper,

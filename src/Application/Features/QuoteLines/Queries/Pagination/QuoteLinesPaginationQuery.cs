@@ -35,7 +35,7 @@ public class QuoteLinesWithPaginationQuery : QuoteLineAdvancedFilter, ICacheable
 public class QuoteLinesWithPaginationQueryHandler :
          IRequestHandler<QuoteLinesWithPaginationQuery, PaginatedData<QuoteLineDto>>
 {
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;;
         private readonly IMapper _mapper;
         public QuoteLinesWithPaginationQueryHandler(
             IMapper mapper,

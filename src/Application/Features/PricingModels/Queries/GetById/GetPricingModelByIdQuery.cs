@@ -31,18 +31,19 @@ public class GetPricingModelByIdQuery : ICacheableRequest<Result<PricingModelDto
 public class GetPricingModelByIdQueryHandler :
      IRequestHandler<GetPricingModelByIdQuery, Result<PricingModelDto>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     private readonly IMapper _mapper;
     public GetPricingModelByIdQueryHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
 
     public async Task<Result<PricingModelDto>> Handle(GetPricingModelByIdQuery request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var data = await _context.PricingModels.ApplySpecification(new PricingModelByIdSpecification(request.Id))
                                                 .ProjectTo<PricingModelDto>(_mapper.ConfigurationProvider)
                                                 .FirstAsync(cancellationToken) ?? throw new NotFoundException($"PricingModel with id: [{request.Id}] not found.");

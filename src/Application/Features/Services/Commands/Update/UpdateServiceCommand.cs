@@ -46,7 +46,7 @@ public class UpdateServiceCommand: ICacheInvalidatorRequest<Result<int>>
 
 public class UpdateServiceCommandHandler : IRequestHandler<UpdateServiceCommand, Result<int>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     private readonly IMapper _mapper;
     public UpdateServiceCommandHandler(
         IMapper mapper,

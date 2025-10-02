@@ -47,7 +47,7 @@ public class AddEditServiceCommand: ICacheInvalidatorRequest<Result<int>>
 public class AddEditServiceCommandHandler : IRequestHandler<AddEditServiceCommand, Result<int>>
 {
     private readonly IMapper _mapper;
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     public AddEditServiceCommandHandler(
         IMapper mapper,
         IApplicationDbContext context)

@@ -37,7 +37,7 @@
 //                 IRequestHandler<CreatePurchaseOrdersTemplateCommand, Result<byte[]>>,
 //                 IRequestHandler<ImportPurchaseOrdersCommand, Result<int>>
 //    {
-//        private readonly IApplicationDbContext _context;
+//        private readonly IApplicationDbContextFactory _dbContextFactory;;
 //        private readonly IStringLocalizer<ImportPurchaseOrdersCommandHandler> _localizer;
 //        private readonly IExcelService _excelService;
 //        private readonly PurchaseOrderDto _dto = new();

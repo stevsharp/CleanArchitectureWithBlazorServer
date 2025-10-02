@@ -31,7 +31,7 @@ public class GetProjectTaskByIdQuery : ICacheableRequest<Result<ProjectTaskDto>>
 public class GetProjectTaskByIdQueryHandler :
      IRequestHandler<GetProjectTaskByIdQuery, Result<ProjectTaskDto>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     private readonly IMapper _mapper;
     public GetProjectTaskByIdQueryHandler(
         IMapper mapper,

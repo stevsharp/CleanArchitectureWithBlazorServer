@@ -35,7 +35,7 @@ public class PurchaseOrdersWithPaginationQuery : PurchaseOrderAdvancedFilter, IC
 public class PurchaseOrdersWithPaginationQueryHandler :
          IRequestHandler<PurchaseOrdersWithPaginationQuery, PaginatedData<PurchaseOrderDto>>
 {
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;;
         private readonly IMapper _mapper;
         public PurchaseOrdersWithPaginationQueryHandler(
             IMapper mapper,

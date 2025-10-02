@@ -47,18 +47,19 @@ public class AddEditEmployeeCommand: ICacheInvalidatorRequest<Result<int>>
 public class AddEditEmployeeCommandHandler : IRequestHandler<AddEditEmployeeCommand, Result<int>>
 {
     private readonly IMapper _mapper;
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     public AddEditEmployeeCommandHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
     public async Task<Result<int>> Handle(AddEditEmployeeCommand request, CancellationToken cancellationToken)
     {
         if (request.Id > 0)
         {
+            await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
             var item = await _context.Employees.FindAsync(request.Id, cancellationToken);
             if (item == null)
             {
@@ -72,6 +73,7 @@ public class AddEditEmployeeCommandHandler : IRequestHandler<AddEditEmployeeComm
         }
         else
         {
+            await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
             var item = _mapper.Map<Employee>(request);
             // raise a create domain event
 			item.AddDomainEvent(new EmployeeCreatedEvent(item));

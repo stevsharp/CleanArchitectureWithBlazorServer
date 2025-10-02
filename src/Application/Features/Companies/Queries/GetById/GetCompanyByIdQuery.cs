@@ -31,18 +31,19 @@ public class GetCompanyByIdQuery : ICacheableRequest<Result<CompanyDto>>
 public class GetCompanyByIdQueryHandler :
      IRequestHandler<GetCompanyByIdQuery, Result<CompanyDto>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     private readonly IMapper _mapper;
     public GetCompanyByIdQueryHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
 
     public async Task<Result<CompanyDto>> Handle(GetCompanyByIdQuery request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var data = await _context.Companies.ApplySpecification(new CompanyByIdSpecification(request.Id))
                                                 .ProjectTo<CompanyDto>(_mapper.ConfigurationProvider)
                                                 .FirstAsync(cancellationToken) ?? throw new NotFoundException($"Company with id: [{request.Id}] not found.");

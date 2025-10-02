@@ -30,7 +30,7 @@ public class GetAllPurchaseOrdersQuery : ICacheableRequest<IEnumerable<PurchaseO
 public class GetAllPurchaseOrdersQueryHandler :
      IRequestHandler<GetAllPurchaseOrdersQuery, IEnumerable<PurchaseOrderDto>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     private readonly IMapper _mapper;
     public GetAllPurchaseOrdersQueryHandler(
         IMapper mapper,

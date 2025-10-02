@@ -48,19 +48,19 @@ public class UpdateEquipmentItemCommand: ICacheInvalidatorRequest<Result<int>>
 
 public class UpdateEquipmentItemCommandHandler : IRequestHandler<UpdateEquipmentItemCommand, Result<int>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     private readonly IMapper _mapper;
     public UpdateEquipmentItemCommandHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
-        _context = context;
+        _dbContextFactory = dbContextFactory;
         _mapper = mapper;
     }
     public async Task<Result<int>> Handle(UpdateEquipmentItemCommand request, CancellationToken cancellationToken)
     {
-
-       var item = await _context.EquipmentItems.FindAsync(request.Id, cancellationToken);
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var item = await _context.EquipmentItems.FindAsync(request.Id, cancellationToken);
        if (item == null)
        {
            return await Result<int>.FailureAsync($"EquipmentItem with id: [{request.Id}] not found.");

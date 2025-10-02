@@ -35,19 +35,20 @@ public class CostItemsWithPaginationQuery : CostItemAdvancedFilter, ICacheableRe
 public class CostItemsWithPaginationQueryHandler :
          IRequestHandler<CostItemsWithPaginationQuery, PaginatedData<CostItemDto>>
 {
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;
         private readonly IMapper _mapper;
         public CostItemsWithPaginationQueryHandler(
             IMapper mapper,
-            IApplicationDbContext context)
+            IApplicationDbContextFactory dbContextFactory)
         {
             _mapper = mapper;
-            _context = context;
-        }
+            _dbContextFactory = dbContextFactory;
+    }
 
         public async Task<PaginatedData<CostItemDto>> Handle(CostItemsWithPaginationQuery request, CancellationToken cancellationToken)
         {
-           var data = await _context.CostItems.OrderBy($"{request.OrderBy} {request.SortDirection}")
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var data = await _context.CostItems.OrderBy($"{request.OrderBy} {request.SortDirection}")
                                                    .ProjectToPaginatedDataAsync<CostItem, CostItemDto>(request.Specification,
                                                     request.PageNumber,
                                                     request.PageSize,

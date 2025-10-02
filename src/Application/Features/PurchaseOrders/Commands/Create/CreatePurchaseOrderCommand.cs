@@ -52,7 +52,7 @@ public class CreatePurchaseOrderCommand: ICacheInvalidatorRequest<Result<int>>
     public class CreatePurchaseOrderCommandHandler : IRequestHandler<CreatePurchaseOrderCommand, Result<int>>
     {
         private readonly IMapper _mapper;
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;;
         public CreatePurchaseOrderCommandHandler(
             IMapper mapper,
             IApplicationDbContext context)

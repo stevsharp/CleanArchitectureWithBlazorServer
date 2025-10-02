@@ -31,7 +31,7 @@ public class GetServiceCategoryByIdQuery : ICacheableRequest<Result<ServiceCateg
 public class GetServiceCategoryByIdQueryHandler :
      IRequestHandler<GetServiceCategoryByIdQuery, Result<ServiceCategoryDto>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     private readonly IMapper _mapper;
     public GetServiceCategoryByIdQueryHandler(
         IMapper mapper,

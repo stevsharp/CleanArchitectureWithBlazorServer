@@ -30,14 +30,15 @@ public class DeleteProjectCommandHandler :
              IRequestHandler<DeleteProjectCommand, Result>
 
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     public DeleteProjectCommandHandler(
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
     public async Task<Result> Handle(DeleteProjectCommand request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var items = await _context.Projects.Where(x=>request.Id.Contains(x.Id)).ToListAsync(cancellationToken);
         foreach (var item in items)
         {

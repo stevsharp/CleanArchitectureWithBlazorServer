@@ -49,17 +49,18 @@ public class CreateAssignmentCommand: ICacheInvalidatorRequest<Result<int>>
     public class CreateAssignmentCommandHandler : IRequestHandler<CreateAssignmentCommand, Result<int>>
     {
         private readonly IMapper _mapper;
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;
         public CreateAssignmentCommandHandler(
             IMapper mapper,
-            IApplicationDbContext context)
+            IApplicationDbContextFactory dbContextFactory)
         {
             _mapper = mapper;
-            _context = context;
+            _dbContextFactory = dbContextFactory;
         }
         public async Task<Result<int>> Handle(CreateAssignmentCommand request, CancellationToken cancellationToken)
         {
-           var item = _mapper.Map<Assignment>(request);
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var item = _mapper.Map<Assignment>(request);
            // raise a create domain event
 	       item.AddDomainEvent(new AssignmentCreatedEvent(item));
            _context.Assignments.Add(item);

@@ -31,7 +31,7 @@ public class GetQuoteLineByIdQuery : ICacheableRequest<Result<QuoteLineDto>>
 public class GetQuoteLineByIdQueryHandler :
      IRequestHandler<GetQuoteLineByIdQuery, Result<QuoteLineDto>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     private readonly IMapper _mapper;
     public GetQuoteLineByIdQueryHandler(
         IMapper mapper,

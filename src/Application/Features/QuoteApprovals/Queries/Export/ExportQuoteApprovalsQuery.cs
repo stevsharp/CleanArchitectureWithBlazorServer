@@ -37,7 +37,7 @@ public class ExportQuoteApprovalsQueryHandler :
          IRequestHandler<ExportQuoteApprovalsQuery, Result<byte[]>>
 {
         private readonly IMapper _mapper;
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;;
         private readonly IExcelService _excelService;
         private readonly IStringLocalizer<ExportQuoteApprovalsQueryHandler> _localizer;
         private readonly QuoteApprovalDto _dto = new();

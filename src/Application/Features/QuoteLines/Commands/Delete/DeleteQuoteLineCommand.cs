@@ -30,7 +30,7 @@ public class DeleteQuoteLineCommandHandler :
              IRequestHandler<DeleteQuoteLineCommand, Result>
 
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;;
     public DeleteQuoteLineCommandHandler(
         IApplicationDbContext context)
     {
