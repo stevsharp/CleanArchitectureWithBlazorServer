@@ -46,17 +46,18 @@ public class CreateQuoteVersionCommand: ICacheInvalidatorRequest<Result<int>>
     public class CreateQuoteVersionCommandHandler : IRequestHandler<CreateQuoteVersionCommand, Result<int>>
     {
         private readonly IMapper _mapper;
-        private readonly IApplicationDbContextFactory _dbContextFactory;;
+        private readonly IApplicationDbContextFactory _dbContextFactory;
         public CreateQuoteVersionCommandHandler(
             IMapper mapper,
-            IApplicationDbContext context)
+            IApplicationDbContextFactory dbContextFactory)
         {
             _mapper = mapper;
-            _context = context;
+            _dbContextFactory = dbContextFactory;
         }
         public async Task<Result<int>> Handle(CreateQuoteVersionCommand request, CancellationToken cancellationToken)
         {
-           var item = _mapper.Map<QuoteVersion>(request);
+            await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+            var item = _mapper.Map<QuoteVersion>(request);
            // raise a create domain event
 	       item.AddDomainEvent(new QuoteVersionCreatedEvent(item));
            _context.QuoteVersions.Add(item);

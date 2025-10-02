@@ -35,19 +35,20 @@ public class ServiceCategoriesWithPaginationQuery : ServiceCategoryAdvancedFilte
 public class ServiceCategoriesWithPaginationQueryHandler :
          IRequestHandler<ServiceCategoriesWithPaginationQuery, PaginatedData<ServiceCategoryDto>>
 {
-        private readonly IApplicationDbContextFactory _dbContextFactory;;
+        private readonly IApplicationDbContextFactory _dbContextFactory;
         private readonly IMapper _mapper;
         public ServiceCategoriesWithPaginationQueryHandler(
             IMapper mapper,
-            IApplicationDbContext context)
+            IApplicationDbContextFactory dbContextFactory)
         {
             _mapper = mapper;
-            _context = context;
-        }
+            _dbContextFactory = dbContextFactory;
+    }
 
         public async Task<PaginatedData<ServiceCategoryDto>> Handle(ServiceCategoriesWithPaginationQuery request, CancellationToken cancellationToken)
         {
-           var data = await _context.ServiceCategories.OrderBy($"{request.OrderBy} {request.SortDirection}")
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var data = await _context.ServiceCategories.OrderBy($"{request.OrderBy} {request.SortDirection}")
                                                    .ProjectToPaginatedDataAsync<ServiceCategory, ServiceCategoryDto>(request.Specification,
                                                     request.PageNumber,
                                                     request.PageSize,

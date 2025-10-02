@@ -31,18 +31,19 @@ public class GetServiceVariantByIdQuery : ICacheableRequest<Result<ServiceVarian
 public class GetServiceVariantByIdQueryHandler :
      IRequestHandler<GetServiceVariantByIdQuery, Result<ServiceVariantDto>>
 {
-    private readonly IApplicationDbContextFactory _dbContextFactory;;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     private readonly IMapper _mapper;
     public GetServiceVariantByIdQueryHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
 
     public async Task<Result<ServiceVariantDto>> Handle(GetServiceVariantByIdQuery request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var data = await _context.ServiceVariants.ApplySpecification(new ServiceVariantByIdSpecification(request.Id))
                                                 .ProjectTo<ServiceVariantDto>(_mapper.ConfigurationProvider)
                                                 .FirstAsync(cancellationToken) ?? throw new NotFoundException($"ServiceVariant with id: [{request.Id}] not found.");

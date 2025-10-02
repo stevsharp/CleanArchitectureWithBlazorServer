@@ -30,18 +30,19 @@ public class GetAllServiceVariantsQuery : ICacheableRequest<IEnumerable<ServiceV
 public class GetAllServiceVariantsQueryHandler :
      IRequestHandler<GetAllServiceVariantsQuery, IEnumerable<ServiceVariantDto>>
 {
-    private readonly IApplicationDbContextFactory _dbContextFactory;;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     private readonly IMapper _mapper;
     public GetAllServiceVariantsQueryHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
 
     public async Task<IEnumerable<ServiceVariantDto>> Handle(GetAllServiceVariantsQuery request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var data = await _context.ServiceVariants.ProjectTo<ServiceVariantDto>(_mapper.ConfigurationProvider)
                                                 .AsNoTracking()
                                                 .ToListAsync(cancellationToken);

@@ -48,19 +48,19 @@ public class UpdateServiceVariantCommand: ICacheInvalidatorRequest<Result<int>>
 
 public class UpdateServiceVariantCommandHandler : IRequestHandler<UpdateServiceVariantCommand, Result<int>>
 {
-    private readonly IApplicationDbContextFactory _dbContextFactory;;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     private readonly IMapper _mapper;
     public UpdateServiceVariantCommandHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
-        _context = context;
+        _dbContextFactory = dbContextFactory;
         _mapper = mapper;
     }
     public async Task<Result<int>> Handle(UpdateServiceVariantCommand request, CancellationToken cancellationToken)
     {
-
-       var item = await _context.ServiceVariants.FindAsync(request.Id, cancellationToken);
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var item = await _context.ServiceVariants.FindAsync(request.Id, cancellationToken);
        if (item == null)
        {
            return await Result<int>.FailureAsync($"ServiceVariant with id: [{request.Id}] not found.");

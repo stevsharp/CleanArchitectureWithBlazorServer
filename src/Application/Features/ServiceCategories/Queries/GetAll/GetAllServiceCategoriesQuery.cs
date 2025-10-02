@@ -30,18 +30,19 @@ public class GetAllServiceCategoriesQuery : ICacheableRequest<IEnumerable<Servic
 public class GetAllServiceCategoriesQueryHandler :
      IRequestHandler<GetAllServiceCategoriesQuery, IEnumerable<ServiceCategoryDto>>
 {
-    private readonly IApplicationDbContextFactory _dbContextFactory;;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     private readonly IMapper _mapper;
     public GetAllServiceCategoriesQueryHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
 
     public async Task<IEnumerable<ServiceCategoryDto>> Handle(GetAllServiceCategoriesQuery request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var data = await _context.ServiceCategories.ProjectTo<ServiceCategoryDto>(_mapper.ConfigurationProvider)
                                                 .AsNoTracking()
                                                 .ToListAsync(cancellationToken);

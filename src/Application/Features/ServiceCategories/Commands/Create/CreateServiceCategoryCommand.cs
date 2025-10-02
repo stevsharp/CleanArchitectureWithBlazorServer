@@ -38,17 +38,18 @@ public class CreateServiceCategoryCommand: ICacheInvalidatorRequest<Result<int>>
     public class CreateServiceCategoryCommandHandler : IRequestHandler<CreateServiceCategoryCommand, Result<int>>
     {
         private readonly IMapper _mapper;
-        private readonly IApplicationDbContextFactory _dbContextFactory;;
+        private readonly IApplicationDbContextFactory _dbContextFactory;
         public CreateServiceCategoryCommandHandler(
             IMapper mapper,
-            IApplicationDbContext context)
+            IApplicationDbContextFactory dbContextFactory)
         {
             _mapper = mapper;
-            _context = context;
+            _dbContextFactory = dbContextFactory;
         }
         public async Task<Result<int>> Handle(CreateServiceCategoryCommand request, CancellationToken cancellationToken)
         {
-           var item = _mapper.Map<ServiceCategory>(request);
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var item = _mapper.Map<ServiceCategory>(request);
            // raise a create domain event
 	       item.AddDomainEvent(new ServiceCategoryCreatedEvent(item));
            _context.ServiceCategories.Add(item);

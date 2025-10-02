@@ -31,18 +31,19 @@ public class GetQuoteByIdQuery : ICacheableRequest<Result<QuoteDto>>
 public class GetQuoteByIdQueryHandler :
      IRequestHandler<GetQuoteByIdQuery, Result<QuoteDto>>
 {
-    private readonly IApplicationDbContextFactory _dbContextFactory;;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     private readonly IMapper _mapper;
     public GetQuoteByIdQueryHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
 
     public async Task<Result<QuoteDto>> Handle(GetQuoteByIdQuery request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var data = await _context.Quotes.ApplySpecification(new QuoteByIdSpecification(request.Id))
                                                 .ProjectTo<QuoteDto>(_mapper.ConfigurationProvider)
                                                 .FirstAsync(cancellationToken) ?? throw new NotFoundException($"Quote with id: [{request.Id}] not found.");

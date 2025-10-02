@@ -31,18 +31,19 @@ public class GetServiceByIdQuery : ICacheableRequest<Result<ServiceDto>>
 public class GetServiceByIdQueryHandler :
      IRequestHandler<GetServiceByIdQuery, Result<ServiceDto>>
 {
-    private readonly IApplicationDbContextFactory _dbContextFactory;;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     private readonly IMapper _mapper;
     public GetServiceByIdQueryHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
 
     public async Task<Result<ServiceDto>> Handle(GetServiceByIdQuery request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var data = await _context.Services.ApplySpecification(new ServiceByIdSpecification(request.Id))
                                                 .ProjectTo<ServiceDto>(_mapper.ConfigurationProvider)
                                                 .FirstAsync(cancellationToken) ?? throw new NotFoundException($"Service with id: [{request.Id}] not found.");

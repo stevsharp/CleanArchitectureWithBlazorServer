@@ -49,18 +49,19 @@ public class AddEditQuoteVersionCommand: ICacheInvalidatorRequest<Result<int>>
 public class AddEditQuoteVersionCommandHandler : IRequestHandler<AddEditQuoteVersionCommand, Result<int>>
 {
     private readonly IMapper _mapper;
-    private readonly IApplicationDbContextFactory _dbContextFactory;;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     public AddEditQuoteVersionCommandHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+       _dbContextFactory = dbContextFactory;
     }
     public async Task<Result<int>> Handle(AddEditQuoteVersionCommand request, CancellationToken cancellationToken)
     {
         if (request.Id > 0)
         {
+            await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
             var item = await _context.QuoteVersions.FindAsync(request.Id, cancellationToken);
             if (item == null)
             {
@@ -74,6 +75,7 @@ public class AddEditQuoteVersionCommandHandler : IRequestHandler<AddEditQuoteVer
         }
         else
         {
+            await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
             var item = _mapper.Map<QuoteVersion>(request);
             // raise a create domain event
 			item.AddDomainEvent(new QuoteVersionCreatedEvent(item));

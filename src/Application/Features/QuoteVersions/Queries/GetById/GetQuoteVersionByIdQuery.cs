@@ -31,18 +31,19 @@ public class GetQuoteVersionByIdQuery : ICacheableRequest<Result<QuoteVersionDto
 public class GetQuoteVersionByIdQueryHandler :
      IRequestHandler<GetQuoteVersionByIdQuery, Result<QuoteVersionDto>>
 {
-    private readonly IApplicationDbContextFactory _dbContextFactory;;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     private readonly IMapper _mapper;
     public GetQuoteVersionByIdQueryHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
 
     public async Task<Result<QuoteVersionDto>> Handle(GetQuoteVersionByIdQuery request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var data = await _context.QuoteVersions.ApplySpecification(new QuoteVersionByIdSpecification(request.Id))
                                                 .ProjectTo<QuoteVersionDto>(_mapper.ConfigurationProvider)
                                                 .FirstAsync(cancellationToken) ?? throw new NotFoundException($"QuoteVersion with id: [{request.Id}] not found.");

@@ -37,26 +37,27 @@ public class ExportServiceVariantsQueryHandler :
          IRequestHandler<ExportServiceVariantsQuery, Result<byte[]>>
 {
         private readonly IMapper _mapper;
-        private readonly IApplicationDbContextFactory _dbContextFactory;;
+        private readonly IApplicationDbContextFactory _dbContextFactory;
         private readonly IExcelService _excelService;
         private readonly IStringLocalizer<ExportServiceVariantsQueryHandler> _localizer;
         private readonly ServiceVariantDto _dto = new();
         public ExportServiceVariantsQueryHandler(
             IMapper mapper,
-            IApplicationDbContext context,
+            IApplicationDbContextFactory dbContextFactory,
             IExcelService excelService,
             IStringLocalizer<ExportServiceVariantsQueryHandler> localizer
             )
         {
             _mapper = mapper;
-            _context = context;
+            _dbContextFactory = dbContextFactory;
             _excelService = excelService;
             _localizer = localizer;
         }
         #nullable disable warnings
         public async Task<Result<byte[]>> Handle(ExportServiceVariantsQuery request, CancellationToken cancellationToken)
         {
-            var data = await _context.ServiceVariants.ApplySpecification(request.Specification)
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var data = await _context.ServiceVariants.ApplySpecification(request.Specification)
                        .OrderBy($"{request.OrderBy} {request.SortDirection}")
                        .ProjectTo<ServiceVariantDto>(_mapper.ConfigurationProvider)
                        .AsNoTracking()

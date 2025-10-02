@@ -30,18 +30,19 @@ public class GetAllQuotesQuery : ICacheableRequest<IEnumerable<QuoteDto>>
 public class GetAllQuotesQueryHandler :
      IRequestHandler<GetAllQuotesQuery, IEnumerable<QuoteDto>>
 {
-    private readonly IApplicationDbContextFactory _dbContextFactory;;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     private readonly IMapper _mapper;
     public GetAllQuotesQueryHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
 
     public async Task<IEnumerable<QuoteDto>> Handle(GetAllQuotesQuery request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var data = await _context.Quotes.ProjectTo<QuoteDto>(_mapper.ConfigurationProvider)
                                                 .AsNoTracking()
                                                 .ToListAsync(cancellationToken);

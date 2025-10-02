@@ -35,19 +35,20 @@ public class ServicesWithPaginationQuery : ServiceAdvancedFilter, ICacheableRequ
 public class ServicesWithPaginationQueryHandler :
          IRequestHandler<ServicesWithPaginationQuery, PaginatedData<ServiceDto>>
 {
-        private readonly IApplicationDbContextFactory _dbContextFactory;;
+        private readonly IApplicationDbContextFactory _dbContextFactory;
         private readonly IMapper _mapper;
         public ServicesWithPaginationQueryHandler(
             IMapper mapper,
-            IApplicationDbContext context)
+            IApplicationDbContextFactory dbContextFactory)
         {
             _mapper = mapper;
-            _context = context;
-        }
+            _dbContextFactory = dbContextFactory;
+    }
 
         public async Task<PaginatedData<ServiceDto>> Handle(ServicesWithPaginationQuery request, CancellationToken cancellationToken)
         {
-           var data = await _context.Services.OrderBy($"{request.OrderBy} {request.SortDirection}")
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var data = await _context.Services.OrderBy($"{request.OrderBy} {request.SortDirection}")
                                                    .ProjectToPaginatedDataAsync<Service, ServiceDto>(request.Specification,
                                                     request.PageNumber,
                                                     request.PageSize,

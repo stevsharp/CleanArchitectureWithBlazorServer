@@ -30,18 +30,19 @@ public class GetAllQuoteVersionsQuery : ICacheableRequest<IEnumerable<QuoteVersi
 public class GetAllQuoteVersionsQueryHandler :
      IRequestHandler<GetAllQuoteVersionsQuery, IEnumerable<QuoteVersionDto>>
 {
-    private readonly IApplicationDbContextFactory _dbContextFactory;;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     private readonly IMapper _mapper;
     public GetAllQuoteVersionsQueryHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
 
     public async Task<IEnumerable<QuoteVersionDto>> Handle(GetAllQuoteVersionsQuery request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var data = await _context.QuoteVersions.ProjectTo<QuoteVersionDto>(_mapper.ConfigurationProvider)
                                                 .AsNoTracking()
                                                 .ToListAsync(cancellationToken);
