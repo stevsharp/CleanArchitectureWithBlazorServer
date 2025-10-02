@@ -49,18 +49,19 @@ public class AddEditServiceVariantCommand: ICacheInvalidatorRequest<Result<int>>
 public class AddEditServiceVariantCommandHandler : IRequestHandler<AddEditServiceVariantCommand, Result<int>>
 {
     private readonly IMapper _mapper;
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     public AddEditServiceVariantCommandHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
     public async Task<Result<int>> Handle(AddEditServiceVariantCommand request, CancellationToken cancellationToken)
     {
         if (request.Id > 0)
         {
+            await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
             var item = await _context.ServiceVariants.FindAsync(request.Id, cancellationToken);
             if (item == null)
             {
@@ -74,6 +75,7 @@ public class AddEditServiceVariantCommandHandler : IRequestHandler<AddEditServic
         }
         else
         {
+            await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
             var item = _mapper.Map<ServiceVariant>(request);
             // raise a create domain event
 			item.AddDomainEvent(new ServiceVariantCreatedEvent(item));
