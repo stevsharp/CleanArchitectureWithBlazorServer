@@ -34,7 +34,7 @@ public class UpdateProjectTaskCommand: ICacheInvalidatorRequest<Result<int>>
     [Description("Deadline")]
     public DateTime? Deadline {get;set;} 
     [Description("Status")]
-    public TaskStatus? Status {get;set;} 
+    public CleanArchitecture.Blazor.Domain.Entities.TaskStatus? Status {get;set;} 
     [Description("Priority")]
     public TaskPriority? Priority {get;set;} 
 

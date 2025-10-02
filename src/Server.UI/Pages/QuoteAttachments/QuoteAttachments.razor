@@ -4,16 +4,16 @@
 @using CleanArchitecture.Blazor.Application.Features.QuoteAttachments.DTOs
 @using CleanArchitecture.Blazor.Application.Features.QuoteAttachments.Specifications
 @using CleanArchitecture.Blazor.Application.Features.QuoteAttachments.Commands.Delete
-@using CleanArchitecture.Blazor.Application.Features.QuoteAttachments.Commands.Import
 @using CleanArchitecture.Blazor.Application.Features.QuoteAttachments.Queries.Export
 @using CleanArchitecture.Blazor.Application.Features.QuoteAttachments.Queries.Pagination
 @using CleanArchitecture.Blazor.Application.Features.QuoteAttachments.Commands.AddEdit
+@using CleanArchitecture.Blazor.Infrastructure.PermissionSet
 @using CleanArchitecture.Blazor.Server.UI.Pages.QuoteAttachments.Components
 
 @inject IStringLocalizer<QuoteAttachments> L
 @inject BlazorDownloadFileService BlazorDownloadFileService
 
-@attribute [Authorize(Policy = Permissions.QuoteAttachments.View)]
+@* @attribute [Authorize(Policy = Permissions.QuoteAttachments.View)] *@
 <PageTitle>@Title</PageTitle>
 
 <MudDataGrid ServerData="@(ServerReload)"
@@ -260,7 +260,7 @@
 
     private async Task OnDeleteQuoteAttachment(QuoteAttachmentDto dto)
     {
-        var contentText = string.Format(ConstantString.DeleteConfirmation, dto.Name);
+        var contentText = string.Format(ConstantString.DeleteConfirmation, dto.Id.ToString());
         var command = new DeleteQuoteAttachmentCommand(new int[] { dto.Id });
         await DialogServiceHelper.ShowDeleteConfirmationDialogAsync(command, ConstantString.DeleteConfirmationTitle, contentText,async () =>
         {
@@ -313,22 +313,22 @@
     }
     private async Task OnImportData(IBrowserFile file)
     {
-        _uploading = true;
-        var stream = new MemoryStream();
-        await file.OpenReadStream().CopyToAsync(stream);
-        var command = new ImportQuoteAttachmentsCommand(file.Name, stream.ToArray());
-        var result = await Mediator.Send(command);
-        await result.MatchAsync(
-            async data =>
-            {
-                await _quoteattachmentsGrid.ReloadServerData();
-                Snackbar.Add($"{ConstantString.ImportSuccess}", MudBlazor.Severity.Info);
-            }, errors =>
-            {
-                Snackbar.Add($"{errors}", MudBlazor.Severity.Error);
-                return Task.CompletedTask;
-            });
-        _uploading = false;
+        // _uploading = true;
+        // var stream = new MemoryStream();
+        // await file.OpenReadStream().CopyToAsync(stream);
+        // var command = new ImportQuoteAttachmentsCommand(file.Name, stream.ToArray());
+        // var result = await Mediator.Send(command);
+        // await result.MatchAsync(
+        //     async data =>
+        //     {
+        //         await _quoteattachmentsGrid.ReloadServerData();
+        //         Snackbar.Add($"{ConstantString.ImportSuccess}", MudBlazor.Severity.Info);
+        //     }, errors =>
+        //     {
+        //         Snackbar.Add($"{errors}", MudBlazor.Severity.Error);
+        //         return Task.CompletedTask;
+        //     });
+        // _uploading = false;
     }
 
 }

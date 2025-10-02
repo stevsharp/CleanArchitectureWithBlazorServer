@@ -32,6 +32,26 @@ public class ApplicationDbContext : IdentityDbContext<
     public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
     public DbSet<Venue> Venues { get; set; }
 
+    public DbSet<Company> Companies { get; set; }
+    public DbSet<Employee> Employees { get; set; }
+    public DbSet<ServiceCategory> ServiceCategories { get; set; }
+    public DbSet<Service> Services { get; set; }
+    public DbSet<ServiceVariant> ServiceVariants { get; set; }
+    public DbSet<PricingModel> PricingModels { get; set; }
+    public DbSet<Vendor> Vendors { get; set; }
+    public DbSet<EquipmentItem> EquipmentItems { get; set; }
+    public DbSet<Quote> Quotes { get; set; }
+    public DbSet<QuoteVersion> QuoteVersions { get; set; }
+    public DbSet<QuoteLine> QuoteLines { get; set; }
+    public DbSet<QuoteAttachment> QuoteAttachments { get; set; }
+    public DbSet<QuoteApproval> QuoteApprovals { get; set; }
+    public DbSet<Project> Projects { get; set; }
+    public DbSet<Assignment> Assignments { get; set; }
+    public DbSet<ProjectTask> ProjectTasks { get; set; }
+    public DbSet<CostItem> CostItems { get; set; }
+    public DbSet<PurchaseOrder> PurchaseOrders { get; set; }
+
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         

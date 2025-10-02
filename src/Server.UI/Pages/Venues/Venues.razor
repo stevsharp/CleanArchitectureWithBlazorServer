@@ -8,12 +8,13 @@
 @using CleanArchitecture.Blazor.Application.Features.Venues.Queries.Export
 @using CleanArchitecture.Blazor.Application.Features.Venues.Queries.Pagination
 @using CleanArchitecture.Blazor.Application.Features.Venues.Commands.AddEdit
+@using CleanArchitecture.Blazor.Infrastructure.PermissionSet
 @using CleanArchitecture.Blazor.Server.UI.Pages.Venues.Components
 
 @inject IStringLocalizer<Venues> L
 @inject BlazorDownloadFileService BlazorDownloadFileService
 
-@attribute [Authorize(Policy = Permissions.Venues.View)]
+@* @attribute [Authorize(Policy = Permissions.Venues.View)] *@
 <PageTitle>@Title</PageTitle>
 
 <MudDataGrid ServerData="@(ServerReload)"

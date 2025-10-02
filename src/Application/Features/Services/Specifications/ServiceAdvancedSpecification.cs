@@ -29,10 +29,9 @@ public class ServiceAdvancedSpecification : Specification<Service>
         var last30daysrange = today.GetDateRange(ServiceListView.LAST_30_DAYS.ToString(),filter.CurrentUser.LocalTimeOffset);
 
         Query.Where(q => q.Name != null)
-             .Where(filter.Keyword,!string.IsNullOrEmpty(filter.Keyword))
-             .Where(q => q.CreatedBy == filter.CurrentUser.UserId, filter.ListView == ServiceListView.My && filter.CurrentUser is not null)
-             .Where(x => x.Created >= todayrange.Start && x.Created < todayrange.End.AddDays(1), filter.ListView == ServiceListView.TODAY)
-             .Where(x => x.Created >= last30daysrange.Start, filter.ListView == ServiceListView.LAST_30_DAYS);
+             .Where(filter.Keyword, !string.IsNullOrEmpty(filter.Keyword))
+             .Where(q => q.CreatedById == filter.CurrentUser.UserId, filter.ListView == ServiceListView.My && filter.CurrentUser is not null)
+             .Where(x => x.CreatedAt >= todayrange.Start && x.CreatedAt < todayrange.End.AddDays(1), filter.ListView == ServiceListView.TODAY);
        
     }
 }

@@ -28,11 +28,11 @@ public class QuoteLineAdvancedSpecification : Specification<QuoteLine>
         var todayrange = today.GetDateRange(QuoteLineListView.TODAY.ToString(), filter.CurrentUser.LocalTimeOffset);
         var last30daysrange = today.GetDateRange(QuoteLineListView.LAST_30_DAYS.ToString(),filter.CurrentUser.LocalTimeOffset);
 
-        Query.Where(q => q.Name != null)
-             .Where(filter.Keyword,!string.IsNullOrEmpty(filter.Keyword))
-             .Where(q => q.CreatedBy == filter.CurrentUser.UserId, filter.ListView == QuoteLineListView.My && filter.CurrentUser is not null)
-             .Where(x => x.Created >= todayrange.Start && x.Created < todayrange.End.AddDays(1), filter.ListView == QuoteLineListView.TODAY)
-             .Where(x => x.Created >= last30daysrange.Start, filter.ListView == QuoteLineListView.LAST_30_DAYS);
+        //Query.Where(q => q.Name != null)
+        //     .Where(filter.Keyword,!string.IsNullOrEmpty(filter.Keyword))
+        //     .Where(q => q.CreatedBy == filter.CurrentUser.UserId, filter.ListView == QuoteLineListView.My && filter.CurrentUser is not null)
+        //     .Where(x => x.Created >= todayrange.Start && x.Created < todayrange.End.AddDays(1), filter.ListView == QuoteLineListView.TODAY)
+        //     .Where(x => x.Created >= last30daysrange.Start, filter.ListView == QuoteLineListView.LAST_30_DAYS);
        
     }
 }

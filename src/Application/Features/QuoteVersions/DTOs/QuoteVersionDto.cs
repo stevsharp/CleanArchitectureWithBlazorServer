@@ -40,10 +40,6 @@ public class QuoteVersionDto
         {
             CreateMap<QuoteVersion, QuoteVersionDto>(MemberList.None);
             CreateMap<QuoteVersionDto, QuoteVersion>(MemberList.None)
-            .ForMember(dest => dest.Created, opt => opt.Ignore())
-            .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
-            .ForMember(dest => dest.LastModified, opt => opt.Ignore())
-            .ForMember(dest => dest.LastModifiedBy, opt => opt.Ignore())
             .ForMember(dest => dest.DomainEvents, opt => opt.Ignore());
         }
     }

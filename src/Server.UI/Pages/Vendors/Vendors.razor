@@ -4,16 +4,16 @@
 @using CleanArchitecture.Blazor.Application.Features.Vendors.DTOs
 @using CleanArchitecture.Blazor.Application.Features.Vendors.Specifications
 @using CleanArchitecture.Blazor.Application.Features.Vendors.Commands.Delete
-@using CleanArchitecture.Blazor.Application.Features.Vendors.Commands.Import
 @using CleanArchitecture.Blazor.Application.Features.Vendors.Queries.Export
 @using CleanArchitecture.Blazor.Application.Features.Vendors.Queries.Pagination
 @using CleanArchitecture.Blazor.Application.Features.Vendors.Commands.AddEdit
+@using CleanArchitecture.Blazor.Infrastructure.PermissionSet
 @using CleanArchitecture.Blazor.Server.UI.Pages.Vendors.Components
 
 @inject IStringLocalizer<Vendors> L
 @inject BlazorDownloadFileService BlazorDownloadFileService
 
-@attribute [Authorize(Policy = Permissions.Vendors.View)]
+@* @attribute [Authorize(Policy = Permissions.Vendors.View)] *@
 <PageTitle>@Title</PageTitle>
 
 <MudDataGrid ServerData="@(ServerReload)"
@@ -258,7 +258,7 @@
 
     private async Task OnDeleteVendor(VendorDto dto)
     {
-        var contentText = string.Format(ConstantString.DeleteConfirmation, dto.Name);
+        var contentText = string.Format(ConstantString.DeleteConfirmation, dto.Id.ToString());
         var command = new DeleteVendorCommand(new int[] { dto.Id });
         await DialogServiceHelper.ShowDeleteConfirmationDialogAsync(command, ConstantString.DeleteConfirmationTitle, contentText,async () =>
         {
@@ -311,22 +311,22 @@
     }
     private async Task OnImportData(IBrowserFile file)
     {
-        _uploading = true;
-        var stream = new MemoryStream();
-        await file.OpenReadStream().CopyToAsync(stream);
-        var command = new ImportVendorsCommand(file.Name, stream.ToArray());
-        var result = await Mediator.Send(command);
-        await result.MatchAsync(
-            async data =>
-            {
-                await _vendorsGrid.ReloadServerData();
-                Snackbar.Add($"{ConstantString.ImportSuccess}", MudBlazor.Severity.Info);
-            }, errors =>
-            {
-                Snackbar.Add($"{errors}", MudBlazor.Severity.Error);
-                return Task.CompletedTask;
-            });
-        _uploading = false;
+        // _uploading = true;
+        // var stream = new MemoryStream();
+        // await file.OpenReadStream().CopyToAsync(stream);
+        // var command = new ImportVendorsCommand(file.Name, stream.ToArray());
+        // var result = await Mediator.Send(command);
+        // await result.MatchAsync(
+        //     async data =>
+        //     {
+        //         await _vendorsGrid.ReloadServerData();
+        //         Snackbar.Add($"{ConstantString.ImportSuccess}", MudBlazor.Severity.Info);
+        //     }, errors =>
+        //     {
+        //         Snackbar.Add($"{errors}", MudBlazor.Severity.Error);
+        //         return Task.CompletedTask;
+        //     });
+        // _uploading = false;
     }
 
 }

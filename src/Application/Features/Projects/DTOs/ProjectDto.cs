@@ -11,6 +11,9 @@
 #nullable disable warnings
 
 
+using CleanArchitecture.Blazor.Application.Features.CostItems.DTOs;
+using CleanArchitecture.Blazor.Application.Features.PurchaseOrders.DTOs;
+
 namespace CleanArchitecture.Blazor.Application.Features.Projects.DTOs;
 
 [Description("Projects")]
@@ -44,18 +47,12 @@ public class ProjectDto
     public List<CostItemDto>? Costs {get;set;} 
     [Description("Purchase orders")]
     public List<PurchaseOrderDto>? PurchaseOrders {get;set;} 
-
-
     private class Mapping : Profile
     {
         public Mapping()
         {
             CreateMap<Project, ProjectDto>(MemberList.None);
             CreateMap<ProjectDto, Project>(MemberList.None)
-            .ForMember(dest => dest.Created, opt => opt.Ignore())
-            .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
-            .ForMember(dest => dest.LastModified, opt => opt.Ignore())
-            .ForMember(dest => dest.LastModifiedBy, opt => opt.Ignore())
             .ForMember(dest => dest.DomainEvents, opt => opt.Ignore());
         }
     }

@@ -4,7 +4,7 @@
 @using CleanArchitecture.Blazor.Application.Features.PricingModels.Queries.GetById
 @inherits MudComponentBase
 @inject IStringLocalizer<PricingModels> L
-@attribute [Authorize(Policy = Permissions.PricingModels.View)]
+@* @attribute [Authorize(Policy = Permissions.PricingModels.View)] *@
 <PageTitle>@Title</PageTitle>
 <Breadcrumbs  OnGoEditClick="GoEdit" OnDeleteClick="Delete" BreadcrumbItems="_breadcrumbItems"></Breadcrumbs>
 <MudContainer Class="mt-3" MaxWidth="MaxWidth.Large">

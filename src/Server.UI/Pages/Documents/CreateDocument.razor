@@ -25,9 +25,9 @@
                         <MudTextField Label="@L[_model.GetMemberDescription(x=>x.Description)]"  For="@(() => _model.Description)" @bind-Value="_model.Description"></MudTextField>
                 </MudItem> 
 <MudItem xs="12" md="6"> 
-                        <MudEnumSelect TEnum="Nullable<JobStatus>" Label="@L[_model.GetMemberDescription(x=>x.Status)]" @bind-Value="_model.Status" For="@(() => _model.Status)" Required="false" RequiredError="@L["status is required!"]"></MudEnumSelect>
+@*                         <MudEnumSelect TEnum="Nullable<JobStatus>" Label="@L[_model.GetMemberDescription(x=>x.Status)]" @bind-Value="_model.Status" For="@(() => _model.Status)" Required="false" RequiredError="@L["status is required!"]"></MudEnumSelect>
                 </MudItem> 
-<MudItem xs="12" md="6"> 
+<MudItem xs="12" md="6">  *@
                         <MudTextField Label="@L[_model.GetMemberDescription(x=>x.Content)]" @bind-Value="_model.Content" For="@(() => _model.Content)" Required="false" RequiredError="@L["content is required!"]"></MudTextField>
                 </MudItem> 
 <MudItem xs="12" md="6"> 

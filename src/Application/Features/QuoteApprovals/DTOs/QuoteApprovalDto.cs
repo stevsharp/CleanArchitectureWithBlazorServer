@@ -40,10 +40,7 @@ public class QuoteApprovalDto
         {
             CreateMap<QuoteApproval, QuoteApprovalDto>(MemberList.None);
             CreateMap<QuoteApprovalDto, QuoteApproval>(MemberList.None)
-            .ForMember(dest => dest.Created, opt => opt.Ignore())
-            .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
-            .ForMember(dest => dest.LastModified, opt => opt.Ignore())
-            .ForMember(dest => dest.LastModifiedBy, opt => opt.Ignore())
+           
             .ForMember(dest => dest.DomainEvents, opt => opt.Ignore());
         }
     }

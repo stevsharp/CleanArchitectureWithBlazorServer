@@ -4,16 +4,16 @@
 @using CleanArchitecture.Blazor.Application.Features.ProjectTasks.DTOs
 @using CleanArchitecture.Blazor.Application.Features.ProjectTasks.Specifications
 @using CleanArchitecture.Blazor.Application.Features.ProjectTasks.Commands.Delete
-@using CleanArchitecture.Blazor.Application.Features.ProjectTasks.Commands.Import
 @using CleanArchitecture.Blazor.Application.Features.ProjectTasks.Queries.Export
 @using CleanArchitecture.Blazor.Application.Features.ProjectTasks.Queries.Pagination
 @using CleanArchitecture.Blazor.Application.Features.ProjectTasks.Commands.AddEdit
+@using CleanArchitecture.Blazor.Infrastructure.PermissionSet
 @using CleanArchitecture.Blazor.Server.UI.Pages.ProjectTasks.Components
 
 @inject IStringLocalizer<ProjectTasks> L
 @inject BlazorDownloadFileService BlazorDownloadFileService
 
-@attribute [Authorize(Policy = Permissions.ProjectTasks.View)]
+@* @attribute [Authorize(Policy = Permissions.ProjectTasks.View)] *@
 <PageTitle>@Title</PageTitle>
 
 <MudDataGrid ServerData="@(ServerReload)"
@@ -130,7 +130,7 @@
                     </CellTemplate>
                 </TemplateColumn>
                 @*TODO: Define the fields that should be displayed in data table*@
-                <PropertyColumn Property="x => x.Name" Title="@L[_projecttaskDto.GetMemberDescription(x=>x.Name)]"> 
+                <PropertyColumn Property="x => x.Id" Title="@L[_projecttaskDto.GetMemberDescription(x=>x.Id)]"> 
    <CellTemplate>
       <div class="d-flex flex-column">
         <MudText Typo="Typo.body2" Class="mud-text-secondary">@context.Item.Description</MudText>
@@ -280,7 +280,7 @@
 
     private async Task OnDeleteProjectTask(ProjectTaskDto dto)
     {
-        var contentText = string.Format(ConstantString.DeleteConfirmation, dto.Name);
+        var contentText = string.Format(ConstantString.DeleteConfirmation, dto.Id.ToString());
         var command = new DeleteProjectTaskCommand(new int[] { dto.Id });
         await DialogServiceHelper.ShowDeleteConfirmationDialogAsync(command, ConstantString.DeleteConfirmationTitle, contentText,async () =>
         {
@@ -333,22 +333,22 @@
     }
     private async Task OnImportData(IBrowserFile file)
     {
-        _uploading = true;
-        var stream = new MemoryStream();
-        await file.OpenReadStream().CopyToAsync(stream);
-        var command = new ImportProjectTasksCommand(file.Name, stream.ToArray());
-        var result = await Mediator.Send(command);
-        await result.MatchAsync(
-            async data =>
-            {
-                await _projecttasksGrid.ReloadServerData();
-                Snackbar.Add($"{ConstantString.ImportSuccess}", MudBlazor.Severity.Info);
-            }, errors =>
-            {
-                Snackbar.Add($"{errors}", MudBlazor.Severity.Error);
-                return Task.CompletedTask;
-            });
-        _uploading = false;
+        // _uploading = true;
+        // var stream = new MemoryStream();
+        // await file.OpenReadStream().CopyToAsync(stream);
+        // var command = new ImportProjectTasksCommand(file.Name, stream.ToArray());
+        // var result = await Mediator.Send(command);
+        // await result.MatchAsync(
+        //     async data =>
+        //     {
+        //         await _projecttasksGrid.ReloadServerData();
+        //         Snackbar.Add($"{ConstantString.ImportSuccess}", MudBlazor.Severity.Info);
+        //     }, errors =>
+        //     {
+        //         Snackbar.Add($"{errors}", MudBlazor.Severity.Error);
+        //         return Task.CompletedTask;
+        //     });
+        // _uploading = false;
     }
 
 }

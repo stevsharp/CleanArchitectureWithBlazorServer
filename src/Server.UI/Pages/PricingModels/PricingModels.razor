@@ -4,16 +4,16 @@
 @using CleanArchitecture.Blazor.Application.Features.PricingModels.DTOs
 @using CleanArchitecture.Blazor.Application.Features.PricingModels.Specifications
 @using CleanArchitecture.Blazor.Application.Features.PricingModels.Commands.Delete
-@using CleanArchitecture.Blazor.Application.Features.PricingModels.Commands.Import
 @using CleanArchitecture.Blazor.Application.Features.PricingModels.Queries.Export
 @using CleanArchitecture.Blazor.Application.Features.PricingModels.Queries.Pagination
 @using CleanArchitecture.Blazor.Application.Features.PricingModels.Commands.AddEdit
+@using CleanArchitecture.Blazor.Infrastructure.PermissionSet
 @using CleanArchitecture.Blazor.Server.UI.Pages.PricingModels.Components
 
 @inject IStringLocalizer<PricingModels> L
 @inject BlazorDownloadFileService BlazorDownloadFileService
 
-@attribute [Authorize(Policy = Permissions.PricingModels.View)]
+@* @attribute [Authorize(Policy = Permissions.PricingModels.View)] *@
 <PageTitle>@Title</PageTitle>
 
 <MudDataGrid ServerData="@(ServerReload)"
@@ -325,22 +325,22 @@
     }
     private async Task OnImportData(IBrowserFile file)
     {
-        _uploading = true;
-        var stream = new MemoryStream();
-        await file.OpenReadStream().CopyToAsync(stream);
-        var command = new ImportPricingModelsCommand(file.Name, stream.ToArray());
-        var result = await Mediator.Send(command);
-        await result.MatchAsync(
-            async data =>
-            {
-                await _pricingmodelsGrid.ReloadServerData();
-                Snackbar.Add($"{ConstantString.ImportSuccess}", MudBlazor.Severity.Info);
-            }, errors =>
-            {
-                Snackbar.Add($"{errors}", MudBlazor.Severity.Error);
-                return Task.CompletedTask;
-            });
-        _uploading = false;
+        // _uploading = true;
+        // var stream = new MemoryStream();
+        // await file.OpenReadStream().CopyToAsync(stream);
+        // var command = new ImportPricingModelsCommand(file.Name, stream.ToArray());
+        // var result = await Mediator.Send(command);
+        // await result.MatchAsync(
+        //     async data =>
+        //     {
+        //         await _pricingmodelsGrid.ReloadServerData();
+        //         Snackbar.Add($"{ConstantString.ImportSuccess}", MudBlazor.Severity.Info);
+        //     }, errors =>
+        //     {
+        //         Snackbar.Add($"{errors}", MudBlazor.Severity.Error);
+        //         return Task.CompletedTask;
+        //     });
+        // _uploading = false;
     }
 
 }

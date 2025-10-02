@@ -4,7 +4,7 @@
 @inherits MudComponentBase
 @inject IValidationService Validator
 @inject IStringLocalizer<EquipmentItems> L
-@attribute [Authorize(Policy = Permissions.EquipmentItems.Create)]
+@* @attribute [Authorize(Policy = Permissions.EquipmentItems.Create)] *@
 
 <PageTitle>@Title</PageTitle>
 <Breadcrumbs OnSaveButtonClick="OnSubmit" Saving="_saving" BreadcrumbItems="_breadcrumbItems"></Breadcrumbs>

@@ -4,7 +4,7 @@
 @using CleanArchitecture.Blazor.Application.Features.ProjectTasks.Queries.GetById
 @inherits MudComponentBase
 @inject IStringLocalizer<ProjectTasks> L
-@attribute [Authorize(Policy = Permissions.ProjectTasks.View)]
+@* @attribute [Authorize(Policy = Permissions.ProjectTasks.View)] *@
 <PageTitle>@Title</PageTitle>
 <Breadcrumbs  OnGoEditClick="GoEdit" OnDeleteClick="Delete" BreadcrumbItems="_breadcrumbItems"></Breadcrumbs>
 <MudContainer Class="mt-3" MaxWidth="MaxWidth.Large">
@@ -69,7 +69,7 @@
             return data;
         }).Match(data =>
         {
-            _breadcrumbItems.Add(new BreadcrumbItem(data.Name, null, disabled: true));
+            _breadcrumbItems.Add(new BreadcrumbItem(data.Id.ToString(), null, disabled: true));
         }, errors =>
         {
             Snackbar.Add(errors, MudBlazor.Severity.Error);
@@ -82,7 +82,7 @@
     }
     async Task Delete()
     {
-        var contentText = string.Format(ConstantString.DeleteConfirmation, _model.Name);
+        var contentText = string.Format(ConstantString.DeleteConfirmation, _model.Id.ToString());
         var command = new DeleteProjectTaskCommand(new int[] { _model.Id });
         await DialogServiceHelper.ShowDeleteConfirmationDialogAsync(command, ConstantString.DeleteConfirmationTitle, contentText, async () =>
         {

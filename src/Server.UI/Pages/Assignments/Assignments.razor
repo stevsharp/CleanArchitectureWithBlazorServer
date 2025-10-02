@@ -4,16 +4,17 @@
 @using CleanArchitecture.Blazor.Application.Features.Assignments.DTOs
 @using CleanArchitecture.Blazor.Application.Features.Assignments.Specifications
 @using CleanArchitecture.Blazor.Application.Features.Assignments.Commands.Delete
-@using CleanArchitecture.Blazor.Application.Features.Assignments.Commands.Import
+
 @using CleanArchitecture.Blazor.Application.Features.Assignments.Queries.Export
 @using CleanArchitecture.Blazor.Application.Features.Assignments.Queries.Pagination
 @using CleanArchitecture.Blazor.Application.Features.Assignments.Commands.AddEdit
+@using CleanArchitecture.Blazor.Infrastructure.PermissionSet
 @using CleanArchitecture.Blazor.Server.UI.Pages.Assignments.Components
 
 @inject IStringLocalizer<Assignments> L
 @inject BlazorDownloadFileService BlazorDownloadFileService
 
-@attribute [Authorize(Policy = Permissions.Assignments.View)]
+@* @attribute [Authorize(Policy = Permissions.Assignments.View)] *@
 <PageTitle>@Title</PageTitle>
 
 <MudDataGrid ServerData="@(ServerReload)"
@@ -262,7 +263,7 @@
 
     private async Task OnDeleteAssignment(AssignmentDto dto)
     {
-        var contentText = string.Format(ConstantString.DeleteConfirmation, dto.Name);
+        var contentText = string.Format(ConstantString.DeleteConfirmation, dto.Id.ToString());
         var command = new DeleteAssignmentCommand(new int[] { dto.Id });
         await DialogServiceHelper.ShowDeleteConfirmationDialogAsync(command, ConstantString.DeleteConfirmationTitle, contentText,async () =>
         {
@@ -315,22 +316,22 @@
     }
     private async Task OnImportData(IBrowserFile file)
     {
-        _uploading = true;
-        var stream = new MemoryStream();
-        await file.OpenReadStream().CopyToAsync(stream);
-        var command = new ImportAssignmentsCommand(file.Name, stream.ToArray());
-        var result = await Mediator.Send(command);
-        await result.MatchAsync(
-            async data =>
-            {
-                await _assignmentsGrid.ReloadServerData();
-                Snackbar.Add($"{ConstantString.ImportSuccess}", MudBlazor.Severity.Info);
-            }, errors =>
-            {
-                Snackbar.Add($"{errors}", MudBlazor.Severity.Error);
-                return Task.CompletedTask;
-            });
-        _uploading = false;
+        // _uploading = true;
+        // var stream = new MemoryStream();
+        // await file.OpenReadStream().CopyToAsync(stream);
+        // var command = new ImportAssignmentsCommand(file.Name, stream.ToArray());
+        // var result = await Mediator.Send(command);
+        // await result.MatchAsync(
+        //     async data =>
+        //     {
+        //         await _assignmentsGrid.ReloadServerData();
+        //         Snackbar.Add($"{ConstantString.ImportSuccess}", MudBlazor.Severity.Info);
+        //     }, errors =>
+        //     {
+        //         Snackbar.Add($"{errors}", MudBlazor.Severity.Error);
+        //         return Task.CompletedTask;
+        //     });
+        // _uploading = false;
     }
 
 }

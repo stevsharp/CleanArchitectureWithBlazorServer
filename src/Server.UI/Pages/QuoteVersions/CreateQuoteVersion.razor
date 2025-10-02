@@ -4,7 +4,7 @@
 @inherits MudComponentBase
 @inject IValidationService Validator
 @inject IStringLocalizer<QuoteVersions> L
-@attribute [Authorize(Policy = Permissions.QuoteVersions.Create)]
+@* @attribute [Authorize(Policy = Permissions.QuoteVersions.Create)] *@
 
 <PageTitle>@Title</PageTitle>
 <Breadcrumbs OnSaveButtonClick="OnSubmit" Saving="_saving" BreadcrumbItems="_breadcrumbItems"></Breadcrumbs>

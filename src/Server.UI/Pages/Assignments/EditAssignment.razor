@@ -1,12 +1,13 @@
 ﻿@page "/pages/assignments/edit/{id:int}"
 @using CleanArchitecture.Blazor.Application.Features.Assignments.Commands.Update
 @using CleanArchitecture.Blazor.Application.Features.Assignments.Queries.GetById
-@using CleanArchitecture.Blazor.Server.UI.Components.Fusion
+@using CleanArchitecture.Blazor.Server.UI.Components.Sessions
+@* @using CleanArchitecture.Blazor.Server.UI.Components.Fusion *@
 
 @inherits MudComponentBase
 @inject IValidationService Validator
 @inject IStringLocalizer<Assignments> L
-@attribute [Authorize(Policy = Permissions.Assignments.Edit)]
+@* @attribute [Authorize(Policy = Permissions.Assignments.Edit)] *@
 
 <PageTitle>@Title</PageTitle>
 <Breadcrumbs OnSaveButtonClick="OnSubmit" Saving="_saving" BreadcrumbItems="_breadcrumbItems"></Breadcrumbs>
@@ -73,7 +74,7 @@
             return data;
         }).Match(data =>
         {
-            _breadcrumbItems.Add(new BreadcrumbItem(data.Name, href: $"/pages/assignments/edit/{Id}"));
+            _breadcrumbItems.Add(new BreadcrumbItem(data.Id.ToString(), href: $"/pages/assignments/edit/{Id}"));
         }, errors =>
         {
             Snackbar.Add($"{errors}", Severity.Error);

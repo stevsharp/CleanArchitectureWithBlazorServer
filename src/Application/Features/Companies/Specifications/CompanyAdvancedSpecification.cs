@@ -30,9 +30,9 @@ public class CompanyAdvancedSpecification : Specification<Company>
 
         Query.Where(q => q.Name != null)
              .Where(filter.Keyword,!string.IsNullOrEmpty(filter.Keyword))
-             .Where(q => q.CreatedBy == filter.CurrentUser.UserId, filter.ListView == CompanyListView.My && filter.CurrentUser is not null)
-             .Where(x => x.Created >= todayrange.Start && x.Created < todayrange.End.AddDays(1), filter.ListView == CompanyListView.TODAY)
-             .Where(x => x.Created >= last30daysrange.Start, filter.ListView == CompanyListView.LAST_30_DAYS);
+             .Where(q => q.CreatedById == filter.CurrentUser.UserId, filter.ListView == CompanyListView.My && filter.CurrentUser is not null)
+             .Where(x => x.CreatedAt >= todayrange.Start && x.CreatedAt < todayrange.End.AddDays(1), filter.ListView == CompanyListView.TODAY)
+             .Where(x => x.CreatedAt >= last30daysrange.Start, filter.ListView == CompanyListView.LAST_30_DAYS);
        
     }
 }

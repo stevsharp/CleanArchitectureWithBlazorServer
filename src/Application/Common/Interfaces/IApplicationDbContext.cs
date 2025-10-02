@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace CleanArchitecture.Blazor.Application.Common.Interfaces;
 
-public interface IApplicationDbContext: IAsyncDisposable
+public interface IApplicationDbContext : IAsyncDisposable
 {
     DbSet<SystemLog> SystemLogs { get; set; }
     DbSet<AuditTrail> AuditTrails { get; set; }
@@ -17,11 +17,31 @@ public interface IApplicationDbContext: IAsyncDisposable
     DbSet<Product> Products { get; set; }
     DbSet<Tenant> Tenants { get; set; }
     DbSet<Contact> Contacts { get; set; }
-    DbSet<LoginAudit> LoginAudits { get; set; }
+    DbSet<Employee> Employees { get; set; }
+    DbSet<Company> Companies { get; set; }
+    DbSet<ServiceCategory> ServiceCategories { get; set; }
+    DbSet<Service> Services { get; set; }
+    DbSet<ServiceVariant> ServiceVariants { get; set; }
+    DbSet<PricingModel> PricingModels { get; set; }
+    DbSet<Vendor> Vendors { get; set; }
     DbSet<Venue> Venues { get; set; }
+    DbSet<EquipmentItem> EquipmentItems { get; set; }
+    DbSet<Quote> Quotes { get; set; }
+    DbSet<QuoteVersion> QuoteVersions { get; set; }
+    DbSet<QuoteLine> QuoteLines { get; set; }
+    DbSet<QuoteAttachment> QuoteAttachments { get; set; }
+    DbSet<QuoteApproval> QuoteApprovals { get; set; }
+    DbSet<Project> Projects { get; set; }
+    DbSet<Assignment> Assignments { get; set; }
+    DbSet<ProjectTask> ProjectTasks { get; set; }
+    DbSet<CostItem> CostItems { get; set; }
+    DbSet<PurchaseOrder> PurchaseOrders { get; set; }
+    DbSet<LoginAudit> LoginAudits { get; set; }
     DbSet<UserLoginRiskSummary> UserLoginRiskSummaries { get; set; }
-    ChangeTracker ChangeTracker { get; }
 
     DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
+
+    ChangeTracker ChangeTracker { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

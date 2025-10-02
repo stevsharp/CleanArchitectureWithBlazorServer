@@ -4,16 +4,16 @@
 @using CleanArchitecture.Blazor.Application.Features.QuoteLines.DTOs
 @using CleanArchitecture.Blazor.Application.Features.QuoteLines.Specifications
 @using CleanArchitecture.Blazor.Application.Features.QuoteLines.Commands.Delete
-@using CleanArchitecture.Blazor.Application.Features.QuoteLines.Commands.Import
 @using CleanArchitecture.Blazor.Application.Features.QuoteLines.Queries.Export
 @using CleanArchitecture.Blazor.Application.Features.QuoteLines.Queries.Pagination
 @using CleanArchitecture.Blazor.Application.Features.QuoteLines.Commands.AddEdit
+@using CleanArchitecture.Blazor.Infrastructure.PermissionSet
 @using CleanArchitecture.Blazor.Server.UI.Pages.QuoteLines.Components
 
 @inject IStringLocalizer<QuoteLines> L
 @inject BlazorDownloadFileService BlazorDownloadFileService
 
-@attribute [Authorize(Policy = Permissions.QuoteLines.View)]
+@* @attribute [Authorize(Policy = Permissions.QuoteLines.View)] *@
 <PageTitle>@Title</PageTitle>
 
 <MudDataGrid ServerData="@(ServerReload)"
@@ -278,7 +278,7 @@
 
     private async Task OnDeleteQuoteLine(QuoteLineDto dto)
     {
-        var contentText = string.Format(ConstantString.DeleteConfirmation, dto.Name);
+        var contentText = string.Format(ConstantString.DeleteConfirmation, dto.Id.ToString());
         var command = new DeleteQuoteLineCommand(new int[] { dto.Id });
         await DialogServiceHelper.ShowDeleteConfirmationDialogAsync(command, ConstantString.DeleteConfirmationTitle, contentText,async () =>
         {
@@ -331,22 +331,22 @@
     }
     private async Task OnImportData(IBrowserFile file)
     {
-        _uploading = true;
-        var stream = new MemoryStream();
-        await file.OpenReadStream().CopyToAsync(stream);
-        var command = new ImportQuoteLinesCommand(file.Name, stream.ToArray());
-        var result = await Mediator.Send(command);
-        await result.MatchAsync(
-            async data =>
-            {
-                await _quotelinesGrid.ReloadServerData();
-                Snackbar.Add($"{ConstantString.ImportSuccess}", MudBlazor.Severity.Info);
-            }, errors =>
-            {
-                Snackbar.Add($"{errors}", MudBlazor.Severity.Error);
-                return Task.CompletedTask;
-            });
-        _uploading = false;
+        // _uploading = true;
+        // var stream = new MemoryStream();
+        // await file.OpenReadStream().CopyToAsync(stream);
+        // var command = new ImportQuoteLinesCommand(file.Name, stream.ToArray());
+        // var result = await Mediator.Send(command);
+        // await result.MatchAsync(
+        //     async data =>
+        //     {
+        //         await _quotelinesGrid.ReloadServerData();
+        //         Snackbar.Add($"{ConstantString.ImportSuccess}", MudBlazor.Severity.Info);
+        //     }, errors =>
+        //     {
+        //         Snackbar.Add($"{errors}", MudBlazor.Severity.Error);
+        //         return Task.CompletedTask;
+        //     });
+        // _uploading = false;
     }
 
 }

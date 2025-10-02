@@ -24,7 +24,7 @@ namespace CleanArchitecture.Blazor.Application.Features.Documents.Queries.GetByI
 public class GetDocumentByIdQuery : ICacheableRequest<Result<DocumentDto>>
 {
    public required int Id { get; set; }
-   public string CacheKey => DocumentCacheKey.GetByIdCacheKey($"{Id}");
+    public string CacheKey => ""; //DocumentCacheKey.GetByIdCacheKey($"{Id}");
    public IEnumerable<string>? Tags => DocumentCacheKey.Tags;
 }
 

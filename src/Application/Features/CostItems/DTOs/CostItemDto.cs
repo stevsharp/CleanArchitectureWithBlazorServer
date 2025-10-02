@@ -44,10 +44,6 @@ public class CostItemDto
         {
             CreateMap<CostItem, CostItemDto>(MemberList.None);
             CreateMap<CostItemDto, CostItem>(MemberList.None)
-            .ForMember(dest => dest.Created, opt => opt.Ignore())
-            .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
-            .ForMember(dest => dest.LastModified, opt => opt.Ignore())
-            .ForMember(dest => dest.LastModifiedBy, opt => opt.Ignore())
             .ForMember(dest => dest.DomainEvents, opt => opt.Ignore());
         }
     }

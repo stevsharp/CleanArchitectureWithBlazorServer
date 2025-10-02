@@ -8,12 +8,13 @@
 @using CleanArchitecture.Blazor.Application.Features.EquipmentItems.Queries.Export
 @using CleanArchitecture.Blazor.Application.Features.EquipmentItems.Queries.Pagination
 @using CleanArchitecture.Blazor.Application.Features.EquipmentItems.Commands.AddEdit
+@using CleanArchitecture.Blazor.Infrastructure.PermissionSet
 @using CleanArchitecture.Blazor.Server.UI.Pages.EquipmentItems.Components
 
 @inject IStringLocalizer<EquipmentItems> L
 @inject BlazorDownloadFileService BlazorDownloadFileService
 
-@attribute [Authorize(Policy = Permissions.EquipmentItems.View)]
+@* @attribute [Authorize(Policy = Permissions.EquipmentItems.View)] *@
 <PageTitle>@Title</PageTitle>
 
 <MudDataGrid ServerData="@(ServerReload)"

@@ -33,21 +33,15 @@ public class ProjectTaskDto
     [Description("Deadline")]
     public DateTime? Deadline {get;set;} 
     [Description("Status")]
-    public TaskStatus? Status {get;set;} 
+    public CleanArchitecture.Blazor.Domain.Entities.TaskStatus? Status {get;set;} 
     [Description("Priority")]
     public TaskPriority? Priority {get;set;} 
-
-
     private class Mapping : Profile
     {
         public Mapping()
         {
             CreateMap<ProjectTask, ProjectTaskDto>(MemberList.None);
             CreateMap<ProjectTaskDto, ProjectTask>(MemberList.None)
-            .ForMember(dest => dest.Created, opt => opt.Ignore())
-            .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
-            .ForMember(dest => dest.LastModified, opt => opt.Ignore())
-            .ForMember(dest => dest.LastModifiedBy, opt => opt.Ignore())
             .ForMember(dest => dest.DomainEvents, opt => opt.Ignore());
         }
     }

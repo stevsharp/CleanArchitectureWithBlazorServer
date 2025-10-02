@@ -11,6 +11,8 @@
 #nullable disable warnings
 
 
+using CleanArchitecture.Blazor.Application.Features.QuoteAttachments.DTOs;
+
 namespace CleanArchitecture.Blazor.Application.Features.Quotes.DTOs;
 
 [Description("Quotes")]
@@ -52,10 +54,6 @@ public class QuoteDto
         {
             CreateMap<Quote, QuoteDto>(MemberList.None);
             CreateMap<QuoteDto, Quote>(MemberList.None)
-            .ForMember(dest => dest.Created, opt => opt.Ignore())
-            .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
-            .ForMember(dest => dest.LastModified, opt => opt.Ignore())
-            .ForMember(dest => dest.LastModifiedBy, opt => opt.Ignore())
             .ForMember(dest => dest.DomainEvents, opt => opt.Ignore());
         }
     }

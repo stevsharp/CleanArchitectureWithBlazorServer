@@ -32,10 +32,7 @@ public class ServiceCategoryDto
         {
             CreateMap<ServiceCategory, ServiceCategoryDto>(MemberList.None);
             CreateMap<ServiceCategoryDto, ServiceCategory>(MemberList.None)
-            .ForMember(dest => dest.Created, opt => opt.Ignore())
-            .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
-            .ForMember(dest => dest.LastModified, opt => opt.Ignore())
-            .ForMember(dest => dest.LastModifiedBy, opt => opt.Ignore())
+
             .ForMember(dest => dest.DomainEvents, opt => opt.Ignore());
         }
     }

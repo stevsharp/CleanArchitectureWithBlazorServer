@@ -1,12 +1,13 @@
 ﻿@page "/pages/quoteattachments/edit/{id:int}"
 @using CleanArchitecture.Blazor.Application.Features.QuoteAttachments.Commands.Update
 @using CleanArchitecture.Blazor.Application.Features.QuoteAttachments.Queries.GetById
-@using CleanArchitecture.Blazor.Server.UI.Components.Fusion
+@using CleanArchitecture.Blazor.Server.UI.Components.Sessions
+@* @using CleanArchitecture.Blazor.Server.UI.Components.Fusion *@
 
 @inherits MudComponentBase
 @inject IValidationService Validator
 @inject IStringLocalizer<QuoteAttachments> L
-@attribute [Authorize(Policy = Permissions.QuoteAttachments.Edit)]
+@* @attribute [Authorize(Policy = Permissions.QuoteAttachments.Edit)] *@
 
 <PageTitle>@Title</PageTitle>
 <Breadcrumbs OnSaveButtonClick="OnSubmit" Saving="_saving" BreadcrumbItems="_breadcrumbItems"></Breadcrumbs>
@@ -70,7 +71,7 @@
             return data;
         }).Match(data =>
         {
-            _breadcrumbItems.Add(new BreadcrumbItem(data.Name, href: $"/pages/quoteattachments/edit/{Id}"));
+            _breadcrumbItems.Add(new BreadcrumbItem(data.Id.ToString(), href: $"/pages/quoteattachments/edit/{Id}"));
         }, errors =>
         {
             Snackbar.Add($"{errors}", Severity.Error);

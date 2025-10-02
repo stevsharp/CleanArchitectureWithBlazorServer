@@ -1,12 +1,13 @@
 ﻿@page "/pages/quotelines/edit/{id:int}"
 @using CleanArchitecture.Blazor.Application.Features.QuoteLines.Commands.Update
 @using CleanArchitecture.Blazor.Application.Features.QuoteLines.Queries.GetById
-@using CleanArchitecture.Blazor.Server.UI.Components.Fusion
+@using CleanArchitecture.Blazor.Server.UI.Components.Sessions
+@* @using CleanArchitecture.Blazor.Server.UI.Components.Fusion *@
 
 @inherits MudComponentBase
 @inject IValidationService Validator
 @inject IStringLocalizer<QuoteLines> L
-@attribute [Authorize(Policy = Permissions.QuoteLines.Edit)]
+@* @attribute [Authorize(Policy = Permissions.QuoteLines.Edit)] *@
 
 <PageTitle>@Title</PageTitle>
 <Breadcrumbs OnSaveButtonClick="OnSubmit" Saving="_saving" BreadcrumbItems="_breadcrumbItems"></Breadcrumbs>
@@ -91,7 +92,7 @@
             return data;
         }).Match(data =>
         {
-            _breadcrumbItems.Add(new BreadcrumbItem(data.Name, href: $"/pages/quotelines/edit/{Id}"));
+            _breadcrumbItems.Add(new BreadcrumbItem(data.Id.ToString(), href: $"/pages/quotelines/edit/{Id}"));
         }, errors =>
         {
             Snackbar.Add($"{errors}", Severity.Error);

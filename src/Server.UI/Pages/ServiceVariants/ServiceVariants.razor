@@ -4,16 +4,16 @@
 @using CleanArchitecture.Blazor.Application.Features.ServiceVariants.DTOs
 @using CleanArchitecture.Blazor.Application.Features.ServiceVariants.Specifications
 @using CleanArchitecture.Blazor.Application.Features.ServiceVariants.Commands.Delete
-@using CleanArchitecture.Blazor.Application.Features.ServiceVariants.Commands.Import
 @using CleanArchitecture.Blazor.Application.Features.ServiceVariants.Queries.Export
 @using CleanArchitecture.Blazor.Application.Features.ServiceVariants.Queries.Pagination
 @using CleanArchitecture.Blazor.Application.Features.ServiceVariants.Commands.AddEdit
+@using CleanArchitecture.Blazor.Infrastructure.PermissionSet
 @using CleanArchitecture.Blazor.Server.UI.Pages.ServiceVariants.Components
 
 @inject IStringLocalizer<ServiceVariants> L
 @inject BlazorDownloadFileService BlazorDownloadFileService
 
-@attribute [Authorize(Policy = Permissions.ServiceVariants.View)]
+@* @attribute [Authorize(Policy = Permissions.ServiceVariants.View)] *@
 <PageTitle>@Title</PageTitle>
 
 <MudDataGrid ServerData="@(ServerReload)"
@@ -321,22 +321,22 @@
     }
     private async Task OnImportData(IBrowserFile file)
     {
-        _uploading = true;
-        var stream = new MemoryStream();
-        await file.OpenReadStream().CopyToAsync(stream);
-        var command = new ImportServiceVariantsCommand(file.Name, stream.ToArray());
-        var result = await Mediator.Send(command);
-        await result.MatchAsync(
-            async data =>
-            {
-                await _servicevariantsGrid.ReloadServerData();
-                Snackbar.Add($"{ConstantString.ImportSuccess}", MudBlazor.Severity.Info);
-            }, errors =>
-            {
-                Snackbar.Add($"{errors}", MudBlazor.Severity.Error);
-                return Task.CompletedTask;
-            });
-        _uploading = false;
+        // _uploading = true;
+        // var stream = new MemoryStream();
+        // await file.OpenReadStream().CopyToAsync(stream);
+        // var command = new ImportServiceVariantsCommand(file.Name, stream.ToArray());
+        // var result = await Mediator.Send(command);
+        // await result.MatchAsync(
+        //     async data =>
+        //     {
+        //         await _servicevariantsGrid.ReloadServerData();
+        //         Snackbar.Add($"{ConstantString.ImportSuccess}", MudBlazor.Severity.Info);
+        //     }, errors =>
+        //     {
+        //         Snackbar.Add($"{errors}", MudBlazor.Severity.Error);
+        //         return Task.CompletedTask;
+        //     });
+        // _uploading = false;
     }
 
 }

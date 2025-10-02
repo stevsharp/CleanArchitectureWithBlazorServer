@@ -4,16 +4,16 @@
 @using CleanArchitecture.Blazor.Application.Features.CostItems.DTOs
 @using CleanArchitecture.Blazor.Application.Features.CostItems.Specifications
 @using CleanArchitecture.Blazor.Application.Features.CostItems.Commands.Delete
-@using CleanArchitecture.Blazor.Application.Features.CostItems.Commands.Import
 @using CleanArchitecture.Blazor.Application.Features.CostItems.Queries.Export
 @using CleanArchitecture.Blazor.Application.Features.CostItems.Queries.Pagination
 @using CleanArchitecture.Blazor.Application.Features.CostItems.Commands.AddEdit
+@using CleanArchitecture.Blazor.Infrastructure.PermissionSet
 @using CleanArchitecture.Blazor.Server.UI.Pages.CostItems.Components
 
 @inject IStringLocalizer<CostItems> L
 @inject BlazorDownloadFileService BlazorDownloadFileService
 
-@attribute [Authorize(Policy = Permissions.CostItems.View)]
+@* @attribute [Authorize(Policy = Permissions.CostItems.View)] *@
 <PageTitle>@Title</PageTitle>
 
 <MudDataGrid ServerData="@(ServerReload)"
@@ -130,7 +130,7 @@
                     </CellTemplate>
                 </TemplateColumn>
                 @*TODO: Define the fields that should be displayed in data table*@
-                <PropertyColumn Property="x => x.Name" Title="@L[_costitemDto.GetMemberDescription(x=>x.Name)]"> 
+                <PropertyColumn Property="x => x.Id" Title="@L[_costitemDto.GetMemberDescription(x=>x.Id)]"> 
    <CellTemplate>
       <div class="d-flex flex-column">
         <MudText Typo="Typo.body2" Class="mud-text-secondary">@context.Item.Description</MudText>
@@ -272,7 +272,7 @@
 
     private async Task OnDeleteCostItem(CostItemDto dto)
     {
-        var contentText = string.Format(ConstantString.DeleteConfirmation, dto.Name);
+        var contentText = string.Format(ConstantString.DeleteConfirmation, dto.Id.ToString());
         var command = new DeleteCostItemCommand(new int[] { dto.Id });
         await DialogServiceHelper.ShowDeleteConfirmationDialogAsync(command, ConstantString.DeleteConfirmationTitle, contentText,async () =>
         {
@@ -325,22 +325,22 @@
     }
     private async Task OnImportData(IBrowserFile file)
     {
-        _uploading = true;
-        var stream = new MemoryStream();
-        await file.OpenReadStream().CopyToAsync(stream);
-        var command = new ImportCostItemsCommand(file.Name, stream.ToArray());
-        var result = await Mediator.Send(command);
-        await result.MatchAsync(
-            async data =>
-            {
-                await _costitemsGrid.ReloadServerData();
-                Snackbar.Add($"{ConstantString.ImportSuccess}", MudBlazor.Severity.Info);
-            }, errors =>
-            {
-                Snackbar.Add($"{errors}", MudBlazor.Severity.Error);
-                return Task.CompletedTask;
-            });
-        _uploading = false;
+        // _uploading = true;
+        // var stream = new MemoryStream();
+        // await file.OpenReadStream().CopyToAsync(stream);
+        // var command = new ImportCostItemsCommand(file.Name, stream.ToArray());
+        // var result = await Mediator.Send(command);
+        // await result.MatchAsync(
+        //     async data =>
+        //     {
+        //         await _costitemsGrid.ReloadServerData();
+        //         Snackbar.Add($"{ConstantString.ImportSuccess}", MudBlazor.Severity.Info);
+        //     }, errors =>
+        //     {
+        //         Snackbar.Add($"{errors}", MudBlazor.Severity.Error);
+        //         return Task.CompletedTask;
+        //     });
+        // _uploading = false;
     }
 
 }

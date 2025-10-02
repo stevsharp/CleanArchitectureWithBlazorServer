@@ -16,7 +16,6 @@
 #nullable enable
 #nullable disable warnings
 
-namespace CleanArchitecture.Blazor.Application.Features.Documents.Specifications;
 
 #nullable disable warnings
 /// <summary>

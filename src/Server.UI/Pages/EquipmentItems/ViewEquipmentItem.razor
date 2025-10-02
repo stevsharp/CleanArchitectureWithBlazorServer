@@ -4,7 +4,7 @@
 @using CleanArchitecture.Blazor.Application.Features.EquipmentItems.Queries.GetById
 @inherits MudComponentBase
 @inject IStringLocalizer<EquipmentItems> L
-@attribute [Authorize(Policy = Permissions.EquipmentItems.View)]
+@* @attribute [Authorize(Policy = Permissions.EquipmentItems.View)] *@
 <PageTitle>@Title</PageTitle>
 <Breadcrumbs  OnGoEditClick="GoEdit" OnDeleteClick="Delete" BreadcrumbItems="_breadcrumbItems"></Breadcrumbs>
 <MudContainer Class="mt-3" MaxWidth="MaxWidth.Large">
