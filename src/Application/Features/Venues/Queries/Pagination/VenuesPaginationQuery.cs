@@ -35,19 +35,20 @@ public class VenuesWithPaginationQuery : VenueAdvancedFilter, ICacheableRequest<
 public class VenuesWithPaginationQueryHandler :
          IRequestHandler<VenuesWithPaginationQuery, PaginatedData<VenueDto>>
 {
-        private readonly IApplicationDbContext _context;
-        private readonly IMapper _mapper;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
+    private readonly IMapper _mapper;
         public VenuesWithPaginationQueryHandler(
             IMapper mapper,
-            IApplicationDbContext context)
+            IApplicationDbContextFactory dbContextFactory)
         {
             _mapper = mapper;
-            _context = context;
+        _dbContextFactory = dbContextFactory;
         }
 
         public async Task<PaginatedData<VenueDto>> Handle(VenuesWithPaginationQuery request, CancellationToken cancellationToken)
         {
-           var data = await _context.Venues.OrderBy($"{request.OrderBy} {request.SortDirection}")
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var data = await _context.Venues.OrderBy($"{request.OrderBy} {request.SortDirection}")
                                                    .ProjectToPaginatedDataAsync<Venue, VenueDto>(request.Specification,
                                                     request.PageNumber,
                                                     request.PageSize,

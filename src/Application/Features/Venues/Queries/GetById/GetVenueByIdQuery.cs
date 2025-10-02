@@ -31,18 +31,19 @@ public class GetVenueByIdQuery : ICacheableRequest<Result<VenueDto>>
 public class GetVenueByIdQueryHandler :
      IRequestHandler<GetVenueByIdQuery, Result<VenueDto>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
     private readonly IMapper _mapper;
     public GetVenueByIdQueryHandler(
         IMapper mapper,
-        IApplicationDbContext context)
+        IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
 
     public async Task<Result<VenueDto>> Handle(GetVenueByIdQuery request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var data = await _context.Venues.ApplySpecification(new VenueByIdSpecification(request.Id))
                                                 .ProjectTo<VenueDto>(_mapper.ConfigurationProvider)
                                                 .FirstAsync(cancellationToken) ?? throw new NotFoundException($"Venue with id: [{request.Id}] not found.");

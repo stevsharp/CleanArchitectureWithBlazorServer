@@ -35,24 +35,35 @@ public class VendorsWithPaginationQuery : VendorAdvancedFilter, ICacheableReques
 public class VendorsWithPaginationQueryHandler :
          IRequestHandler<VendorsWithPaginationQuery, PaginatedData<VendorDto>>
 {
-        private readonly IApplicationDbContext _context;
-        private readonly IMapper _mapper;
+    private readonly IApplicationDbContextFactory _dbContextFactory;
+    private readonly IMapper _mapper;
         public VendorsWithPaginationQueryHandler(
             IMapper mapper,
-            IApplicationDbContext context)
+            IApplicationDbContextFactory dbContextFactory)
         {
             _mapper = mapper;
-            _context = context;
+            _dbContextFactory = dbContextFactory;
         }
 
         public async Task<PaginatedData<VendorDto>> Handle(VendorsWithPaginationQuery request, CancellationToken cancellationToken)
         {
-           var data = await _context.Vendors.OrderBy($"{request.OrderBy} {request.SortDirection}")
-                                                   .ProjectToPaginatedDataAsync<Vendor, VendorDto>(request.Specification,
-                                                    request.PageNumber,
-                                                    request.PageSize,
-                                                    _mapper.ConfigurationProvider,
-                                                    cancellationToken);
-            return data;
+
+            try
+            {
+                await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+                var data = await _context.Vendors.OrderBy($"{request.OrderBy} {request.SortDirection}")
+                                                       .ProjectToPaginatedDataAsync<Vendor, VendorDto>(request.Specification,
+                                                        request.PageNumber,
+                                                        request.PageSize,
+                                                        _mapper.ConfigurationProvider,
+                                                        cancellationToken);
+                return data;
+            }
+            catch (Exception ex)
+            {
+               var msg = ex.Message;
+            throw;
+            }
+           
         }
 }
