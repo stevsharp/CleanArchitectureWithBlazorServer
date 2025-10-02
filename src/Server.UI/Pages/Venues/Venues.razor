@@ -13,7 +13,7 @@
 @inject IStringLocalizer<Venues> L
 @inject BlazorDownloadFileService BlazorDownloadFileService
 
-@* @attribute [Authorize(Policy = Permissions.Venues.View)] *@
+@attribute [Authorize(Policy = CleanArchitecture.Blazor.Application.Common.Security.Permissions.Venues.View)]
 <PageTitle>@Title</PageTitle>
 
 <MudDataGrid ServerData="@(ServerReload)"
