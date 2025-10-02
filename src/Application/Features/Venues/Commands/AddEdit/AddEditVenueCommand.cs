@@ -45,18 +45,17 @@ public class AddEditVenueCommand: ICacheInvalidatorRequest<Result<int>>
 public class AddEditVenueCommandHandler : IRequestHandler<AddEditVenueCommand, Result<int>>
 {
     private readonly IMapper _mapper;
-    private readonly IApplicationDbContext _context;
-    public AddEditVenueCommandHandler(
-        IMapper mapper,
-        IApplicationDbContext context)
+    private readonly IApplicationDbContextFactory _dbContextFactory;
+    public AddEditVenueCommandHandler(IMapper mapper,IApplicationDbContextFactory dbContextFactory)
     {
         _mapper = mapper;
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
     public async Task<Result<int>> Handle(AddEditVenueCommand request, CancellationToken cancellationToken)
     {
         if (request.Id > 0)
         {
+            await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
             var item = await _context.Venues.FindAsync(request.Id, cancellationToken);
             if (item == null)
             {
@@ -70,6 +69,7 @@ public class AddEditVenueCommandHandler : IRequestHandler<AddEditVenueCommand, R
         }
         else
         {
+            await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
             var item = _mapper.Map<Venue>(request);
             // raise a create domain event
 			item.AddDomainEvent(new VenueCreatedEvent(item));

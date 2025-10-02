@@ -37,18 +37,17 @@ namespace CleanArchitecture.Blazor.Application.Features.Venues.Commands.Import;
                  IRequestHandler<CreateVenuesTemplateCommand, Result<byte[]>>,
                  IRequestHandler<ImportVenuesCommand, Result<int>>
     {
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;
         private readonly IStringLocalizer<ImportVenuesCommandHandler> _localizer;
         private readonly IExcelService _excelService;
         private readonly VenueDto _dto = new();
         private readonly IMapper _mapper;
-        public ImportVenuesCommandHandler(
-            IApplicationDbContext context,
+        public ImportVenuesCommandHandler(IApplicationDbContextFactory dbContextFactory,
             IMapper mapper,
             IExcelService excelService,
             IStringLocalizer<ImportVenuesCommandHandler> localizer)
         {
-            _context = context;
+            _dbContextFactory = dbContextFactory;
             _localizer = localizer;
             _excelService = excelService;
             _mapper = mapper;
@@ -56,8 +55,8 @@ namespace CleanArchitecture.Blazor.Application.Features.Venues.Commands.Import;
         #nullable disable warnings
         public async Task<Result<int>> Handle(ImportVenuesCommand request, CancellationToken cancellationToken)
         {
-
-           var result = await _excelService.ImportAsync(request.Data, mappers: new Dictionary<string, Func<DataRow, VenueDto, object?>>
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var result = await _excelService.ImportAsync(request.Data, mappers: new Dictionary<string, Func<DataRow, VenueDto, object?>>
             {
                                 { _localizer[_dto.GetMemberDescription(x=>x.Name)], (row, item) => item.Name = row[_localizer[_dto.GetMemberDescription(x=>x.Name)]].ToString() }, 
                 { _localizer[_dto.GetMemberDescription(x=>x.Location)], (row, item) => item.Location = row[_localizer[_dto.GetMemberDescription(x=>x.Location)]].ToString() }, 

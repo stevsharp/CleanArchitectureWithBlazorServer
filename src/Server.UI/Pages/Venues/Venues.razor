@@ -5,7 +5,6 @@
 @using CleanArchitecture.Blazor.Application.Features.Venues.Specifications
 @using CleanArchitecture.Blazor.Application.Features.Venues.Commands.Delete
 @using CleanArchitecture.Blazor.Application.Features.Venues.Commands.Import
-@using CleanArchitecture.Blazor.Application.Features.Venues.Queries.Export
 @using CleanArchitecture.Blazor.Application.Features.Venues.Queries.Pagination
 @using CleanArchitecture.Blazor.Application.Features.Venues.Commands.AddEdit
 @using CleanArchitecture.Blazor.Infrastructure.PermissionSet
@@ -296,26 +295,26 @@
     private async Task OnExport()
     {
         _exporting = true;
-        var request = new ExportVenuesQuery()
-            {
-                Keyword = _venuesQuery.Keyword,
-                CurrentUser = UserProfile,
-                ListView = _venuesQuery.ListView,
-                OrderBy = _venuesGrid.SortDefinitions.Values.FirstOrDefault()?.SortBy ?? "Id",
-                SortDirection = (_venuesGrid.SortDefinitions.Values.FirstOrDefault()?.Descending ?? true) ? SortDirection.Descending.ToString() : SortDirection.Ascending.ToString()
-            };
-        var result = await Mediator.Send(request);
-        await result.MatchAsync(
-            async data =>
-            {
-                await BlazorDownloadFileService.DownloadFileAsync($"{L["Venues"]}.xlsx", result.Data, contentType:"application/octet-stream");
-                Snackbar.Add($"{ConstantString.ExportSuccess}", MudBlazor.Severity.Info);
-            },
-            errors =>
-            {
-                Snackbar.Add($"{errors}", MudBlazor.Severity.Error);
-                return Task.CompletedTask;
-            });
+        // var request = new ExportVenuesQuery()
+        //     {
+        //         Keyword = _venuesQuery.Keyword,
+        //         CurrentUser = UserProfile,
+        //         ListView = _venuesQuery.ListView,
+        //         OrderBy = _venuesGrid.SortDefinitions.Values.FirstOrDefault()?.SortBy ?? "Id",
+        //         SortDirection = (_venuesGrid.SortDefinitions.Values.FirstOrDefault()?.Descending ?? true) ? SortDirection.Descending.ToString() : SortDirection.Ascending.ToString()
+        //     };
+        // var result = await Mediator.Send(request);
+        // await result.MatchAsync(
+        //     async data =>
+        //     {
+        //         await BlazorDownloadFileService.DownloadFileAsync($"{L["Venues"]}.xlsx", result.Data, contentType:"application/octet-stream");
+        //         Snackbar.Add($"{ConstantString.ExportSuccess}", MudBlazor.Severity.Info);
+        //     },
+        //     errors =>
+        //     {
+        //         Snackbar.Add($"{errors}", MudBlazor.Severity.Error);
+        //         return Task.CompletedTask;
+        //     });
         _exporting = false;
     }
     private async Task OnImportData(IBrowserFile file)

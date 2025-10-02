@@ -42,17 +42,18 @@ public class CreateVenueCommand: ICacheInvalidatorRequest<Result<int>>
     public class CreateVenueCommandHandler : IRequestHandler<CreateVenueCommand, Result<int>>
     {
         private readonly IMapper _mapper;
-        private readonly IApplicationDbContext _context;
+        private readonly IApplicationDbContextFactory _dbContextFactory;
         public CreateVenueCommandHandler(
             IMapper mapper,
-            IApplicationDbContext context)
+            IApplicationDbContextFactory dbContextFactory)
         {
             _mapper = mapper;
-            _context = context;
+            _dbContextFactory = dbContextFactory;
         }
         public async Task<Result<int>> Handle(CreateVenueCommand request, CancellationToken cancellationToken)
         {
-           var item = _mapper.Map<Venue>(request);
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
+        var item = _mapper.Map<Venue>(request);
            // raise a create domain event
 	       item.AddDomainEvent(new VenueCreatedEvent(item));
            _context.Venues.Add(item);

@@ -30,14 +30,14 @@ public class DeleteVenueCommandHandler :
              IRequestHandler<DeleteVenueCommand, Result>
 
 {
-    private readonly IApplicationDbContext _context;
-    public DeleteVenueCommandHandler(
-        IApplicationDbContext context)
+    private readonly IApplicationDbContextFactory _dbContextFactory;
+    public DeleteVenueCommandHandler(IApplicationDbContextFactory dbContextFactory)
     {
-        _context = context;
+        _dbContextFactory = dbContextFactory;
     }
     public async Task<Result> Handle(DeleteVenueCommand request, CancellationToken cancellationToken)
     {
+        await using var _context = await _dbContextFactory.CreateAsync(cancellationToken);
         var items = await _context.Venues.Where(x=>request.Id.Contains(x.Id)).ToListAsync(cancellationToken);
         foreach (var item in items)
         {
