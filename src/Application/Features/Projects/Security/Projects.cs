@@ -1,0 +1,38 @@
+﻿
+namespace CleanArchitecture.Blazor.Application.Common.Security;
+public static partial class Permissions
+{
+    [DisplayName("Project Permissions")]
+    [Description("Set permissions for project operations.")]
+    public static class Projects
+    {
+        [Description("Allows viewing project details.")]
+        public const string View = "Permissions.Projects.View";
+        [Description("Allows creating project details.")]
+        public const string Create = "Permissions.Projects.Create";
+        [Description("Allows editing project details.")]
+        public const string Edit = "Permissions.Projects.Edit";
+        [Description("Allows deleting project details.")]
+        public const string Delete = "Permissions.Projects.Delete";
+        [Description("Allows printing project details.")]
+        public const string Print = "Permissions.Projects.Print";
+        [Description("Allows searching project details.")]
+        public const string Search = "Permissions.Projects.Search";
+        [Description("Allows exporting project details.")]
+        public const string Export = "Permissions.Projects.Export";
+        [Description("Allows importing project details.")]
+        public const string Import = "Permissions.Projects.Import";
+    }
+}
+
+public class ProjectsAccessRights
+{
+    public bool View { get; set; }
+    public bool Create { get; set; }
+    public bool Edit { get; set; }
+    public bool Delete { get; set; }
+    public bool Print { get; set; }
+    public bool Search { get; set; }
+    public bool Export { get; set; }
+    public bool Import { get; set; }
+}

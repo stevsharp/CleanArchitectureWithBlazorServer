@@ -1,0 +1,38 @@
+﻿namespace CleanArchitecture.Blazor.Application.Common.Security;
+
+public static partial class Permissions
+{
+    [DisplayName("Assignment Permissions")]
+    [Description("Set permissions for assignment operations.")]
+    public static class Assignments
+    {
+        [Description("Allows viewing assignment details.")]
+        public const string View = "Permissions.Assignments.View";
+        [Description("Allows creating assignment details.")]
+        public const string Create = "Permissions.Assignments.Create";
+        [Description("Allows editing assignment details.")]
+        public const string Edit = "Permissions.Assignments.Edit";
+        [Description("Allows deleting assignment details.")]
+        public const string Delete = "Permissions.Assignments.Delete";
+        [Description("Allows printing assignment details.")]
+        public const string Print = "Permissions.Assignments.Print";
+        [Description("Allows searching assignment details.")]
+        public const string Search = "Permissions.Assignments.Search";
+        [Description("Allows exporting assignment details.")]
+        public const string Export = "Permissions.Assignments.Export";
+        [Description("Allows importing assignment details.")]
+        public const string Import = "Permissions.Assignments.Import";
+    }
+}
+
+public class AssignmentsAccessRights
+{
+    public bool View { get; set; }
+    public bool Create { get; set; }
+    public bool Edit { get; set; }
+    public bool Delete { get; set; }
+    public bool Print { get; set; }
+    public bool Search { get; set; }
+    public bool Export { get; set; }
+    public bool Import { get; set; }
+}
