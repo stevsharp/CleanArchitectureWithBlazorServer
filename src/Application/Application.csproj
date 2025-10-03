@@ -30,4 +30,15 @@
     <ItemGroup>
         <ProjectReference Include="..\Domain\Domain.csproj" />
     </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Features\Assignments\Security\" />
+      <Folder Include="Features\Companies\Security\" />
+      <Folder Include="Features\CostItems\Security\" />
+      <Folder Include="Features\Employees\Security\" />
+      <Folder Include="Features\EquipmentItems\Security\" />
+      <Folder Include="Features\PricingModels\Security\" />
+      <Folder Include="Features\Projects\Security\" />
+      <Folder Include="Features\ProjectTasks\Security\" />
+      <Folder Include="Features\PurchaseOrders\Security\" />
+    </ItemGroup>
 </Project>

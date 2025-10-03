@@ -1,0 +1,38 @@
+﻿namespace CleanArchitecture.Blazor.Application.Common.Security;
+
+public static partial class Permissions
+{
+    [DisplayName("QuoteAttachment Permissions")]
+    [Description("Set permissions for quoteattachment operations.")]
+    public static class QuoteAttachments
+    {
+        [Description("Allows viewing quoteattachment details.")]
+        public const string View = "Permissions.QuoteAttachments.View";
+        [Description("Allows creating quoteattachment details.")]
+        public const string Create = "Permissions.QuoteAttachments.Create";
+        [Description("Allows editing quoteattachment details.")]
+        public const string Edit = "Permissions.QuoteAttachments.Edit";
+        [Description("Allows deleting quoteattachment details.")]
+        public const string Delete = "Permissions.QuoteAttachments.Delete";
+        [Description("Allows printing quoteattachment details.")]
+        public const string Print = "Permissions.QuoteAttachments.Print";
+        [Description("Allows searching quoteattachment details.")]
+        public const string Search = "Permissions.QuoteAttachments.Search";
+        [Description("Allows exporting quoteattachment details.")]
+        public const string Export = "Permissions.QuoteAttachments.Export";
+        [Description("Allows importing quoteattachment details.")]
+        public const string Import = "Permissions.QuoteAttachments.Import";
+    }
+}
+
+public class QuoteAttachmentsAccessRights
+{
+    public bool View { get; set; }
+    public bool Create { get; set; }
+    public bool Edit { get; set; }
+    public bool Delete { get; set; }
+    public bool Print { get; set; }
+    public bool Search { get; set; }
+    public bool Export { get; set; }
+    public bool Import { get; set; }
+}

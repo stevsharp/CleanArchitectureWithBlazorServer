@@ -1,0 +1,38 @@
+﻿namespace CleanArchitecture.Blazor.Application.Common.Security;
+
+public static partial class Permissions
+{
+    [DisplayName("Quote Permissions")]
+    [Description("Set permissions for quote operations.")]
+    public static class Quotes
+    {
+        [Description("Allows viewing quote details.")]
+        public const string View = "Permissions.Quotes.View";
+        [Description("Allows creating quote details.")]
+        public const string Create = "Permissions.Quotes.Create";
+        [Description("Allows editing quote details.")]
+        public const string Edit = "Permissions.Quotes.Edit";
+        [Description("Allows deleting quote details.")]
+        public const string Delete = "Permissions.Quotes.Delete";
+        [Description("Allows printing quote details.")]
+        public const string Print = "Permissions.Quotes.Print";
+        [Description("Allows searching quote details.")]
+        public const string Search = "Permissions.Quotes.Search";
+        [Description("Allows exporting quote details.")]
+        public const string Export = "Permissions.Quotes.Export";
+        [Description("Allows importing quote details.")]
+        public const string Import = "Permissions.Quotes.Import";
+    }
+}
+
+public class QuotesAccessRights
+{
+    public bool View { get; set; }
+    public bool Create { get; set; }
+    public bool Edit { get; set; }
+    public bool Delete { get; set; }
+    public bool Print { get; set; }
+    public bool Search { get; set; }
+    public bool Export { get; set; }
+    public bool Import { get; set; }
+}
