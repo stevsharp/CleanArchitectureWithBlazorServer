@@ -7,13 +7,13 @@
 @using CleanArchitecture.Blazor.Application.Features.ServiceVariants.Queries.Export
 @using CleanArchitecture.Blazor.Application.Features.ServiceVariants.Queries.Pagination
 @using CleanArchitecture.Blazor.Application.Features.ServiceVariants.Commands.AddEdit
-@using CleanArchitecture.Blazor.Infrastructure.PermissionSet
+
 @using CleanArchitecture.Blazor.Server.UI.Pages.ServiceVariants.Components
 
 @inject IStringLocalizer<ServiceVariants> L
 @inject BlazorDownloadFileService BlazorDownloadFileService
 
-@* @attribute [Authorize(Policy = Permissions.ServiceVariants.View)] *@
+@attribute [Authorize(Policy = Permissions.ServiceVariants.View)]
 <PageTitle>@Title</PageTitle>
 
 <MudDataGrid ServerData="@(ServerReload)"

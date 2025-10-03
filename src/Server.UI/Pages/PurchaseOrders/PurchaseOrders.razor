@@ -7,13 +7,12 @@
 @using CleanArchitecture.Blazor.Application.Features.PurchaseOrders.Queries.Export
 @using CleanArchitecture.Blazor.Application.Features.PurchaseOrders.Queries.Pagination
 @using CleanArchitecture.Blazor.Application.Features.PurchaseOrders.Commands.AddEdit
-@using CleanArchitecture.Blazor.Infrastructure.PermissionSet
 @using CleanArchitecture.Blazor.Server.UI.Pages.PurchaseOrders.Components
 
 @inject IStringLocalizer<PurchaseOrders> L
 @inject BlazorDownloadFileService BlazorDownloadFileService
 
-@* @attribute [Authorize(Policy = Permissions.PurchaseOrders.View)] *@
+@attribute [Authorize(Policy = Permissions.PurchaseOrders.View)]
 <PageTitle>@Title</PageTitle>
 
 <MudDataGrid ServerData="@(ServerReload)"

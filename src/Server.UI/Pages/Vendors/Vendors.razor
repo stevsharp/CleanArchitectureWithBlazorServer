@@ -7,13 +7,12 @@
 @using CleanArchitecture.Blazor.Application.Features.Vendors.Queries.Export
 @using CleanArchitecture.Blazor.Application.Features.Vendors.Queries.Pagination
 @using CleanArchitecture.Blazor.Application.Features.Vendors.Commands.AddEdit
-@using CleanArchitecture.Blazor.Infrastructure.PermissionSet
 @using CleanArchitecture.Blazor.Server.UI.Pages.Vendors.Components
 
 @inject IStringLocalizer<Vendors> L
 @inject BlazorDownloadFileService BlazorDownloadFileService
 
-@* @attribute [Authorize(Policy = Permissions.Vendors.View)] *@
+@attribute [Authorize(Policy = Permissions.Vendors.View)]
 <PageTitle>@Title</PageTitle>
 
 <MudDataGrid ServerData="@(ServerReload)"

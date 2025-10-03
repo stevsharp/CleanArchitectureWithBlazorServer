@@ -7,13 +7,12 @@
 @using CleanArchitecture.Blazor.Application.Features.QuoteVersions.Queries.Export
 @using CleanArchitecture.Blazor.Application.Features.QuoteVersions.Queries.Pagination
 @using CleanArchitecture.Blazor.Application.Features.QuoteVersions.Commands.AddEdit
-@using CleanArchitecture.Blazor.Infrastructure.PermissionSet
 @using CleanArchitecture.Blazor.Server.UI.Pages.QuoteVersions.Components
 
 @inject IStringLocalizer<QuoteVersions> L
 @inject BlazorDownloadFileService BlazorDownloadFileService
 
-@* @attribute [Authorize(Policy = Permissions.QuoteVersions.View)] *@
+@attribute [Authorize(Policy = Permissions.QuoteVersions.View)]
 <PageTitle>@Title</PageTitle>
 
 <MudDataGrid ServerData="@(ServerReload)"
